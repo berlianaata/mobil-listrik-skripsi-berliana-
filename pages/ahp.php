@@ -23,6 +23,7 @@ foreach ($dbMatrix as $row) {
 
 // ─── PROSES SUBMIT ───
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify();
     $ahp = new AHP(array_column($kriteria, 'kode'));
 
     // Bangun matriks dari POST
@@ -121,6 +122,7 @@ include __DIR__ . '/../includes/navbar.php';
   </div>
   <div class="card-body">
     <form method="POST" action="" id="formAHP">
+      <?= csrf_field() ?>
       <div class="table-wrap">
         <table class="matrix-table">
           <thead>

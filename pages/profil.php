@@ -12,6 +12,8 @@ $user      = currentUser();
 $errProfil = ''; $errPw = '';
 $okProfil  = ''; $okPw  = '';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') csrf_verify();
+
 // ─── Update Nama ───
 if (isset($_POST['action']) && $_POST['action'] === 'update_profil') {
     $nama = trim($_POST['name'] ?? '');
@@ -127,6 +129,7 @@ include __DIR__ . '/../includes/navbar.php';
         <?php if ($errProfil): ?><div class="alert alert-danger">❌ <?= clean($errProfil) ?></div><?php endif; ?>
         <?php if ($okProfil):  ?><div class="alert alert-success">✅ <?= clean($okProfil) ?></div><?php endif; ?>
         <form method="POST">
+          <?= csrf_field() ?>
           <input type="hidden" name="action" value="update_profil">
           <div class="form-group">
             <label>Nama Lengkap</label>
@@ -149,6 +152,7 @@ include __DIR__ . '/../includes/navbar.php';
         <?php if ($errPw): ?><div class="alert alert-danger">❌ <?= clean($errPw) ?></div><?php endif; ?>
         <?php if ($okPw):  ?><div class="alert alert-success">✅ <?= clean($okPw) ?></div><?php endif; ?>
         <form method="POST">
+          <?= csrf_field() ?>
           <input type="hidden" name="action" value="ubah_pw">
           <div class="form-group">
             <label>Kata Sandi Saat Ini</label>

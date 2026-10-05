@@ -11,6 +11,7 @@ $opts      = getFilterOptions();
 $pref      = getPreferensiUser($_SESSION['user_id']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify();
     $data = [
         'segment'    => $_POST['segment']    ?? null,
         'drivetrain' => $_POST['drivetrain'] ?? null,
@@ -60,6 +61,7 @@ include __DIR__ . '/../includes/navbar.php';
       </div>
 
       <form method="POST" action="">
+        <?= csrf_field() ?>
         <!-- Segmen Kendaraan -->
         <div class="form-group">
           <label for="segment">Segmen Kendaraan</label>
