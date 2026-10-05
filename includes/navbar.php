@@ -56,6 +56,20 @@ $initials = strtoupper(substr($user['nama'] ?? 'U', 0, 1) . substr(explode(' ', 
       </a>
     </div>
 
+    <?php if (isAdmin()): ?>
+    <div class="menu-section">
+      <div class="menu-section-title">Administrator</div>
+      <a href="<?= APP_URL ?>/pages/admin_kendaraan.php"
+         class="menu-item <?= isActive('admin_kendaraan') ?>">
+        <span class="icon">🛠️</span> Kelola Kendaraan
+      </a>
+      <a href="<?= APP_URL ?>/pages/admin_user.php"
+         class="menu-item <?= isActive('admin_user') ?>">
+        <span class="icon">👥</span> Kelola Pengguna
+      </a>
+    </div>
+    <?php endif; ?>
+
     <div class="menu-section">
       <div class="menu-section-title">Akun Saya</div>
       <a href="<?= APP_URL ?>/pages/history.php"
@@ -82,7 +96,7 @@ $initials = strtoupper(substr($user['nama'] ?? 'U', 0, 1) . substr(explode(' ', 
     <div class="user-avatar"><?= $initials ?></div>
     <div class="user-info">
       <div class="name"><?= clean($user['nama'] ?? 'Pengguna') ?></div>
-      <div class="role">Pengguna Sistem</div>
+      <div class="role"><?= isAdmin() ? 'Administrator' : 'Pengguna Sistem' ?></div>
     </div>
   </div>
 </aside>

@@ -112,7 +112,7 @@ Buka browser: http://localhost/spk_ev_php
 
 | Role  | Email              | Password   |
 |-------|--------------------|------------|
-| Admin | admin@spkev.com    | admin123   |
+| Admin | admin@spkev.com    | admin123 (**segera ganti lewat menu Profil setelah login pertama**) |
 
 > **Pengguna umum** dapat mendaftar melalui halaman Register.
 
@@ -196,3 +196,14 @@ Buka browser: http://localhost/spk_ev_php
 - [x] Halaman tentang metode (landasan teori)
 - [x] Responsive design (mobile-friendly)
 - [x] Cetak laporan
+- [x] Ekspor hasil ranking ke CSV (halaman Hasil dan detail Riwayat)
+- [x] Modul Admin: CRUD kendaraan (validasi rentang C1–C5, cegah duplikat, aktif/nonaktif)
+- [x] Modul Admin: kelola pengguna (ubah peran, hapus)
+- [x] Keamanan: CSRF token di semua form, password bcrypt (hash SHA-256 lama otomatis di-upgrade saat login), session_regenerate_id, cookie HttpOnly/SameSite, akses admin dibatasi
+
+## 🔄 Catatan Perubahan (perbaikan)
+
+- `config/init.sql`: kolom `users.name` diganti `users.nama` agar sesuai kode (sebelumnya registrasi/login gagal pada impor baru). Jika database lama sudah ada: `ALTER TABLE users CHANGE name nama VARCHAR(100) NOT NULL;`
+- Akun demo tidak lagi ditampilkan di halaman login.
+- `config/database.php` membaca environment variable `SPKEV_DB_HOST`, `SPKEV_DB_USER`, `SPKEV_DB_PASS`, `SPKEV_DB_NAME`, `SPKEV_APP_URL` bila tersedia (untuk hosting); jika tidak, memakai nilai default localhost.
+- Admin seed memakai hash bcrypt untuk password `admin123`. Impor ulang `init.sql` bila ingin memakai seed baru.

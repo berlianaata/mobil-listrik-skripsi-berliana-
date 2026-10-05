@@ -10,6 +10,7 @@ $error   = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify();
     $name  = trim($_POST['name']  ?? '');
     $email = trim($_POST['email'] ?? '');
     $pw1   = $_POST['password']  ?? '';
@@ -93,6 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       <?php if (!$success): ?>
       <form method="POST" action="" novalidate>
+        <?= csrf_field() ?>
         <div class="form-group">
           <label for="name">Nama Lengkap</label>
           <input class="form-control" type="text" id="name" name="name"

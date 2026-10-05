@@ -64,6 +64,13 @@ $ranking = $hasil['ranking'];
 $top3   = array_slice($ranking, 0, 3);
 $top1   = $ranking[0];
 
+if (($_GET['export'] ?? '') === 'csv') {
+    exportRankingCsv('hasil_topsis_' . date('Ymd_His') . '.csv', $ranking,
+        array_combine($namaKrit, $bobotArr),
+        ['Tanggal' => date('Y-m-d H:i:s'), 'Jumlah Alternatif' => count($kendaraan),
+         'CR' => $bobotDB[0]['cr'] ?? 0]);
+}
+
 // Ambil detail EV dari DB untuk top ranking
 $evMap = [];
 foreach ($kendaraan as $ev) {
@@ -279,6 +286,7 @@ include __DIR__ . '/../includes/navbar.php';
   <a href="<?= APP_URL ?>/pages/ahp.php" class="btn btn-outline">⚖️ Ubah Bobot AHP</a>
   <a href="<?= APP_URL ?>/pages/preferensi.php" class="btn btn-outline">🎯 Ubah Preferensi</a>
   <a href="<?= APP_URL ?>/pages/history.php" class="btn btn-outline">📋 Riwayat</a>
+  <a href="?export=csv" class="btn btn-outline">⬇️ Ekspor CSV</a>
   <button onclick="window.print()" class="btn btn-secondary">🖨️ Cetak Laporan</button>
 </div>
 

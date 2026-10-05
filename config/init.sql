@@ -19,7 +19,7 @@ USE spk_ev_db;
 -- ============================================================
 CREATE TABLE IF NOT EXISTS users (
     id          INT AUTO_INCREMENT PRIMARY KEY,
-    name        VARCHAR(100) NOT NULL,
+    nama        VARCHAR(100) NOT NULL,
     email       VARCHAR(150) UNIQUE NOT NULL,
     password    VARCHAR(255) NOT NULL,
     role        ENUM('user','admin') DEFAULT 'user',
@@ -180,8 +180,8 @@ INSERT IGNORE INTO kriteria (kode, nama, kolom_db, tipe, bobot_default, satuan, 
 -- Password: admin123
 -- Hash    : SHA256(password + 'spk_ev_salt_2024')
 -- ============================================================
-INSERT IGNORE INTO users (name, email, password, role) VALUES
-('Administrator', 'admin@spkev.com', '0cba4b3b606cef7d06134ac069309fe594cb38baa9dc52a5871450c2504f8f29', 'admin');
+INSERT IGNORE INTO users (nama, email, password, role) VALUES
+('Administrator', 'admin@spkev.com', '$2y$10$pAeHMOtOOfQKAO3tnKEZz.laD98NKBBE7VLhma5JGJYLWfchKyk22', 'admin');
 
 -- ============================================================
 -- DATA: Kendaraan Listrik (478 data dari ev-database.org)

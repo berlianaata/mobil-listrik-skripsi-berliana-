@@ -4,7 +4,16 @@
 // FUNGSI: Kumpulan fungsi helper utama aplikasi
 // ============================================================
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'httponly' => true,
+        'samesite' => 'Lax',
+        'secure'   => !empty($_SERVER['HTTPS']),
+    ]);
+    session_start();
+}
 require_once __DIR__ . '/../config/database.php';
 
 // ─────────────────────────────────────────
@@ -31,18 +40,61 @@ function requireGuest() {
 
 function currentUser() {
     if (!isLoggedIn()) return null;
-    $conn = db();
-    $id   = (int)$_SESSION['user_id'];
-    $res  = $conn->query("SELECT * FROM users WHERE id = $id");
-    return $res ? $res->fetch_assoc() : null;
+    return fetchOne("SELECT * FROM users WHERE id = ?", [(int)$_SESSION['user_id']], 'i');
 }
 
+function isAdmin() {
+    return isLoggedIn() && ($_SESSION['user_role'] ?? '') === 'admin';
+}
+
+function requireAdmin() {
+    requireLogin();
+    if (!isAdmin()) {
+        http_response_code(403);
+        setFlash('danger', 'Halaman ini hanya untuk administrator.');
+        header('Location: ' . APP_URL . '/pages/dashboard.php');
+        exit;
+    }
+}
+
+// Password: bcrypt (password_hash). Hash lama SHA-256 tetap bisa login
+// dan otomatis di-upgrade ke bcrypt (lihat auth/login.php).
 function hashPassword($pw) {
-    return hash('sha256', $pw . 'spk_ev_salt_2024');
+    return password_hash($pw, PASSWORD_BCRYPT);
+}
+
+function isLegacyHash($hash) {
+    return strpos($hash, '$2y$') !== 0;
 }
 
 function verifyPassword($pw, $hash) {
-    return hashPassword($pw) === $hash;
+    if (isLegacyHash($hash)) {
+        return hash_equals($hash, hash('sha256', $pw . 'spk_ev_salt_2024'));
+    }
+    return password_verify($pw, $hash);
+}
+
+// ─────────────────────────────────────────
+// CSRF
+// ─────────────────────────────────────────
+
+function csrf_token() {
+    if (empty($_SESSION['csrf'])) {
+        $_SESSION['csrf'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf'];
+}
+
+function csrf_field() {
+    return '<input type="hidden" name="csrf" value="' . csrf_token() . '">';
+}
+
+function csrf_verify($token = null) {
+    $token = $token ?? ($_POST['csrf'] ?? '');
+    if (empty($_SESSION['csrf']) || !hash_equals($_SESSION['csrf'], (string)$token)) {
+        http_response_code(419);
+        die('Sesi formulir tidak valid atau kedaluwarsa. Silakan muat ulang halaman dan coba lagi.');
+    }
 }
 
 // ─────────────────────────────────────────
@@ -293,6 +345,32 @@ function getHistoryDetail($histId, $userId) {
         "SELECT * FROM history_perhitungan WHERE id = ? AND user_id = ?",
         [$histId, $userId], 'ii'
     );
+}
+
+// ─────────────────────────────────────────
+// EKSPOR CSV (F-08)
+// ─────────────────────────────────────────
+
+function exportRankingCsv($filename, array $ranking, array $bobot, array $meta = []) {
+    header('Content-Type: text/csv; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    $out = fopen('php://output', 'w');
+    fwrite($out, "\xEF\xBB\xBF"); // BOM agar Excel membaca UTF-8
+    fputcsv($out, ['Hasil Perangkingan AHP-TOPSIS']);
+    foreach ($meta as $k => $v) fputcsv($out, [$k, $v]);
+    fputcsv($out, []);
+    fputcsv($out, ['Bobot Kriteria (AHP)']);
+    foreach ($bobot as $kode => $w) fputcsv($out, [$kode, round((float)$w, 6)]);
+    fputcsv($out, []);
+    $kodeKrit = !empty($ranking[0]['data_krit']) ? array_keys($ranking[0]['data_krit']) : [];
+    fputcsv($out, array_merge(['Peringkat', 'Alternatif', 'Nilai Preferensi (Vi)', 'D+', 'D-'], $kodeKrit));
+    foreach ($ranking as $r) {
+        $row = [$r['rank'], $r['nama'], $r['CC'], $r['D_plus'] ?? '', $r['D_minus'] ?? ''];
+        foreach ($kodeKrit as $k) $row[] = $r['data_krit'][$k] ?? '';
+        fputcsv($out, $row);
+    }
+    fclose($out);
+    exit;
 }
 
 // ─────────────────────────────────────────

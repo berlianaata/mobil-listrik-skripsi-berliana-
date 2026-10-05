@@ -20,8 +20,17 @@ if (!empty($_GET['id'])) {
     }
 }
 
+// ─── Ekspor CSV riwayat ───
+if ($detail && ($_GET['export'] ?? '') === 'csv') {
+    exportRankingCsv('riwayat_' . $detail['id'] . '.csv', $detail['ranking_data'],
+        $detail['bobot_data'],
+        ['Sesi' => $detail['nama_sesi'], 'Tanggal' => $detail['created_at'],
+         'Jumlah Alternatif' => $detail['jumlah_alt'], 'CR' => $detail['cr_value']]);
+}
+
 // ─── Hapus history ───
 if (!empty($_GET['hapus']) && is_numeric($_GET['hapus'])) {
+    csrf_verify($_GET['t'] ?? '');
     executeQuery(
         "DELETE FROM history_perhitungan WHERE id = ? AND user_id = ?",
         [(int)$_GET['hapus'], $userId], 'ii'
@@ -121,7 +130,10 @@ include __DIR__ . '/../includes/navbar.php';
     <!-- Ranking Tersimpan -->
     <?php if (!empty($detail['ranking_data'])): ?>
     <div>
-      <div style="font-size:0.82rem;font-weight:700;color:var(--secondary);margin-bottom:12px">🏆 Hasil Ranking TOPSIS</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:0.82rem;font-weight:700;color:var(--secondary)">🏆 Hasil Ranking TOPSIS</div>
+        <a href="?id=<?= (int)$detail['id'] ?>&export=csv" class="btn btn-outline btn-sm">⬇️ Ekspor CSV</a>
+      </div>
       <div class="ranking-list">
         <?php foreach ($detail['ranking_data'] as $r):
           $medals  = [1=>'medal-1', 2=>'medal-2', 3=>'medal-3'];
@@ -227,7 +239,7 @@ include __DIR__ . '/../includes/navbar.php';
             <td>
               <div style="display:flex;gap:6px">
                 <a href="?id=<?= $h['id'] ?>" class="btn btn-outline btn-sm">Detail</a>
-                <a href="?hapus=<?= $h['id'] ?>"
+                <a href="?hapus=<?= $h['id'] ?>&t=<?= csrf_token() ?>"
                    class="btn btn-danger btn-sm"
                    onclick="return confirm('Hapus riwayat ini?')">Hapus</a>
               </div>

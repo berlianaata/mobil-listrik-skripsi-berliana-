@@ -9,6 +9,7 @@ requireGuest();
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify();
     $email = trim($_POST['email'] ?? '');
     $pw    = $_POST['password'] ?? '';
 
@@ -19,6 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$user || !verifyPassword($pw, $user['password'])) {
             $error = 'Email atau kata sandi salah.';
         } else {
+            session_regenerate_id(true);
+            if (isLegacyHash($user['password'])) {
+                executeQuery("UPDATE users SET password = ? WHERE id = ?",
+                             [hashPassword($pw), $user['id']], 'si');
+            }
             $_SESSION['user_id']   = $user['id'];
             $_SESSION['user_name'] = $user['nama'];
             $_SESSION['user_role'] = $user['role'];
@@ -76,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?php endif; ?>
 
       <form method="POST" action="" novalidate>
+        <?= csrf_field() ?>
         <div class="form-group">
           <label for="email">Alamat Email</label>
           <input class="form-control" type="email" id="email" name="email"
@@ -96,17 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
       </form>
 
-      <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border)">
-        <p style="font-size:0.78rem;color:var(--text-muted);text-align:center;margin-bottom:10px">
-          <strong>Akun Demo:</strong>
-        </p>
-        <div style="background:#F8FAFC;border-radius:8px;padding:12px 14px;font-size:0.8rem;color:var(--text-muted)">
-          📧 Email: <strong>admin@spkev.com</strong><br>
-          🔑 Password: <strong>admin123</strong>
-        </div>
-      </div>
-
-      <div style="margin-top:20px;text-align:center;font-size:0.72rem;color:var(--text-muted)">
+<div style="margin-top:20px;text-align:center;font-size:0.72rem;color:var(--text-muted)">
         Sistem Pendukung Keputusan Pemilihan EV<br>
         Metode AHP &amp; TOPSIS | Berbasis Web
       </div>
