@@ -60,7 +60,7 @@ include __DIR__ . '/../includes/navbar.php';
 <form method="GET" action="">
 <div class="filter-bar fade-up">
   <div class="filter-group" style="flex:1;min-width:200px">
-    <label>🔍 Cari Kendaraan</label>
+    <label>Cari Kendaraan</label>
     <input class="form-control" type="text" name="q" placeholder="Nama brand atau model..."
            value="<?= clean($search) ?>">
   </div>
@@ -125,8 +125,8 @@ include __DIR__ . '/../includes/navbar.php';
     <?= $search ? "untuk pencarian \"<em>".clean($search)."</em>\"" : '' ?>
     (Halaman <?= $page ?> dari <?= max(1,$totalPage) ?>)
   </div>
-  <a href="<?= APP_URL ?>/pages/preferensi.php" class="btn btn-green btn-sm">
-    ⚡ Mulai Analisis SPK
+  <a href="<?= APP_URL ?>/pages/preferensi.php" class="btn btn-primary btn-sm">
+    Mulai Analisis SPK
   </a>
 </div>
 
@@ -156,7 +156,7 @@ include __DIR__ . '/../includes/navbar.php';
           <?php if (empty($evList)): ?>
           <tr>
             <td colspan="13" style="text-align:center;padding:32px;color:var(--text-muted)">
-              🔍 Tidak ada data yang cocok dengan filter Anda.
+              Tidak ada data yang cocok dengan filter Anda.
             </td>
           </tr>
           <?php else: ?>
@@ -242,7 +242,7 @@ include __DIR__ . '/../includes/navbar.php';
 
 <!-- LEGENDA KRITERIA -->
 <div class="card fade-up mt-4">
-  <div class="card-header"><h3>ℹ️ Keterangan Kriteria Analisis SPK</h3></div>
+  <div class="card-header"><h3>Keterangan Kriteria Analisis SPK</h3></div>
   <div class="card-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px">
       <?php foreach (getKriteria() as $k): ?>

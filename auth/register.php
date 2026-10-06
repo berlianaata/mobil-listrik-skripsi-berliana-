@@ -46,8 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daftar Akun | SPK-EV</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%23134E6B'/%3E%3Cpath d='M18 5L8 18h7l-2 9 11-14h-7z' fill='white'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/style.css">
 </head>
 <body>
@@ -59,15 +58,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- KIRI: Ilustrasi & Info -->
   <div class="auth-left">
     <div class="auth-left-inner fade-up">
-      <div class="auth-badge">⚡ Sistem Pendukung Keputusan EV</div>
+      <div class="auth-badge">Sistem Pendukung Keputusan EV</div>
       <h1>Temukan <span>EV Terbaik</span> untuk Anda, Secara Ilmiah</h1>
       <p>Daftar dan gunakan metode AHP & TOPSIS untuk membandingkan ratusan kendaraan listrik berdasarkan kriteria yang Anda tentukan sendiri.</p>
       <ul class="feature-list">
-        <li><span class="fi">⚖️</span> Penilaian AHP dengan matriks perbandingan berpasangan</li>
-        <li><span class="fi">📊</span> Perangkingan TOPSIS berbasis solusi ideal</li>
-        <li><span class="fi">🏆</span> Rekomendasi EV terbaik yang personal & objektif</li>
-        <li><span class="fi">📋</span> Riwayat perhitungan tersimpan untuk referensi</li>
-        <li><span class="fi">🔬</span> Detail perhitungan step-by-step untuk skripsi</li>
+        <li><span class="fi"></span> Penilaian AHP dengan matriks perbandingan berpasangan</li>
+        <li><span class="fi"></span> Perangkingan TOPSIS berbasis solusi ideal</li>
+        <li><span class="fi"></span> Rekomendasi EV terbaik yang personal & objektif</li>
+        <li><span class="fi"></span> Riwayat perhitungan tersimpan untuk referensi</li>
+        <li><span class="fi"></span> Detail perhitungan step-by-step untuk skripsi</li>
       </ul>
     </div>
   </div>
@@ -76,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="auth-right">
     <div class="auth-form-box fade-up">
       <div class="auth-logo-row">
-        <div class="auth-logo-icon">⚡</div>
+        <div class="auth-logo-icon"></div>
         <span class="logo-name">SPK-EV</span>
       </div>
 
@@ -84,10 +83,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <p class="subtitle">Sudah punya akun? <a href="<?= APP_URL ?>/auth/login.php">Masuk di sini</a></p>
 
       <?php if ($error): ?>
-        <div class="alert alert-danger">❌ <?= clean($error) ?></div>
+        <div class="alert alert-danger"><?= clean($error) ?></div>
       <?php endif; ?>
       <?php if ($success): ?>
-        <div class="alert alert-success">✅ <?= clean($success) ?>
+        <div class="alert alert-success"><?= clean($success) ?>
           <a href="<?= APP_URL ?>/auth/login.php" style="margin-left:8px;font-weight:600;color:inherit">→ Login</a>
         </div>
       <?php endif; ?>
@@ -120,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div style="margin-top:22px">
           <button type="submit" class="btn btn-primary btn-lg btn-block">
-            ⚡ Daftar Sekarang
+            Daftar Sekarang
           </button>
         </div>
       </form>

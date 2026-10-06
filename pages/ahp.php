@@ -79,7 +79,7 @@ include __DIR__ . '/../includes/navbar.php';
 
 <!-- STEP NAV -->
 <div class="step-nav fade-up mb-4">
-  <div class="step-item done"><div class="step-num">✓</div><div class="step-label">Preferensi</div></div>
+  <div class="step-item done"><div class="step-num"></div><div class="step-label">Preferensi</div></div>
   <div class="step-item active"><div class="step-num">2</div><div class="step-label">Penilaian AHP</div></div>
   <div class="step-item"><div class="step-num">3</div><div class="step-label">Hitung TOPSIS</div></div>
   <div class="step-item"><div class="step-num">4</div><div class="step-label">Hasil</div></div>
@@ -87,7 +87,7 @@ include __DIR__ . '/../includes/navbar.php';
 
 <!-- INFO BOX -->
 <div class="info-box fade-up">
-  <strong>ℹ️ Cara Mengisi Matriks AHP:</strong>
+  <strong>Cara Mengisi Matriks AHP:</strong>
   Bandingkan setiap pasangan kriteria menggunakan <strong>skala Saaty 1–9</strong>.
   Nilai > 1 berarti kriteria baris lebih penting dari kriteria kolom.
   Nilai 1/x diisi otomatis. Pastikan CR ≤ 0.1 agar hasil konsisten.
@@ -95,7 +95,7 @@ include __DIR__ . '/../includes/navbar.php';
 
 <!-- SKALA SAATY -->
 <div class="card fade-up mb-4">
-  <div class="card-header"><h3>📏 Referensi Skala Perbandingan Saaty</h3></div>
+  <div class="card-header"><h3>Referensi Skala Perbandingan Saaty</h3></div>
   <div class="card-body">
     <div class="saaty-ref">
       <div class="saaty-item"><div class="num">1</div><div class="desc">Sama Penting</div></div>
@@ -117,7 +117,7 @@ include __DIR__ . '/../includes/navbar.php';
 <!-- FORM MATRIKS AHP -->
 <div class="card fade-up mb-4">
   <div class="card-header">
-    <h3>⚖️ Matriks Perbandingan Berpasangan</h3>
+    <h3>Matriks Perbandingan Berpasangan</h3>
     <span class="badge badge-blue">Ordo <?= $n ?>×<?= $n ?></span>
   </div>
   <div class="card-body">
@@ -181,13 +181,13 @@ include __DIR__ . '/../includes/navbar.php';
 
       <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
         <button type="submit" class="btn btn-primary btn-lg">
-          ⚖️ Hitung Bobot AHP
+          Hitung Bobot AHP
         </button>
         <button type="button" class="btn btn-outline" onclick="resetMatrix()">
-          🔄 Reset Matriks
+          Reset Matriks
         </button>
         <button type="button" class="btn btn-outline" onclick="isiContoh()">
-          📝 Isi Contoh Nilai
+          Isi Contoh Nilai
         </button>
         <?php if (!empty($bobotSimpan)): ?>
           <a href="<?= APP_URL ?>/pages/topsis.php" class="btn btn-secondary">
@@ -203,14 +203,14 @@ include __DIR__ . '/../includes/navbar.php';
 <?php if ($hasil): ?>
 <div class="card fade-up mb-4" id="hasilAHP">
   <div class="card-header">
-    <h3>📊 Hasil Perhitungan AHP</h3>
+    <h3>Hasil Perhitungan AHP</h3>
     <?= badgeKonsisten($hasil['CR']) ?>
   </div>
   <div class="card-body">
 
     <!-- Uji Konsistensi Box -->
     <div class="cr-box <?= $hasil['konsisten'] ? 'ok' : 'bad' ?>">
-      <div class="cr-icon"><?= $hasil['konsisten'] ? '✅' : '❌' ?></div>
+      <div class="cr-icon"><?= $hasil['konsisten'] ? '' : '' ?></div>
       <div class="cr-text">
         <div class="cr-title"><?= $hasil['interpretasi'] ?></div>
         <div class="cr-detail">
@@ -313,7 +313,7 @@ CI    = (λ_max − n) / (n − 1)  =  (<?=$hasil['lambda_max']?> − <?=$n?>) /
 RI    = <?=$hasil['RI']?>  (Tabel Random Index Saaty, n=<?=$n?>)
 CR    = CI / RI  =  <?=$hasil['CI']?> / <?=$hasil['RI']?>  =  <?=$hasil['CR']?>
 
-<?= $hasil['konsisten'] ? '✅ CR = '.$hasil['CR'].' ≤ 0.1  →  Matriks KONSISTEN' : '❌ CR = '.$hasil['CR'].' > 0.1  →  Matriks TIDAK KONSISTEN' ?></div>
+<?= $hasil['konsisten'] ? 'CR = '.$hasil['CR'].' ≤ 0.1  →  Matriks KONSISTEN' : 'CR = '.$hasil['CR'].' > 0.1  →  Matriks TIDAK KONSISTEN' ?></div>
         </div>
       </div>
     </div>
@@ -333,7 +333,7 @@ CR    = CI / RI  =  <?=$hasil['CI']?> / <?=$hasil['RI']?>  =  <?=$hasil['CR']?>
 <?php if (!empty($bobotSimpan) && !$hasil): ?>
 <div class="card fade-up">
   <div class="card-header">
-    <h3>💾 Bobot AHP Tersimpan</h3>
+    <h3>Bobot AHP Tersimpan</h3>
     <?= badgeKonsisten($bobotSimpan[0]['cr']) ?>
   </div>
   <div class="card-body">
@@ -355,7 +355,7 @@ CR    = CI / RI  =  <?=$hasil['CI']?> / <?=$hasil['RI']?>  =  <?=$hasil['CR']?>
     </div>
     <div style="text-align:right">
       <a href="<?= APP_URL ?>/pages/topsis.php" class="btn btn-primary">
-        📊 Lanjut ke TOPSIS →
+        Lanjut ke TOPSIS →
       </a>
     </div>
   </div>

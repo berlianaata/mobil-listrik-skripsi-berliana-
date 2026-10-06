@@ -24,36 +24,35 @@ include __DIR__ . '/../includes/navbar.php';
 ?>
 
 <!-- WELCOME BANNER -->
-<div class="card mb-4 fade-up" style="background:linear-gradient(135deg,var(--secondary),#1E3A5F);border-radius:var(--radius);padding:28px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px">
+<div class="card hero-card mb-4" style="background:var(--primary);border-radius:var(--radius);padding:28px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px">
   <div>
-    <div style="font-size:0.82rem;color:rgba(255,255,255,0.5);margin-bottom:4px">
-      Selamat datang kembali 👋
+    <div style="font-size:0.82rem;color:rgba(255,255,255,0.86);margin-bottom:4px">
+      Selamat datang kembali 
     </div>
-    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:8px">
+    <h2 style="font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:8px">
       <?= clean($user['nama']) ?>
     </h2>
-    <p style="color:rgba(255,255,255,0.6);font-size:0.9rem;max-width:480px">
+    <p style="color:rgba(255,255,255,0.86);font-size:0.9rem;max-width:480px">
       Gunakan sistem ini untuk menemukan kendaraan listrik terbaik menggunakan
-      metode <strong style="color:var(--primary)">AHP &amp; TOPSIS</strong>.
+      metode <strong style="color:#fff">AHP &amp; TOPSIS</strong>.
       <?= $bobotAda ? 'Bobot AHP Anda sudah tersimpan.' : 'Mulai dengan mengatur bobot AHP.' ?>
     </p>
     <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
       <?php if (!$bobotAda): ?>
-        <a href="<?= APP_URL ?>/pages/ahp.php" class="btn btn-primary btn-sm">⚖️ Mulai Penilaian AHP</a>
-        <a href="<?= APP_URL ?>/pages/preferensi.php" class="btn btn-outline btn-sm" style="border-color:rgba(255,255,255,0.3);color:#fff">🎯 Set Preferensi</a>
+        <a href="<?= APP_URL ?>/pages/ahp.php" class="btn btn-primary btn-sm">Mulai Penilaian AHP</a>
+        <a href="<?= APP_URL ?>/pages/preferensi.php" class="btn btn-outline btn-sm" style="border-color:rgba(255,255,255,0.3);color:#fff">Set Preferensi</a>
       <?php else: ?>
-        <a href="<?= APP_URL ?>/pages/topsis.php" class="btn btn-primary btn-sm">📊 Hitung TOPSIS</a>
-        <a href="<?= APP_URL ?>/pages/hasil.php" class="btn btn-outline btn-sm" style="border-color:rgba(255,255,255,0.3);color:#fff">🏆 Lihat Hasil</a>
+        <a href="<?= APP_URL ?>/pages/topsis.php" class="btn btn-primary btn-sm">Hitung TOPSIS</a>
+        <a href="<?= APP_URL ?>/pages/hasil.php" class="btn btn-outline btn-sm" style="border-color:rgba(255,255,255,0.3);color:#fff">Lihat Hasil</a>
       <?php endif; ?>
     </div>
   </div>
-  <div style="font-size:5rem;opacity:0.15;flex-shrink:0">⚡</div>
 </div>
 
 <!-- STATISTIK DATABASE -->
 <div class="stats-grid fade-up fade-up-d1">
   <div class="stat-card green">
-    <div class="stat-icon green">🚗</div>
+    <div class="stat-icon green"></div>
     <div class="stat-info">
       <div class="value"><?= number_format($stats['total_ev']) ?></div>
       <div class="label">Total Data EV</div>
@@ -61,7 +60,7 @@ include __DIR__ . '/../includes/navbar.php';
     </div>
   </div>
   <div class="stat-card blue">
-    <div class="stat-icon blue">🏭</div>
+    <div class="stat-icon blue"></div>
     <div class="stat-info">
       <div class="value"><?= $stats['total_brand'] ?></div>
       <div class="label">Brand/Merek EV</div>
@@ -69,7 +68,7 @@ include __DIR__ . '/../includes/navbar.php';
     </div>
   </div>
   <div class="stat-card orange">
-    <div class="stat-icon orange">📏</div>
+    <div class="stat-icon orange"></div>
     <div class="stat-info">
       <div class="value"><?= number_format($stats['max_range']) ?></div>
       <div class="label">Range Terpanjang (km)</div>
@@ -77,7 +76,7 @@ include __DIR__ . '/../includes/navbar.php';
     </div>
   </div>
   <div class="stat-card teal">
-    <div class="stat-icon teal">📊</div>
+    <div class="stat-icon teal"></div>
     <div class="stat-info">
       <div class="value"><?= $stats['total_history'] ?></div>
       <div class="label">Total Perhitungan</div>
@@ -89,16 +88,16 @@ include __DIR__ . '/../includes/navbar.php';
 <!-- PANDUAN LANGKAH -->
 <div class="card fade-up fade-up-d2 mb-4">
   <div class="card-header">
-    <h3>🗺️ Panduan Penggunaan Sistem SPK</h3>
+    <h3>Panduan Penggunaan Sistem SPK</h3>
   </div>
   <div class="card-body">
     <div class="step-nav">
       <div class="step-item <?= empty($pref) ? 'active' : 'done' ?>">
-        <div class="step-num"><?= empty($pref) ? '1' : '✓' ?></div>
+        <div class="step-num"><?= empty($pref) ? '1' : '' ?></div>
         <div class="step-label">Set Preferensi<br><span style="font-size:0.68rem;font-weight:400">Filter kendaraan</span></div>
       </div>
       <div class="step-item <?= !$bobotAda ? ($pref ? 'active' : '') : 'done' ?>">
-        <div class="step-num"><?= $bobotAda ? '✓' : '2' ?></div>
+        <div class="step-num"><?= $bobotAda ? '' : '2' ?></div>
         <div class="step-label">Penilaian AHP<br><span style="font-size:0.68rem;font-weight:400">Bobot kriteria</span></div>
       </div>
       <div class="step-item <?= $bobotAda ? 'active' : '' ?>">
@@ -114,20 +113,20 @@ include __DIR__ . '/../includes/navbar.php';
     <div class="grid-2" style="gap:14px">
       <a href="<?= APP_URL ?>/pages/preferensi.php"
          class="btn btn-outline" style="justify-content:flex-start">
-        🎯 <span>1. Set Preferensi Kendaraan</span>
+        <span>1. Set Preferensi Kendaraan</span>
       </a>
       <a href="<?= APP_URL ?>/pages/ahp.php"
          class="btn btn-outline" style="justify-content:flex-start">
-        ⚖️ <span>2. Penilaian AHP</span>
+        <span>2. Penilaian AHP</span>
       </a>
       <a href="<?= APP_URL ?>/pages/topsis.php"
          class="btn <?= $bobotAda ? 'btn-primary' : 'btn-outline' ?>"
          style="justify-content:flex-start">
-        📊 <span>3. Perhitungan TOPSIS</span>
+        <span>3. Perhitungan TOPSIS</span>
       </a>
       <a href="<?= APP_URL ?>/pages/hasil.php"
          class="btn btn-outline" style="justify-content:flex-start">
-        🏆 <span>4. Hasil &amp; Rekomendasi</span>
+        <span>4. Hasil &amp; Rekomendasi</span>
       </a>
     </div>
   </div>
@@ -136,13 +135,13 @@ include __DIR__ . '/../includes/navbar.php';
 <!-- RIWAYAT TERAKHIR -->
 <div class="card fade-up fade-up-d3">
   <div class="card-header">
-    <h3>📋 Riwayat Perhitungan Terakhir</h3>
+    <h3>Riwayat Perhitungan Terakhir</h3>
     <a href="<?= APP_URL ?>/pages/history.php" class="btn btn-outline btn-sm">Lihat Semua</a>
   </div>
   <div class="card-body">
     <?php if (empty($history)): ?>
       <div style="text-align:center;padding:32px;color:var(--text-muted)">
-        <div style="font-size:3rem;margin-bottom:10px">📭</div>
+        <div style="font-size:3rem;margin-bottom:10px"></div>
         <p>Belum ada riwayat perhitungan.<br>
         <a href="<?= APP_URL ?>/pages/ahp.php" style="color:var(--primary);font-weight:600">Mulai perhitungan pertama Anda →</a></p>
       </div>

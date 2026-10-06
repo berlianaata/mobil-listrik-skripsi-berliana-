@@ -205,8 +205,8 @@ class AHP {
             'CR'              => round($this->CR, 6),
             'konsisten'       => $this->konsisten,
             'interpretasi'    => $this->konsisten
-                ? '✅ Konsisten (CR = ' . round($this->CR,4) . ' ≤ 0.1)'
-                : '❌ TIDAK Konsisten (CR = ' . round($this->CR,4) . ' > 0.1). Mohon revisi penilaian.',
+                ? 'Konsisten (CR = ' . round($this->CR,4) . ' ≤ 0.1)'
+                : 'TIDAK Konsisten (CR = ' . round($this->CR,4) . ' > 0.1). Mohon revisi penilaian.',
         ];
     }
 
@@ -261,7 +261,7 @@ class AHP {
                 'rumus'       => "λ_max = rata-rata(AX / w)\nCI = (λ_max − n) / (n − 1)\nCR = CI / RI",
                 'keterangan'  => "n = {$this->n} | RI = {$this->RI} | λ_max = " . round($this->lambdaMax,4) .
                                  " | CI = " . round($this->CI,4) . " | CR = " . round($this->CR,4) .
-                                 "\n" . ($this->konsisten ? '✅ CR ≤ 0.1 → Konsisten' : '❌ CR > 0.1 → TIDAK Konsisten'),
+                                 "\n" . ($this->konsisten ? 'CR ≤ 0.1 → Konsisten' : 'CR > 0.1 → TIDAK Konsisten'),
                 'data'        => [],
             ],
         ];

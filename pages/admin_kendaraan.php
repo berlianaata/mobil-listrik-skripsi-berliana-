@@ -121,9 +121,9 @@ showFlash();
 ?>
 
 <div class="card fade-up mb-4">
-  <div class="card-header"><h3><?= !empty($edit['id']) ? '✏️ Edit Kendaraan' : '➕ Tambah Kendaraan' ?></h3></div>
+  <div class="card-header"><h3><?= !empty($edit['id']) ? 'Edit Kendaraan' : 'Tambah Kendaraan' ?></h3></div>
   <div class="card-body">
-    <?php foreach ($errors as $e): ?><div class="alert alert-danger">❌ <?= clean($e) ?></div><?php endforeach; ?>
+    <?php foreach ($errors as $e): ?><div class="alert alert-danger"><?= clean($e) ?></div><?php endforeach; ?>
     <form method="POST" action="">
       <?= csrf_field() ?>
       <input type="hidden" name="aksi" value="simpan">
@@ -157,7 +157,7 @@ showFlash();
             <option value="nonaktif" <?= ($edit['status'] ?? '') === 'nonaktif' ? 'selected' : '' ?>>Nonaktif</option>
           </select></div>
       </div>
-      <button type="submit" class="btn btn-primary">💾 Simpan</button>
+      <button type="submit" class="btn btn-primary">Simpan</button>
       <?php if (!empty($edit['id'])): ?><a href="admin_kendaraan.php" class="btn btn-outline">Batal</a><?php endif; ?>
     </form>
   </div>
@@ -165,7 +165,7 @@ showFlash();
 
 <div class="card fade-up">
   <div class="card-header">
-    <h3>🚗 Data Kendaraan (<?= $total ?>)</h3>
+    <h3>Data Kendaraan (<?= $total ?>)</h3>
     <form method="GET" style="display:flex;gap:8px">
       <input class="form-control" type="text" name="q" placeholder="Cari merek / model" value="<?= clean($q) ?>">
       <button class="btn btn-outline btn-sm" type="submit">Cari</button>

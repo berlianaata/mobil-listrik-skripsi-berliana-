@@ -66,7 +66,7 @@ include __DIR__ . '/../includes/navbar.php';
   <div>
     <!-- Avatar & Info -->
     <div class="card mb-4" style="text-align:center;padding:32px 24px">
-      <div style="width:80px;height:80px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;color:#fff;margin:0 auto 16px">
+      <div style="width:80px;height:80px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;color:#fff;margin:0 auto 16px">
         <?= $initials ?>
       </div>
       <h2 style="font-size:1.3rem;font-weight:800;color:var(--secondary);margin-bottom:4px">
@@ -76,7 +76,7 @@ include __DIR__ . '/../includes/navbar.php';
         <?= clean($user['email']) ?>
       </p>
       <div style="display:inline-flex;align-items:center;gap:6px;background:var(--primary-light);color:var(--primary);padding:5px 14px;border-radius:20px;font-size:0.78rem;font-weight:600">
-        👤 Pengguna Sistem
+        Pengguna Sistem
       </div>
       <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:0.8rem;color:var(--text-muted)">
         Bergabung sejak <?= $bergabung ?>
@@ -85,7 +85,7 @@ include __DIR__ . '/../includes/navbar.php';
 
     <!-- Statistik Personal -->
     <div class="card mb-4">
-      <div class="card-header"><h3>📊 Statistik Analisis</h3></div>
+      <div class="card-header"><h3>Statistik Analisis</h3></div>
       <div class="card-body" style="padding:16px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
           <div style="text-align:center;background:#F8FAFC;border-radius:10px;padding:14px">
@@ -110,12 +110,12 @@ include __DIR__ . '/../includes/navbar.php';
 
     <!-- Tautan Cepat -->
     <div class="card">
-      <div class="card-header"><h3>⚡ Menu Cepat</h3></div>
+      <div class="card-header"><h3>Menu Cepat</h3></div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:8px;padding:14px">
-        <a href="<?= APP_URL ?>/pages/ahp.php" class="btn btn-outline" style="justify-content:flex-start">⚖️ Penilaian AHP</a>
-        <a href="<?= APP_URL ?>/pages/topsis.php" class="btn btn-outline" style="justify-content:flex-start">📊 Perhitungan TOPSIS</a>
-        <a href="<?= APP_URL ?>/pages/history.php" class="btn btn-outline" style="justify-content:flex-start">📋 Riwayat Perhitungan</a>
-        <a href="<?= APP_URL ?>/pages/katalog.php" class="btn btn-outline" style="justify-content:flex-start">🚗 Katalog EV</a>
+        <a href="<?= APP_URL ?>/pages/ahp.php" class="btn btn-outline" style="justify-content:flex-start">Penilaian AHP</a>
+        <a href="<?= APP_URL ?>/pages/topsis.php" class="btn btn-outline" style="justify-content:flex-start">Perhitungan TOPSIS</a>
+        <a href="<?= APP_URL ?>/pages/history.php" class="btn btn-outline" style="justify-content:flex-start">Riwayat Perhitungan</a>
+        <a href="<?= APP_URL ?>/pages/katalog.php" class="btn btn-outline" style="justify-content:flex-start">Katalog EV</a>
       </div>
     </div>
   </div>
@@ -124,10 +124,10 @@ include __DIR__ . '/../includes/navbar.php';
   <div>
     <!-- Update Nama -->
     <div class="card mb-4">
-      <div class="card-header"><h3>✏️ Perbarui Nama</h3></div>
+      <div class="card-header"><h3>Perbarui Nama</h3></div>
       <div class="card-body">
-        <?php if ($errProfil): ?><div class="alert alert-danger">❌ <?= clean($errProfil) ?></div><?php endif; ?>
-        <?php if ($okProfil):  ?><div class="alert alert-success">✅ <?= clean($okProfil) ?></div><?php endif; ?>
+        <?php if ($errProfil): ?><div class="alert alert-danger"><?= clean($errProfil) ?></div><?php endif; ?>
+        <?php if ($okProfil):  ?><div class="alert alert-success"><?= clean($okProfil) ?></div><?php endif; ?>
         <form method="POST">
           <?= csrf_field() ?>
           <input type="hidden" name="action" value="update_profil">
@@ -140,17 +140,17 @@ include __DIR__ . '/../includes/navbar.php';
             <label>Email (tidak dapat diubah)</label>
             <input class="form-control" type="email" value="<?= clean($user['email']) ?>" disabled>
           </div>
-          <button type="submit" class="btn btn-primary">💾 Simpan Perubahan</button>
+          <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
         </form>
       </div>
     </div>
 
     <!-- Ubah Password -->
     <div class="card">
-      <div class="card-header"><h3>🔐 Ubah Kata Sandi</h3></div>
+      <div class="card-header"><h3>Ubah Kata Sandi</h3></div>
       <div class="card-body">
-        <?php if ($errPw): ?><div class="alert alert-danger">❌ <?= clean($errPw) ?></div><?php endif; ?>
-        <?php if ($okPw):  ?><div class="alert alert-success">✅ <?= clean($okPw) ?></div><?php endif; ?>
+        <?php if ($errPw): ?><div class="alert alert-danger"><?= clean($errPw) ?></div><?php endif; ?>
+        <?php if ($okPw):  ?><div class="alert alert-success"><?= clean($okPw) ?></div><?php endif; ?>
         <form method="POST">
           <?= csrf_field() ?>
           <input type="hidden" name="action" value="ubah_pw">
@@ -169,7 +169,7 @@ include __DIR__ . '/../includes/navbar.php';
             <input class="form-control" type="password" name="pw_baru2"
                    placeholder="Ulangi kata sandi baru" required>
           </div>
-          <button type="submit" class="btn btn-primary">🔑 Ubah Kata Sandi</button>
+          <button type="submit" class="btn btn-primary">Ubah Kata Sandi</button>
         </form>
       </div>
     </div>
