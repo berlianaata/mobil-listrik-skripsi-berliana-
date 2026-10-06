@@ -4,6 +4,8 @@
 // FUNGSI: Kumpulan fungsi helper utama aplikasi
 // ============================================================
 
+require_once __DIR__ . '/icons.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params([
         'lifetime' => 0,

@@ -62,11 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <h1>Temukan <span>EV Terbaik</span> untuk Anda, Secara Ilmiah</h1>
       <p>Daftar dan gunakan metode AHP & TOPSIS untuk membandingkan ratusan kendaraan listrik berdasarkan kriteria yang Anda tentukan sendiri.</p>
       <ul class="feature-list">
-        <li><span class="fi"></span> Penilaian AHP dengan matriks perbandingan berpasangan</li>
-        <li><span class="fi"></span> Perangkingan TOPSIS berbasis solusi ideal</li>
-        <li><span class="fi"></span> Rekomendasi EV terbaik yang personal & objektif</li>
-        <li><span class="fi"></span> Riwayat perhitungan tersimpan untuk referensi</li>
-        <li><span class="fi"></span> Detail perhitungan step-by-step untuk skripsi</li>
+        <li><span class="fi"><?= icon('check') ?></span> Penilaian AHP dengan matriks perbandingan berpasangan</li>
+        <li><span class="fi"><?= icon('check') ?></span> Perangkingan TOPSIS berbasis solusi ideal</li>
+        <li><span class="fi"><?= icon('check') ?></span> Rekomendasi EV terbaik yang personal & objektif</li>
+        <li><span class="fi"><?= icon('check') ?></span> Riwayat perhitungan tersimpan untuk referensi</li>
+        <li><span class="fi"><?= icon('check') ?></span> Detail perhitungan step-by-step untuk skripsi</li>
       </ul>
     </div>
   </div>

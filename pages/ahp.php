@@ -79,7 +79,7 @@ include __DIR__ . '/../includes/navbar.php';
 
 <!-- STEP NAV -->
 <div class="step-nav fade-up mb-4">
-  <div class="step-item done"><div class="step-num"></div><div class="step-label">Preferensi</div></div>
+  <div class="step-item done"><div class="step-num"><?= icon('check') ?></div><div class="step-label">Preferensi</div></div>
   <div class="step-item active"><div class="step-num">2</div><div class="step-label">Penilaian AHP</div></div>
   <div class="step-item"><div class="step-num">3</div><div class="step-label">Hitung TOPSIS</div></div>
   <div class="step-item"><div class="step-num">4</div><div class="step-label">Hasil</div></div>
@@ -210,7 +210,7 @@ include __DIR__ . '/../includes/navbar.php';
 
     <!-- Uji Konsistensi Box -->
     <div class="cr-box <?= $hasil['konsisten'] ? 'ok' : 'bad' ?>">
-      <div class="cr-icon"><?= $hasil['konsisten'] ? '' : '' ?></div>
+      <div class="cr-icon"><?= icon($hasil['konsisten'] ? 'check' : 'alert') ?></div>
       <div class="cr-text">
         <div class="cr-title"><?= $hasil['interpretasi'] ?></div>
         <div class="cr-detail">

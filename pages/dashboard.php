@@ -52,7 +52,7 @@ include __DIR__ . '/../includes/navbar.php';
 <!-- STATISTIK DATABASE -->
 <div class="stats-grid fade-up fade-up-d1">
   <div class="stat-card green">
-    <div class="stat-icon green"></div>
+    <div class="stat-icon green"><?= icon('car') ?></div>
     <div class="stat-info">
       <div class="value"><?= number_format($stats['total_ev']) ?></div>
       <div class="label">Total Data EV</div>
@@ -60,7 +60,7 @@ include __DIR__ . '/../includes/navbar.php';
     </div>
   </div>
   <div class="stat-card blue">
-    <div class="stat-icon blue"></div>
+    <div class="stat-icon blue"><?= icon('building') ?></div>
     <div class="stat-info">
       <div class="value"><?= $stats['total_brand'] ?></div>
       <div class="label">Brand/Merek EV</div>
@@ -68,7 +68,7 @@ include __DIR__ . '/../includes/navbar.php';
     </div>
   </div>
   <div class="stat-card orange">
-    <div class="stat-icon orange"></div>
+    <div class="stat-icon orange"><?= icon('gauge') ?></div>
     <div class="stat-info">
       <div class="value"><?= number_format($stats['max_range']) ?></div>
       <div class="label">Range Terpanjang (km)</div>
@@ -76,7 +76,7 @@ include __DIR__ . '/../includes/navbar.php';
     </div>
   </div>
   <div class="stat-card teal">
-    <div class="stat-icon teal"></div>
+    <div class="stat-icon teal"><?= icon('calc') ?></div>
     <div class="stat-info">
       <div class="value"><?= $stats['total_history'] ?></div>
       <div class="label">Total Perhitungan</div>
@@ -93,11 +93,11 @@ include __DIR__ . '/../includes/navbar.php';
   <div class="card-body">
     <div class="step-nav">
       <div class="step-item <?= empty($pref) ? 'active' : 'done' ?>">
-        <div class="step-num"><?= empty($pref) ? '1' : '' ?></div>
+        <div class="step-num"><?= empty($pref) ? '1' : icon('check') ?></div>
         <div class="step-label">Set Preferensi<br><span style="font-size:0.68rem;font-weight:400">Filter kendaraan</span></div>
       </div>
       <div class="step-item <?= !$bobotAda ? ($pref ? 'active' : '') : 'done' ?>">
-        <div class="step-num"><?= $bobotAda ? '' : '2' ?></div>
+        <div class="step-num"><?= $bobotAda ? icon('check') : '2' ?></div>
         <div class="step-label">Penilaian AHP<br><span style="font-size:0.68rem;font-weight:400">Bobot kriteria</span></div>
       </div>
       <div class="step-item <?= $bobotAda ? 'active' : '' ?>">

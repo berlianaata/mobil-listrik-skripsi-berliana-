@@ -39,7 +39,7 @@ include __DIR__ . '/../includes/navbar.php';
 
 <!-- Step Navigator -->
 <div class="step-nav fade-up mb-4">
-  <div class="step-item done"><div class="step-num"></div><div class="step-label">Login</div></div>
+  <div class="step-item done"><div class="step-num"><?= icon('check') ?></div><div class="step-label">Login</div></div>
   <div class="step-item active"><div class="step-num">1</div><div class="step-label">Set Preferensi</div></div>
   <div class="step-item"><div class="step-num">2</div><div class="step-label">Penilaian AHP</div></div>
   <div class="step-item"><div class="step-num">3</div><div class="step-label">Hitung TOPSIS</div></div>
