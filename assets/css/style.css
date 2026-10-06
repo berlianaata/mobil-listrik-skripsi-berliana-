@@ -542,3 +542,12 @@ tbody tr:last-child td { border-bottom: none; }
 /* Tombol dengan ikon */
 .btn .svg-icon { width: 16px; height: 16px; }
 .btn { gap: 8px; }
+
+/* Ikon sidebar: kotak berwarna per kelompok menu */
+.menu-item .icon { width: 30px; height: 30px; border-radius: 8px; align-items: center; justify-content: center; background: var(--blue-bg); color: var(--blue); }
+.menu-item .icon svg { width: 17px; height: 17px; stroke-width: 1.9; }
+.menu-section:nth-child(2) .menu-item .icon { background: var(--teal-bg);  color: var(--teal); }
+.menu-section:nth-child(3) .menu-item .icon { background: var(--amber-bg); color: var(--amber); }
+.menu-section:nth-child(4) .menu-item .icon { background: var(--green-bg); color: var(--green); }
+.menu-item.active .icon { background: var(--primary); color: #fff; }
+.menu-item:hover .icon { filter: brightness(.96); }
