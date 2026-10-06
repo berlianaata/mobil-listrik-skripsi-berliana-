@@ -96,8 +96,8 @@ include __DIR__ . '/../includes/navbar.php';
 
 <!-- STEP NAV -->
 <div class="step-nav fade-up mb-4">
-  <div class="step-item done"><div class="step-num"></div><div class="step-label">Preferensi</div></div>
-  <div class="step-item done"><div class="step-num"></div><div class="step-label">AHP</div></div>
+  <div class="step-item done"><div class="step-num"><?= icon('check') ?></div><div class="step-label">Preferensi</div></div>
+  <div class="step-item done"><div class="step-num"><?= icon('check') ?></div><div class="step-label">AHP</div></div>
   <div class="step-item active"><div class="step-num">3</div><div class="step-label">Hitung TOPSIS</div></div>
   <div class="step-item"><div class="step-num">4</div><div class="step-label">Hasil</div></div>
 </div>
@@ -105,22 +105,22 @@ include __DIR__ . '/../includes/navbar.php';
 <!-- INFO SINGKAT -->
 <div class="stats-grid fade-up mb-4" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
   <div class="stat-card green">
-    <div class="stat-icon green"></div>
+    <div class="stat-icon green"><?= icon('car') ?></div>
     <div class="stat-info"><div class="value"><?= count($kendaraan) ?></div><div class="label">Alternatif EV</div></div>
   </div>
   <div class="stat-card blue">
-    <div class="stat-icon blue"></div>
+    <div class="stat-icon blue"><?= icon('scale') ?></div>
     <div class="stat-info"><div class="value"><?= $n ?></div><div class="label">Kriteria</div></div>
   </div>
   <div class="stat-card orange">
-    <div class="stat-icon orange"></div>
+    <div class="stat-icon orange"><?= icon('trophy') ?></div>
     <div class="stat-info">
       <div class="value" style="font-size:0.9rem"><?= explode(' ', $hasil['terbaik']['nama'])[0] ?? '-' ?></div>
       <div class="label">Rekomendasi Terbaik</div>
     </div>
   </div>
   <div class="stat-card teal">
-    <div class="stat-icon teal"></div>
+    <div class="stat-icon teal"><?= icon('chart') ?></div>
     <div class="stat-info">
       <div class="value"><?= formatAngka($hasil['terbaik']['CC'], 4) ?></div>
       <div class="label">Skor CC Tertinggi</div>

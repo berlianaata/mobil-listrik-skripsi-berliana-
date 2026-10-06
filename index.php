@@ -75,7 +75,7 @@ $totalUser  = fetchOne("SELECT COUNT(*) c FROM users WHERE role='user'")['c'] ??
 <section class="landing-hero" style="padding-top:80px">
   <div class="hero-orb-1"></div>
   <div class="hero-orb-2"></div>
-  <div class="hero-content" style="width:100%">
+  <div class="hero-content" style="width:100%"><div class="hero-grid"><div>
     <div class="hero-badge">
       Berbasis Metode Ilmiah AHP &amp; TOPSIS
     </div>
@@ -117,6 +117,18 @@ $totalUser  = fetchOne("SELECT COUNT(*) c FROM users WHERE role='user'")['c'] ??
       </div>
     </div>
   </div>
+  <aside class="hero-preview" aria-label="Contoh tampilan hasil perangkingan">
+    <div class="hp-head"><?= icon('trophy') ?> Contoh Hasil Perangkingan</div>
+    <?php foreach ([['Alternatif A',0.82],['Alternatif B',0.71],['Alternatif C',0.64],['Alternatif D',0.52]] as $i => $r): ?>
+    <div class="hp-row">
+      <div class="hp-rank"><?= $i + 1 ?></div>
+      <div><?= $r[0] ?><div class="hp-bar"><i style="width:<?= $r[1] * 100 ?>%"></i></div></div>
+      <div class="hp-score"><?= number_format($r[1], 2) ?></div>
+    </div>
+    <?php endforeach; ?>
+    <div class="hp-foot">Ilustrasi skor kedekatan (CC) TOPSIS. Data nyata muncul setelah Anda menghitung.</div>
+  </aside>
+  </div></div>
 </section>
 
 <!-- LANGKAH PENGGUNAAN -->
@@ -128,13 +140,13 @@ $totalUser  = fetchOne("SELECT COUNT(*) c FROM users WHERE role='user'")['c'] ??
   </div>
   <div class="card steps-grid" style="max-width:1000px;margin:0 auto">
     <?php $steps = [
-      ['1','','Set Preferensi','Filter kendaraan berdasarkan segmen, tipe bodi, penggerak, dan jumlah kursi.'],
-      ['2','','Penilaian AHP','Bandingkan 5 kriteria secara berpasangan menggunakan skala Saaty 1–9.'],
-      ['3','','Hitung TOPSIS','Sistem otomatis menghitung ranking semua EV berdasarkan bobot AHP Anda.'],
-      ['4','','Lihat Hasil','Dapatkan rekomendasi EV terbaik beserta detail perhitungan lengkap.'],
+      ['1','filter','Set Preferensi','Filter kendaraan berdasarkan segmen, tipe bodi, penggerak, dan jumlah kursi.'],
+      ['2','scale','Penilaian AHP','Bandingkan 5 kriteria secara berpasangan menggunakan skala Saaty 1–9.'],
+      ['3','calc','Hitung TOPSIS','Sistem otomatis menghitung ranking semua EV berdasarkan bobot AHP Anda.'],
+      ['4','trophy','Lihat Hasil','Dapatkan rekomendasi EV terbaik beserta detail perhitungan lengkap.'],
     ]; foreach ($steps as $s): ?>
     <div class="step-card">
-      <div class="step-badge"><?= $s[1] ?></div>
+      <div class="step-badge"><?= icon($s[1]) ?></div>
       <h4><?= $s[0] ?>. <?= $s[2] ?></h4>
       <p><?= $s[3] ?></p>
     </div>
@@ -151,15 +163,15 @@ $totalUser  = fetchOne("SELECT COUNT(*) c FROM users WHERE role='user'")['c'] ??
   </div>
   <div class="features-grid">
     <?php $features = [
-      ['','Metode AHP Lengkap','Matriks perbandingan berpasangan dengan uji konsistensi Saaty (CR ≤ 0.1). Detail perhitungan setiap langkah ditampilkan.'],
-      ['','Algoritma TOPSIS 7 Langkah','Implementasi lengkap: normalisasi vektor, pembobotan, solusi ideal, jarak Euclidean, dan skor CC.'],
-      ['','Database EV Lengkap','Ratusan data kendaraan listrik dari berbagai brand global dengan spesifikasi teknis detail.'],
-      ['','Filter Preferensi','Sesuaikan analisis berdasarkan segmen, tipe bodi, drivetrain, dan jumlah kursi yang Anda inginkan.'],
-      ['','Riwayat Tersimpan','Setiap hasil perhitungan disimpan otomatis. Bandingkan berbagai skenario bobot kriteria.'],
-      ['','Siap untuk Skripsi','Semua detail perhitungan ditampilkan lengkap dan dapat dicetak sebagai dokumentasi penelitian.'],
+      ['scale','Metode AHP Lengkap','Matriks perbandingan berpasangan dengan uji konsistensi Saaty (CR ≤ 0.1). Detail perhitungan setiap langkah ditampilkan.'],
+      ['calc','Algoritma TOPSIS 7 Langkah','Implementasi lengkap: normalisasi vektor, pembobotan, solusi ideal, jarak Euclidean, dan skor CC.'],
+      ['database','Database EV Lengkap','Ratusan data kendaraan listrik dari berbagai brand global dengan spesifikasi teknis detail.'],
+      ['filter','Filter Preferensi','Sesuaikan analisis berdasarkan segmen, tipe bodi, drivetrain, dan jumlah kursi yang Anda inginkan.'],
+      ['clock','Riwayat Tersimpan','Setiap hasil perhitungan disimpan otomatis. Bandingkan berbagai skenario bobot kriteria.'],
+      ['doc','Siap untuk Skripsi','Semua detail perhitungan ditampilkan lengkap dan dapat dicetak sebagai dokumentasi penelitian.'],
     ]; foreach ($features as $f): ?>
     <div class="feature-card">
-      <div class="feature-icon"><?= $f[0] ?></div>
+      <div class="feature-icon"><?= icon($f[0]) ?></div>
       <h3><?= $f[1] ?></h3>
       <p><?= $f[2] ?></p>
     </div>

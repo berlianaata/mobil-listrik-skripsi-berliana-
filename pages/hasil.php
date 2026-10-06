@@ -83,9 +83,9 @@ include __DIR__ . '/../includes/navbar.php';
 
 <!-- STEP NAV -->
 <div class="step-nav fade-up mb-4">
-  <div class="step-item done"><div class="step-num"></div><div class="step-label">Preferensi</div></div>
-  <div class="step-item done"><div class="step-num"></div><div class="step-label">AHP</div></div>
-  <div class="step-item done"><div class="step-num"></div><div class="step-label">TOPSIS</div></div>
+  <div class="step-item done"><div class="step-num"><?= icon('check') ?></div><div class="step-label">Preferensi</div></div>
+  <div class="step-item done"><div class="step-num"><?= icon('check') ?></div><div class="step-label">AHP</div></div>
+  <div class="step-item done"><div class="step-num"><?= icon('check') ?></div><div class="step-label">TOPSIS</div></div>
   <div class="step-item active"><div class="step-num">4</div><div class="step-label">Hasil</div></div>
 </div>
 
