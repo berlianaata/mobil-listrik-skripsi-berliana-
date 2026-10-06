@@ -57,7 +57,7 @@ include __DIR__ . '/../includes/navbar.php';
 
 <div class="card fade-up mb-4">
   <div class="card-header">
-    <h3>📋 Detail Perhitungan: <?= clean($detail['nama_sesi']) ?></h3>
+    <h3>Detail Perhitungan: <?= clean($detail['nama_sesi']) ?></h3>
     <div style="display:flex;gap:8px">
       <?= badgeKonsisten($detail['cr_value']) ?>
       <span class="badge badge-gray"><?= tglIndonesia($detail['created_at']) ?></span>
@@ -111,7 +111,7 @@ include __DIR__ . '/../includes/navbar.php';
     <!-- Bobot AHP -->
     <?php if (!empty($detail['bobot_data'])): ?>
     <div class="mb-4">
-      <div style="font-size:0.82rem;font-weight:700;color:var(--secondary);margin-bottom:12px">⚖️ Bobot Kriteria AHP</div>
+      <div style="font-size:0.82rem;font-weight:700;color:var(--secondary);margin-bottom:12px">Bobot Kriteria AHP</div>
       <div class="bobot-grid">
         <?php foreach ($detail['bobot_data'] as $kode => $bobot): ?>
         <div class="bobot-card">
@@ -131,18 +131,18 @@ include __DIR__ . '/../includes/navbar.php';
     <?php if (!empty($detail['ranking_data'])): ?>
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="font-size:0.82rem;font-weight:700;color:var(--secondary)">🏆 Hasil Ranking TOPSIS</div>
-        <a href="?id=<?= (int)$detail['id'] ?>&export=csv" class="btn btn-outline btn-sm">⬇️ Ekspor CSV</a>
+        <div style="font-size:0.82rem;font-weight:700;color:var(--secondary)">Hasil Ranking TOPSIS</div>
+        <a href="?id=<?= (int)$detail['id'] ?>&export=csv" class="btn btn-outline btn-sm">Ekspor CSV</a>
       </div>
       <div class="ranking-list">
         <?php foreach ($detail['ranking_data'] as $r):
           $medals  = [1=>'medal-1', 2=>'medal-2', 3=>'medal-3'];
-          $icons   = [1=>'🥇', 2=>'🥈', 3=>'🥉'];
+          $icons   = [1=>'', 2=>'', 3=>''];
           $classes = [1=>'r1', 2=>'r2', 3=>'r3'];
         ?>
         <div class="rank-card <?= $classes[$r['rank']] ?? '' ?>">
           <div class="rank-medal <?= isset($medals[$r['rank']]) ? $medals[$r['rank']] : 'medal-n' ?>">
-            <?= isset($icons[$r['rank']]) ? $icons[$r['rank']] : $r['rank'] ?>
+            <?= (int)$r['rank'] ?>
           </div>
           <div class="rank-info">
             <?php $p = explode(' ',$r['nama'],2); ?>
@@ -151,7 +151,7 @@ include __DIR__ . '/../includes/navbar.php';
             <div class="rank-specs">
               <?php if (!empty($r['data_krit'])): ?>
                 <?php foreach ($r['data_krit'] as $kk => $vv): ?>
-                <span class="rank-spec">📌 <?= clean($kk) ?>: <?= formatAngka($vv,1) ?></span>
+                <span class="rank-spec"><?= clean($kk) ?>: <?= formatAngka($vv,1) ?></span>
                 <?php endforeach; ?>
               <?php endif; ?>
             </div>
@@ -176,19 +176,19 @@ include __DIR__ . '/../includes/navbar.php';
 
 <div class="card fade-up">
   <div class="card-header">
-    <h3>📋 Semua Riwayat Perhitungan</h3>
+    <h3>Semua Riwayat Perhitungan</h3>
     <span class="badge badge-blue"><?= count($histories) ?> sesi</span>
   </div>
   <div class="card-body" style="padding:0">
     <?php if (empty($histories)): ?>
     <div style="text-align:center;padding:48px;color:var(--text-muted)">
-      <div style="font-size:3.5rem;margin-bottom:12px">📭</div>
+      <div style="font-size:3.5rem;margin-bottom:12px"></div>
       <div style="font-size:1rem;font-weight:600;margin-bottom:8px">Belum Ada Riwayat</div>
       <p style="font-size:0.86rem;max-width:360px;margin:0 auto">
         Riwayat akan tersimpan otomatis setiap kali Anda menjalankan perhitungan TOPSIS.
       </p>
       <a href="<?= APP_URL ?>/pages/ahp.php" class="btn btn-primary mt-3">
-        ⚡ Mulai Perhitungan
+        Mulai Perhitungan
       </a>
     </div>
     <?php else: ?>

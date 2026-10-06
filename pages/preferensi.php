@@ -39,7 +39,7 @@ include __DIR__ . '/../includes/navbar.php';
 
 <!-- Step Navigator -->
 <div class="step-nav fade-up mb-4">
-  <div class="step-item done"><div class="step-num">✓</div><div class="step-label">Login</div></div>
+  <div class="step-item done"><div class="step-num"></div><div class="step-label">Login</div></div>
   <div class="step-item active"><div class="step-num">1</div><div class="step-label">Set Preferensi</div></div>
   <div class="step-item"><div class="step-num">2</div><div class="step-label">Penilaian AHP</div></div>
   <div class="step-item"><div class="step-num">3</div><div class="step-label">Hitung TOPSIS</div></div>
@@ -51,11 +51,11 @@ include __DIR__ . '/../includes/navbar.php';
   <!-- FORM PREFERENSI -->
   <div class="card">
     <div class="card-header">
-      <h3>🎯 Filter Kendaraan EV</h3>
+      <h3>Filter Kendaraan EV</h3>
     </div>
     <div class="card-body">
       <div class="info-box">
-        <strong>ℹ️ Tentang Filter:</strong> Atur preferensi ini untuk memilih subset kendaraan
+        <strong>Tentang Filter:</strong> Atur preferensi ini untuk memilih subset kendaraan
         yang akan dianalisis. Kosongkan filter untuk menggunakan semua kendaraan di database.
         Kendaraan yang dipilih akan menjadi alternatif dalam perhitungan TOPSIS.
       </div>
@@ -145,7 +145,7 @@ include __DIR__ . '/../includes/navbar.php';
 
         <div style="display:flex;gap:10px;margin-top:20px">
           <button type="submit" class="btn btn-primary" style="flex:1">
-            💾 Simpan &amp; Lanjut ke AHP →
+            Simpan &amp; Lanjut ke AHP →
           </button>
           <a href="<?= APP_URL ?>/pages/katalog.php"
              class="btn btn-outline">Lihat Katalog</a>
@@ -157,7 +157,7 @@ include __DIR__ . '/../includes/navbar.php';
   <!-- PREVIEW DATA -->
   <div>
     <div class="card mb-3">
-      <div class="card-header"><h3>📊 Informasi Kriteria Analisis</h3></div>
+      <div class="card-header"><h3>Informasi Kriteria Analisis</h3></div>
       <div class="card-body">
         <p class="text-sm text-muted mb-3">
           Berikut adalah <strong>5 kriteria</strong> yang digunakan dalam analisis AHP-TOPSIS:
@@ -197,7 +197,7 @@ include __DIR__ . '/../includes/navbar.php';
     ?>
     <div class="card">
       <div class="card-header">
-        <h3>👁️ Preview (Preferensi Tersimpan)</h3>
+        <h3>Preview (Preferensi Tersimpan)</h3>
         <span class="badge badge-green"><?= count($prevData) ?> EV</span>
       </div>
       <div class="card-body" style="padding:0">

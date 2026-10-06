@@ -11,30 +11,30 @@ include __DIR__ . '/../includes/navbar.php';
 ?>
 
 <!-- HEADER INFO -->
-<div class="card fade-up mb-4" style="background:linear-gradient(135deg,var(--secondary),#1a3a5c);padding:28px 32px">
-  <h2 style="font-family:'Space Grotesk',sans-serif;color:#fff;font-size:1.5rem;margin-bottom:8px">
-    📚 Landasan Teori: AHP &amp; TOPSIS
+<div class="card hero-card mb-4" style="background:var(--primary);padding:28px 32px">
+  <h2 style="color:#fff;font-size:1.5rem;margin-bottom:8px">
+    Landasan Teori: AHP &amp; TOPSIS
   </h2>
-  <p style="color:rgba(255,255,255,0.65);font-size:0.9rem;max-width:700px">
+  <p style="color:rgba(255,255,255,0.86);font-size:0.9rem;max-width:700px">
     Sistem Pendukung Keputusan (SPK) ini mengimplementasikan dua metode MADM
     (Multi Attribute Decision Making) yang banyak digunakan dalam penelitian ilmiah.
   </p>
 </div>
 
 <div class="tab-nav fade-up mb-4">
-  <button class="tab-btn active" onclick="showTab('tab-ahp',this)">⚖️ Metode AHP</button>
-  <button class="tab-btn" onclick="showTab('tab-topsis',this)">📊 Metode TOPSIS</button>
-  <button class="tab-btn" onclick="showTab('tab-kombinasi',this)">🔗 Integrasi AHP-TOPSIS</button>
-  <button class="tab-btn" onclick="showTab('tab-kriteria',this)">🎯 Kriteria & Bobot</button>
-  <button class="tab-btn" onclick="showTab('tab-referensi',this)">📖 Referensi</button>
+  <button class="tab-btn active" onclick="showTab('tab-ahp',this)">Metode AHP</button>
+  <button class="tab-btn" onclick="showTab('tab-topsis',this)">Metode TOPSIS</button>
+  <button class="tab-btn" onclick="showTab('tab-kombinasi',this)">Integrasi AHP-TOPSIS</button>
+  <button class="tab-btn" onclick="showTab('tab-kriteria',this)">Kriteria & Bobot</button>
+  <button class="tab-btn" onclick="showTab('tab-referensi',this)">Referensi</button>
 </div>
 
 <!-- ═══ TAB AHP ═══ -->
 <div id="tab-ahp" class="tab-pane active fade-up">
   <div class="card mb-4">
-    <div class="card-header"><h3>⚖️ Analytic Hierarchy Process (AHP)</h3></div>
+    <div class="card-header"><h3>Analytic Hierarchy Process (AHP)</h3></div>
     <div class="card-body">
-      <h4 style="font-size:1rem;font-weight:700;color:var(--secondary);margin-bottom:10px">📌 Pengertian</h4>
+      <h4 style="font-size:1rem;font-weight:700;color:var(--secondary);margin-bottom:10px">Pengertian</h4>
       <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.8;margin-bottom:18px">
         <strong>AHP (Analytic Hierarchy Process)</strong> adalah metode pengambilan keputusan
         yang dikembangkan oleh <em>Thomas L. Saaty</em> pada tahun 1970-an. AHP digunakan
@@ -42,7 +42,7 @@ include __DIR__ . '/../includes/navbar.php';
         perbandingan berpasangan (pairwise comparison) antar kriteria.
       </p>
 
-      <h4 style="font-size:1rem;font-weight:700;color:var(--secondary);margin-bottom:10px">📐 Langkah-Langkah AHP</h4>
+      <h4 style="font-size:1rem;font-weight:700;color:var(--secondary);margin-bottom:10px">Langkah-Langkah AHP</h4>
       <?php $steps_ahp = [
         ['num'=>1,'title'=>'Mendefinisikan Masalah & Hierarki','desc'=>'Susun masalah ke dalam struktur hierarki: Tujuan → Kriteria → Alternatif.'],
         ['num'=>2,'title'=>'Matriks Perbandingan Berpasangan','desc'=>'Buat matriks A berukuran n×n dimana n = jumlah kriteria. Setiap elemen a_ij menunjukkan tingkat kepentingan kriteria i dibanding j menggunakan skala Saaty 1–9.'],
@@ -62,7 +62,7 @@ include __DIR__ . '/../includes/navbar.php';
       </div>
       <?php endforeach; ?>
 
-      <h4 style="font-size:1rem;font-weight:700;color:var(--secondary);margin:18px 0 10px">📏 Skala Perbandingan Saaty</h4>
+      <h4 style="font-size:1rem;font-weight:700;color:var(--secondary);margin:18px 0 10px">Skala Perbandingan Saaty</h4>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Nilai</th><th>Definisi</th><th>Penjelasan</th></tr></thead>
@@ -86,7 +86,7 @@ include __DIR__ . '/../includes/navbar.php';
         </table>
       </div>
 
-      <h4 style="font-size:1rem;font-weight:700;color:var(--secondary);margin:18px 0 10px">📋 Tabel Random Index (RI) Saaty</h4>
+      <h4 style="font-size:1rem;font-weight:700;color:var(--secondary);margin:18px 0 10px">Tabel Random Index (RI) Saaty</h4>
       <div class="table-wrap">
         <table>
           <thead><tr><th>n</th><?php for($i=1;$i<=10;$i++) echo "<th>$i</th>"; ?></tr></thead>
@@ -103,9 +103,9 @@ include __DIR__ . '/../includes/navbar.php';
 <!-- ═══ TAB TOPSIS ═══ -->
 <div id="tab-topsis" class="tab-pane fade-up">
   <div class="card mb-4">
-    <div class="card-header"><h3>📊 TOPSIS (Technique for Order Preference by Similarity to Ideal Solution)</h3></div>
+    <div class="card-header"><h3>TOPSIS (Technique for Order Preference by Similarity to Ideal Solution)</h3></div>
     <div class="card-body">
-      <h4 style="font-size:1rem;font-weight:700;color:var(--secondary);margin-bottom:10px">📌 Pengertian</h4>
+      <h4 style="font-size:1rem;font-weight:700;color:var(--secondary);margin-bottom:10px">Pengertian</h4>
       <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.8;margin-bottom:18px">
         <strong>TOPSIS</strong> adalah metode pengambilan keputusan multi-kriteria yang dikembangkan
         oleh <em>Hwang dan Yoon (1981)</em>. TOPSIS bekerja berdasarkan prinsip bahwa alternatif
@@ -113,7 +113,7 @@ include __DIR__ . '/../includes/navbar.php';
         dan <strong>jarak terjauh</strong> dari solusi ideal negatif (A⁻).
       </p>
 
-      <h4 style="font-size:1rem;font-weight:700;color:var(--secondary);margin-bottom:10px">📐 Algoritma TOPSIS (7 Langkah)</h4>
+      <h4 style="font-size:1rem;font-weight:700;color:var(--secondary);margin-bottom:10px">Algoritma TOPSIS (7 Langkah)</h4>
       <?php $steps_topsis = [
         ['num'=>1,'title'=>'Matriks Keputusan Awal (X)','rumus'=>'X = [x_ij], i=1..m alternatif, j=1..n kriteria','desc'=>'Susun semua nilai alternatif pada setiap kriteria ke dalam matriks m×n.'],
         ['num'=>2,'title'=>'Normalisasi Matriks (Vector Normalization)','rumus'=>'r_ij = x_ij / √(Σᵢ x_ij²)','desc'=>'Normalisasi agar data dari berbagai satuan dapat dibandingkan secara adil.'],
@@ -136,13 +136,13 @@ include __DIR__ . '/../includes/navbar.php';
       </div>
       <?php endforeach; ?>
 
-      <h4 style="font-size:1rem;font-weight:700;color:var(--secondary);margin:18px 0 10px">✅ Keunggulan TOPSIS</h4>
+      <h4 style="font-size:1rem;font-weight:700;color:var(--secondary);margin:18px 0 10px">Keunggulan TOPSIS</h4>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
         <?php $plus = [
-          ['🎯','Logika Jelas','Mempertimbangkan jarak ke solusi terbaik sekaligus terburuk'],
-          ['📐','Matematis Ketat','Rumusan matematika yang terstruktur dan terverifikasi'],
-          ['⚡','Efisien','Komputasi cepat bahkan untuk banyak alternatif dan kriteria'],
-          ['🔄','Fleksibel','Dapat dikombinasikan dengan metode lain (seperti AHP)'],
+          ['','Logika Jelas','Mempertimbangkan jarak ke solusi terbaik sekaligus terburuk'],
+          ['','Matematis Ketat','Rumusan matematika yang terstruktur dan terverifikasi'],
+          ['','Efisien','Komputasi cepat bahkan untuk banyak alternatif dan kriteria'],
+          ['','Fleksibel','Dapat dikombinasikan dengan metode lain (seperti AHP)'],
         ]; foreach($plus as $p): ?>
         <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:14px">
           <div style="font-size:1.3rem;margin-bottom:6px"><?= $p[0] ?></div>
@@ -158,10 +158,10 @@ include __DIR__ . '/../includes/navbar.php';
 <!-- ═══ TAB KOMBINASI ═══ -->
 <div id="tab-kombinasi" class="tab-pane fade-up">
   <div class="card mb-4">
-    <div class="card-header"><h3>🔗 Integrasi AHP dan TOPSIS</h3></div>
+    <div class="card-header"><h3>Integrasi AHP dan TOPSIS</h3></div>
     <div class="card-body">
       <div class="info-box mb-4">
-        <strong>💡 Mengapa AHP + TOPSIS?</strong><br>
+        <strong>Mengapa AHP + TOPSIS?</strong><br>
         AHP digunakan untuk menentukan <strong>bobot relatif tiap kriteria</strong> secara subjektif-matematis,
         sedangkan TOPSIS menggunakan bobot tersebut untuk <strong>merangking semua alternatif</strong>
         secara objektif berdasarkan kedekatan ke solusi ideal.
@@ -170,12 +170,12 @@ include __DIR__ . '/../includes/navbar.php';
       <!-- Alur -->
       <div style="display:flex;gap:0;overflow-x:auto;padding-bottom:8px;margin-bottom:24px">
         <?php $alur = [
-          ['📋','Definisi\nKriteria','Tentukan 5 kriteria evaluasi EV'],
-          ['⚖️','Penilaian\nAHP','Isi matriks perbandingan berpasangan (Saaty 1-9)'],
-          ['🔢','Hitung\nBobot','Normalisasi → Eigenvector → Bobot w_j'],
-          ['✅','Uji\nKonsistensi','CR ≤ 0.1 → Bobot valid'],
-          ['📊','Hitung\nTOPSIS','Normalisasi → Pembobotan → Ideal → Jarak → CC'],
-          ['🏆','Hasil\nRanking','Perangkingan CC Descending → Rekomendasi'],
+          ['','Definisi\nKriteria','Tentukan 5 kriteria evaluasi EV'],
+          ['','Penilaian\nAHP','Isi matriks perbandingan berpasangan (Saaty 1-9)'],
+          ['','Hitung\nBobot','Normalisasi → Eigenvector → Bobot w_j'],
+          ['','Uji\nKonsistensi','CR ≤ 0.1 → Bobot valid'],
+          ['','Hitung\nTOPSIS','Normalisasi → Pembobotan → Ideal → Jarak → CC'],
+          ['','Hasil\nRanking','Perangkingan CC Descending → Rekomendasi'],
         ];
         foreach ($alur as $i=>$a): ?>
         <div style="flex:1;min-width:100px;text-align:center;padding:14px 8px;border-right:<?= $i<count($alur)-1?'1px solid var(--border)':'none' ?>;position:relative">
@@ -191,7 +191,7 @@ include __DIR__ . '/../includes/navbar.php';
 
       <div class="grid-2">
         <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:18px">
-          <div style="font-weight:700;color:#1D4ED8;margin-bottom:10px">⚖️ Peran AHP dalam Sistem Ini</div>
+          <div style="font-weight:700;color:#1D4ED8;margin-bottom:10px">Peran AHP dalam Sistem Ini</div>
           <ul style="padding-left:18px;font-size:0.86rem;color:var(--text-muted);line-height:1.8">
             <li>Pengguna mengisi matriks perbandingan berpasangan antar 5 kriteria</li>
             <li>Sistem menghitung bobot prioritas menggunakan metode eigenvector</li>
@@ -200,7 +200,7 @@ include __DIR__ . '/../includes/navbar.php';
           </ul>
         </div>
         <div style="background:#ECFDF5;border:1px solid #6EE7B7;border-radius:12px;padding:18px">
-          <div style="font-weight:700;color:#065F46;margin-bottom:10px">📊 Peran TOPSIS dalam Sistem Ini</div>
+          <div style="font-weight:700;color:#065F46;margin-bottom:10px">Peran TOPSIS dalam Sistem Ini</div>
           <ul style="padding-left:18px;font-size:0.86rem;color:var(--text-muted);line-height:1.8">
             <li>Menggunakan bobot dari AHP sebagai input pembobotan</li>
             <li>Normalisasi vektor menyetarakan skala berbeda antar kriteria</li>
@@ -216,7 +216,7 @@ include __DIR__ . '/../includes/navbar.php';
 <!-- ═══ TAB KRITERIA ═══ -->
 <div id="tab-kriteria" class="tab-pane fade-up">
   <div class="card mb-4">
-    <div class="card-header"><h3>🎯 Kriteria Pemilihan EV</h3></div>
+    <div class="card-header"><h3>Kriteria Pemilihan EV</h3></div>
     <div class="card-body">
       <div class="info-box mb-4">
         Sistem menggunakan <strong>5 kriteria utama</strong> dalam pemilihan EV terbaik,
@@ -252,7 +252,7 @@ include __DIR__ . '/../includes/navbar.php';
 <!-- ═══ TAB REFERENSI ═══ -->
 <div id="tab-referensi" class="tab-pane fade-up">
   <div class="card">
-    <div class="card-header"><h3>📖 Daftar Referensi</h3></div>
+    <div class="card-header"><h3>Daftar Referensi</h3></div>
     <div class="card-body">
       <?php $refs = [
         ['[1]','Saaty, T. L.','(1980)','The Analytic Hierarchy Process: Planning, Priority Setting, Resource Allocation','McGraw-Hill, New York.'],

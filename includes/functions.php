@@ -393,7 +393,7 @@ function getFlash() {
 function showFlash() {
     $f = getFlash();
     if (!$f) return;
-    $icon = $f['type'] === 'success' ? '✅' : ($f['type'] === 'warning' ? '⚠️' : '❌');
+    $icon = $f['type'] === 'success' ? '' : ($f['type'] === 'warning' ? '' : '');
     echo "<div class=\"alert alert-{$f['type']}\">$icon " . clean($f['msg']) . "</div>";
 }
 
@@ -425,9 +425,9 @@ function badgeTipe($tipe) {
 
 function badgeKonsisten($cr) {
     if ($cr <= 0.1) {
-        return '<span class="badge badge-green">✅ Konsisten (CR=' . formatAngka($cr,4) . ')</span>';
+        return '<span class="badge badge-green">Konsisten (CR=' . formatAngka($cr,4) . ')</span>';
     }
-    return '<span class="badge badge-red">❌ Tidak Konsisten (CR=' . formatAngka($cr,4) . ')</span>';
+    return '<span class="badge badge-red">Tidak Konsisten (CR=' . formatAngka($cr,4) . ')</span>';
 }
 
 // ─────────────────────────────────────────

@@ -35,7 +35,7 @@ include __DIR__ . '/../includes/navbar.php';
 showFlash();
 ?>
 <div class="card fade-up">
-  <div class="card-header"><h3>👥 Pengguna Terdaftar (<?= count($users) ?>)</h3></div>
+  <div class="card-header"><h3>Pengguna Terdaftar (<?= count($users) ?>)</h3></div>
   <div class="card-body">
     <div class="table-wrap">
       <table>

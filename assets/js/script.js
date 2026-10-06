@@ -179,7 +179,7 @@ window.isiContoh = function () {
             inp.dispatchEvent(new Event('change'));
         }
     });
-    showToast('✅ Contoh nilai berhasil diisi! Klik "Hitung Bobot AHP" untuk memproses.', 'success');
+    showToast('Contoh nilai berhasil diisi! Klik "Hitung Bobot AHP" untuk memproses.', 'success');
 };
 
 // ─────────────────────────────────────────
@@ -219,7 +219,7 @@ function initFormValidation() {
             });
             if (!valid) {
                 e.preventDefault();
-                showToast('❌ Pastikan semua nilai matriks terisi dengan benar (1/9 hingga 9).', 'danger');
+                showToast('Pastikan semua nilai matriks terisi dengan benar (1/9 hingga 9).', 'danger');
             }
         });
     }
@@ -278,7 +278,7 @@ function showToast(message, type = 'info', duration = 3500) {
         box-shadow: 0 8px 32px rgba(0,0,0,0.12);
         z-index: 9999;
         animation: slideUp 0.3s ease;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: inherit;
         line-height: 1.5;
     `;
     toast.textContent = message;
@@ -329,6 +329,6 @@ function formatNumber(num, decimals = 2) {
 
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
-        showToast('✅ Berhasil disalin!', 'success', 2000);
+        showToast('Berhasil disalin!', 'success', 2000);
     });
 }

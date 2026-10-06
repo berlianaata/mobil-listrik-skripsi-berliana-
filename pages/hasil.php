@@ -83,9 +83,9 @@ include __DIR__ . '/../includes/navbar.php';
 
 <!-- STEP NAV -->
 <div class="step-nav fade-up mb-4">
-  <div class="step-item done"><div class="step-num">✓</div><div class="step-label">Preferensi</div></div>
-  <div class="step-item done"><div class="step-num">✓</div><div class="step-label">AHP</div></div>
-  <div class="step-item done"><div class="step-num">✓</div><div class="step-label">TOPSIS</div></div>
+  <div class="step-item done"><div class="step-num"></div><div class="step-label">Preferensi</div></div>
+  <div class="step-item done"><div class="step-num"></div><div class="step-label">AHP</div></div>
+  <div class="step-item done"><div class="step-num"></div><div class="step-label">TOPSIS</div></div>
   <div class="step-item active"><div class="step-num">4</div><div class="step-label">Hasil</div></div>
 </div>
 
@@ -94,35 +94,34 @@ include __DIR__ . '/../includes/navbar.php';
   $ev1   = $evMap[$top1['nama']] ?? null;
   $parts = explode(' ', $top1['nama'], 2);
 ?>
-<div class="card fade-up mb-4" style="background:linear-gradient(135deg,#0F1728,#1E3A5F);padding:32px;border-radius:var(--radius)">
+<div class="card hero-card mb-4" style="background:var(--primary);padding:32px;border-radius:var(--radius)">
   <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">
-    <div style="font-size:4.5rem;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.3))">🏆</div>
     <div style="flex:1">
-      <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-bottom:4px;font-weight:700;letter-spacing:1px;text-transform:uppercase">
-        🥇 Rekomendasi Terbaik — Rank #1
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.86);margin-bottom:4px;font-weight:700;letter-spacing:1px;text-transform:uppercase">
+        Rekomendasi Terbaik — Rank #1
       </div>
-      <h2 style="font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:800;color:#fff;margin-bottom:6px;line-height:1.15">
+      <h2 style="font-size:1.9rem;font-weight:600;color:#fff;margin-bottom:6px;line-height:1.15">
         <?= clean($top1['nama']) ?>
       </h2>
       <?php if ($ev1): ?>
       <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">
-        <span style="color:rgba(255,255,255,0.7);font-size:0.85rem">🔋 <?= $ev1['battery_capacity_kwh'] ?> kWh</span>
-        <span style="color:rgba(255,255,255,0.7);font-size:0.85rem">📏 <?= $ev1['range_km'] ?> km</span>
-        <span style="color:rgba(255,255,255,0.7);font-size:0.85rem">⚡ <?= $ev1['fast_charging_power_kw'] ?> kW Charging</span>
-        <span style="color:rgba(255,255,255,0.7);font-size:0.85rem">🏎️ 0-100 dalam <?= $ev1['acceleration_0_100_s'] ?>s</span>
-        <span style="color:rgba(255,255,255,0.7);font-size:0.85rem">👥 <?= $ev1['seats'] ?> kursi</span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= $ev1['battery_capacity_kwh'] ?> kWh</span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= $ev1['range_km'] ?> km</span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= $ev1['fast_charging_power_kw'] ?> kW Charging</span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem">0-100 dalam <?= $ev1['acceleration_0_100_s'] ?>s</span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= $ev1['seats'] ?> kursi</span>
       </div>
       <?php endif; ?>
-      <p style="color:rgba(255,255,255,0.55);font-size:0.85rem">
+      <p style="color:rgba(255,255,255,0.86);font-size:0.85rem">
         Dipilih sebagai EV terbaik berdasarkan analisis AHP & TOPSIS
         dari <?= count($kendaraan) ?> alternatif kendaraan listrik.
       </p>
     </div>
     <div style="text-align:right;flex-shrink:0">
-      <div style="background:rgba(0,200,150,0.15);border:2px solid rgba(0,200,150,0.4);border-radius:14px;padding:20px 24px">
-        <div style="font-size:0.72rem;color:rgba(255,255,255,0.5);margin-bottom:4px">Skor TOPSIS (CC)</div>
-        <div style="font-size:2.8rem;font-weight:800;color:var(--primary);line-height:1"><?= formatAngka($top1['CC'], 4) ?></div>
-        <div style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-top:4px"><?= round($top1['CC']*100, 1) ?>% mendekati ideal</div>
+      <div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.35);border-radius:var(--radius);padding:18px 24px">
+        <div style="font-size:0.72rem;color:rgba(255,255,255,0.86);margin-bottom:4px">Skor TOPSIS (CC)</div>
+        <div style="font-size:2.6rem;font-weight:600;color:#fff;line-height:1"><?= formatAngka($top1['CC'], 4) ?></div>
+        <div style="font-size:0.78rem;color:rgba(255,255,255,0.86);margin-top:4px"><?= round($top1['CC']*100, 1) ?>% mendekati ideal</div>
         <div class="cc-bar" style="width:100%;margin-top:8px;height:6px">
           <div class="cc-bar-fill" style="width:<?= round($top1['CC']*100,1) ?>%"></div>
         </div>
@@ -134,7 +133,7 @@ include __DIR__ . '/../includes/navbar.php';
 <!-- PODIUM TOP 3 -->
 <div class="card fade-up mb-4">
   <div class="card-header">
-    <h3>🥇🥈🥉 Peringkat 3 Besar</h3>
+    <h3>Peringkat 3 Besar</h3>
     <span class="badge badge-green"><?= count($ranking) ?> alternatif dianalisis</span>
   </div>
   <div class="card-body">
@@ -143,14 +142,14 @@ include __DIR__ . '/../includes/navbar.php';
         $evX   = $evMap[$r['nama']] ?? null;
         $parts2= explode(' ', $r['nama'], 2);
         $medals = [1=>'medal-1',2=>'medal-2',3=>'medal-3'];
-        $icons  = [1=>'🥇',2=>'🥈',3=>'🥉'];
-        $colors = [1=>'#F59E0B',2=>'#94A3B8',3=>'#CD7F32'];
+        $icons  = [1=>'',2=>'',3=>''];
+        $colors = [1=>'var(--accent)',2=>'var(--border-strong)',3=>'var(--border-strong)'];
       ?>
-      <div class="card" style="border:2px solid <?= $colors[$r['rank']] ?>;border-radius:var(--radius)">
+      <div class="card" style="border:1px solid <?= $colors[$r['rank']] ?>;border-radius:var(--radius)">
         <div style="padding:20px">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-            <div class="rank-medal <?= $medals[$r['rank']] ?>" style="width:44px;height:44px;font-size:1.3rem">
-              <?= $icons[$r['rank']] ?>
+            <div class="rank-medal <?= $medals[$r['rank']] ?>" style="width:40px;height:40px">
+              <?= (int)$r['rank'] ?>
             </div>
             <div>
               <div style="font-size:0.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase">Peringkat <?= $r['rank'] ?></div>
@@ -196,7 +195,7 @@ include __DIR__ . '/../includes/navbar.php';
 <!-- TABEL RANKING LENGKAP -->
 <div class="card fade-up mb-4">
   <div class="card-header">
-    <h3>📋 Ranking Lengkap Semua Alternatif</h3>
+    <h3>Ranking Lengkap Semua Alternatif</h3>
     <a href="<?= APP_URL ?>/pages/topsis.php" class="btn btn-outline btn-sm">Detail Perhitungan</a>
   </div>
   <div class="card-body" style="padding:0">
@@ -224,9 +223,9 @@ include __DIR__ . '/../includes/navbar.php';
           <tr <?= $r['rank'] == 1 ? 'style="background:#FFFBEB"' : ($r['rank'] <= 3 ? 'style="background:#F8FAFC"' : '') ?>>
             <td>
               <?php
-                if ($r['rank'] == 1) echo '🥇';
-                elseif ($r['rank'] == 2) echo '🥈';
-                elseif ($r['rank'] == 3) echo '🥉';
+                if ($r['rank'] == 1) echo '';
+                elseif ($r['rank'] == 2) echo '';
+                elseif ($r['rank'] == 3) echo '';
                 else echo '<strong>'.$r['rank'].'</strong>';
               ?>
             </td>
@@ -254,7 +253,7 @@ include __DIR__ . '/../includes/navbar.php';
 <!-- BOBOT AHP YANG DIGUNAKAN -->
 <div class="card fade-up mb-4">
   <div class="card-header">
-    <h3>⚖️ Bobot Kriteria AHP yang Digunakan</h3>
+    <h3>Bobot Kriteria AHP yang Digunakan</h3>
     <?= badgeKonsisten($bobotDB[0]['cr'] ?? 0) ?>
   </div>
   <div class="card-body">
@@ -282,12 +281,12 @@ include __DIR__ . '/../includes/navbar.php';
 
 <!-- AKSI -->
 <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px" class="fade-up">
-  <a href="<?= APP_URL ?>/pages/topsis.php" class="btn btn-outline">📊 Detail Perhitungan</a>
-  <a href="<?= APP_URL ?>/pages/ahp.php" class="btn btn-outline">⚖️ Ubah Bobot AHP</a>
-  <a href="<?= APP_URL ?>/pages/preferensi.php" class="btn btn-outline">🎯 Ubah Preferensi</a>
-  <a href="<?= APP_URL ?>/pages/history.php" class="btn btn-outline">📋 Riwayat</a>
-  <a href="?export=csv" class="btn btn-outline">⬇️ Ekspor CSV</a>
-  <button onclick="window.print()" class="btn btn-secondary">🖨️ Cetak Laporan</button>
+  <a href="<?= APP_URL ?>/pages/topsis.php" class="btn btn-outline">Detail Perhitungan</a>
+  <a href="<?= APP_URL ?>/pages/ahp.php" class="btn btn-outline">Ubah Bobot AHP</a>
+  <a href="<?= APP_URL ?>/pages/preferensi.php" class="btn btn-outline">Ubah Preferensi</a>
+  <a href="<?= APP_URL ?>/pages/history.php" class="btn btn-outline">Riwayat</a>
+  <a href="?export=csv" class="btn btn-outline">Ekspor CSV</a>
+  <button onclick="window.print()" class="btn btn-secondary">Cetak Laporan</button>
 </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
