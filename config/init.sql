@@ -8,6 +8,7 @@
 -- Penyaringan dari 60 model: 12 model dikeluarkan karena harga belum
 --           diumumkan resmi, 5 model karena tidak ada data pengisian cepat DC.
 -- Nilai per model: rata-rata nilai min dan maks (kursi = nilai maks).
+--           Daya motor: hp dikonversi ke kW (x 0,7457).
 -- Cara pakai: Import file ini di phpMyAdmin
 --             atau jalankan: mysql -u root -p < init.sql
 -- ============================================================
@@ -43,7 +44,7 @@ CREATE TABLE IF NOT EXISTS kendaraan_ev (
     harga_rp_juta           DECIMAL(10,2) NOT NULL,
     range_km                DECIMAL(6,1) NOT NULL,
     battery_capacity_kwh    DECIMAL(6,2) NOT NULL,
-    daya_hp                 DECIMAL(6,1) NOT NULL,
+    daya_kw                 DECIMAL(6,1) NOT NULL,
     seats                   INT          NOT NULL,
     waktu_isi_menit         DECIMAL(5,1) NOT NULL,
     source_url              VARCHAR(150) DEFAULT NULL,
@@ -112,6 +113,8 @@ CREATE TABLE IF NOT EXISTS preferensi_user (
     id              INT AUTO_INCREMENT PRIMARY KEY,
     user_id         INT NOT NULL UNIQUE,
     filter_tipe     VARCHAR(10)  DEFAULT NULL,
+    filter_kursi_min INT         DEFAULT NULL,
+    filter_anggaran_max DECIMAL(10,2) DEFAULT NULL,
     jumlah_alt      INT          DEFAULT 50,
     updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -140,28 +143,26 @@ CREATE TABLE IF NOT EXISTS history_perhitungan (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- DATA: Kriteria Evaluasi (6 Kriteria AHP-TOPSIS)
+-- DATA: Kriteria Evaluasi (5 Kriteria AHP-TOPSIS)
 -- Bobot default sama rata; bobot sebenarnya dihitung dari matriks AHP
+-- Jumlah kursi dan anggaran BUKAN kriteria, melainkan filter alternatif
 -- ============================================================
 INSERT IGNORE INTO kriteria (kode, nama, kolom_db, tipe, bobot_default, satuan, deskripsi) VALUES
 ('C1', 'Harga',
- 'harga_rp_juta', 'cost', 0.1667, 'Rp juta',
+ 'harga_rp_juta', 'cost', 0.2000, 'Rp juta',
  'Harga on the road (OTR) dalam rupiah. Semakin kecil semakin baik (cost). Kolom DB: harga_rp_juta'),
 ('C2', 'Jangkauan (Range)',
- 'range_km', 'benefit', 0.1667, 'km',
+ 'range_km', 'benefit', 0.2000, 'km',
  'Jarak tempuh dengan baterai penuh. Semakin besar semakin baik (benefit). Kolom DB: range_km'),
 ('C3', 'Kapasitas Baterai',
- 'battery_capacity_kwh', 'benefit', 0.1667, 'kWh',
+ 'battery_capacity_kwh', 'benefit', 0.2000, 'kWh',
  'Total energi yang dapat disimpan baterai. Semakin besar semakin baik (benefit). Kolom DB: battery_capacity_kwh'),
-('C4', 'Waktu Pengisian Cepat DC',
- 'waktu_isi_menit', 'cost', 0.1667, 'menit',
- 'Lama pengisian cepat DC sesuai data. Semakin singkat semakin baik (cost). Kolom DB: waktu_isi_menit'),
-('C5', 'Daya Motor',
- 'daya_hp', 'benefit', 0.1666, 'hp',
- 'Daya keluaran motor penggerak sebagai ukuran performa. Semakin besar semakin baik (benefit). Kolom DB: daya_hp'),
-('C6', 'Jumlah Kursi',
- 'seats', 'benefit', 0.1666, 'kursi',
- 'Kapasitas penumpang. Semakin banyak semakin baik (benefit). Kolom DB: seats');
+('C4', 'Daya Motor',
+ 'daya_kw', 'benefit', 0.2000, 'kW',
+ 'Daya keluaran motor penggerak sebagai ukuran performa (data hp dikonversi ke kW, 1 hp = 0,7457 kW). Semakin besar semakin baik (benefit). Kolom DB: daya_kw'),
+('C5', 'Waktu Pengisian Cepat DC',
+ 'waktu_isi_menit', 'cost', 0.2000, 'menit',
+ 'Lama pengisian cepat DC sesuai data. Semakin singkat semakin baik (cost). Kolom DB: waktu_isi_menit');
 
 -- ============================================================
 -- DATA: Akun Admin Default
@@ -175,47 +176,47 @@ INSERT IGNORE INTO users (nama, email, password, role) VALUES
 -- ============================================================
 -- DATA: Kendaraan Listrik (43 model, Oto.com via Kaggle arsan5623)
 -- ============================================================
-INSERT IGNORE INTO kendaraan_ev (brand, model, tipe_penggunaan, harga_rp_juta, range_km, battery_capacity_kwh, daya_hp, seats, waktu_isi_menit, source_url) VALUES
-('VinFast','VF 5','pribadi',323.17,260,29.6,94,5,30,'https://www.oto.com/mobil-baru/vinfast/vf-5'),
-('MG','4 EV','pribadi',382,425,57.5,184.5,5,35,'https://www.oto.com/mobil-baru/mg/4-ev'),
-('BYD','M6','pribadi',408,475,63.6,154,7,40,'https://www.oto.com/mobil-baru/byd/m6'),
-('Wuling','Binguo EV','pribadi',305.5,371.5,34.9,67,5,35,'https://www.oto.com/mobil-baru/wuling/binguo-ev'),
-('VinFast','VF e34','pribadi',411.86,318,41.9,147,5,27,'https://www.oto.com/mobil-baru/vinfast/vf-e34'),
-('Wuling','Cloud EV','pribadi',429,460,50.6,134,5,30,'https://www.oto.com/mobil-baru/wuling/cloud'),
-('BYD','Seal','pribadi',694.5,615,82.56,421.5,5,37,'https://www.oto.com/mobil-baru/byd/seal'),
-('BYD','Dolphin','pribadi',399,450,52.69,149.5,5,30,'https://www.oto.com/mobil-baru/byd/dolphin'),
-('CHERY','E5','pribadi',399.9,430,61,208,5,28,'https://www.oto.com/mobil-baru/chery/e5'),
-('BYD','Atto 3','pribadi',455,445,55.2,204,5,45,'https://www.oto.com/mobil-baru/byd/atto-3'),
-('Neta','V-II','pribadi',299,401,40.7,94,5,30,'https://www.oto.com/mobil-baru/neta/v-ii'),
-('ZEEKR','7X','pribadi',1100,692.5,100,637,5,15,'https://www.oto.com/mobil-baru/zeekr/7x'),
-('Suzuki','e-Vitara','pribadi',756.5,400,61,172,5,60,'https://www.oto.com/mobil-baru/suzuki/e-vitara'),
-('MG','S5 EV','pribadi',394.9,420,49,168,5,35,'https://www.oto.com/mobil-baru/mg/s5-ev'),
-('Mercedes Benz','G-Class Electric','pribadi',5900,473,116,587,5,32,'https://www.oto.com/mobil-baru/mercedes-benz/g-class-electric'),
-('BYD','Denza D9','pribadi',950,600,103.36,308,7,45,'https://www.oto.com/mobil-baru/byd/denza-d9'),
-('Hyundai','Ioniq 5','pribadi',871.3,432.5,65.3,191,5,18,'https://www.oto.com/mobil-baru/hyundai/ioniq-5'),
-('MG','ZS EV','pribadi',396.75,403,50.3,177,5,30,'https://www.oto.com/mobil-baru/mg/zs-ev'),
-('Hyundai','Kona Electric','pribadi',627.45,394.5,57.45,184,5,43,'https://www.oto.com/mobil-baru/hyundai/kona-electric'),
-('Hyundai','Ioniq 6','pribadi',1237,566.5,77.4,322,5,18,'https://www.oto.com/mobil-baru/hyundai/ioniq-6'),
-('Citroen','E-C3','pribadi',380.5,320,29.2,56,5,57,'https://www.oto.com/mobil-baru/citroen/e-c3'),
-('GAC','Aion Y Plus','pribadi',449,450,56.9,201,5,45,'https://www.oto.com/mobil-baru/gac/aion-y-plus'),
-('Volkswagen','ID Buzz','pribadi',1522.5,440,77,242.5,6,30,'https://www.oto.com/mobil-baru/volkswagen/id-buzz'),
-('GAC','Aion Hyptec HT','pribadi',767.25,600,83,335,5,15,'https://www.oto.com/mobil-baru/gac/aion-hyptec-ht'),
-('Neta','X','pribadi',438,480,63.56,161,5,30,'https://www.oto.com/mobil-baru/neta/x'),
-('MG','Cyberster','pribadi',1705,541.5,77,537,2,26,'https://www.oto.com/mobil-baru/mg/cyberster'),
-('VinFast','VF 6','pribadi',412.3,399,59.6,201,5,24,'https://www.oto.com/mobil-baru/vinfast/vf-6'),
-('BMW','i5','pribadi',2527.5,549,81.2,470.5,5,30,'https://www.oto.com/mobil-baru/bmw/i5'),
-('Kia','EV9','pribadi',1776.5,497,99.8,380,7,24,'https://www.oto.com/mobil-baru/kia/ev9'),
-('Mercedes Benz','EQS','pribadi',3622.5,770,107.8,333,5,31,'https://www.oto.com/mobil-baru/mercedes-benz/eqs'),
-('Nissan','Leaf','pribadi',740,311,40,148,5,60,'https://www.oto.com/mobil-baru/nissan/leaf'),
-('GWM','Ora 03 BEV','pribadi',379,400,47.7,104,5,45,'https://www.oto.com/mobil-baru/gwm/ora-03-bev'),
-('BMW','iX','pribadi',2628,398.5,94.05,408,5,35,'https://www.oto.com/mobil-baru/bmw/ix'),
-('Toyota','bZ4X','pribadi',1190,500,71.4,201,5,30,'https://www.oto.com/mobil-baru/toyota/bz4x'),
-('BMW','i7','pribadi',3415,625,101.7,544,5,34,'https://www.oto.com/mobil-baru/bmw/i7'),
-('BMW','iX1','pribadi',1379,438,64.7,313,5,29,'https://www.oto.com/mobil-baru/bmw/ix1'),
-('BMW','i5 Touring','pribadi',2275,506,81.2,340,5,30,'https://www.oto.com/mobil-baru/bmw/i5-touring'),
-('Volvo','EX30','pribadi',1015,476,57.5,272,5,26,'https://www.oto.com/mobil-baru/volvo/ex30'),
-('VinFast','VF 7','pribadi',549,431,75.3,274.5,5,28,'https://www.oto.com/mobil-baru/vinfast/vf-7'),
-('Hyundai','Ioniq 5 N','pribadi',1500,448,84,641,5,18,'https://www.oto.com/mobil-baru/hyundai/ioniq-5-n'),
-('Farizon','SV','kantor',698,415,82.88,227,16,45,'https://www.oto.com/mobil-baru/farizon/sv'),
-('VinFast','Limo Green','kantor',389,400,60.13,201,7,30,'https://www.oto.com/mobil-baru/vinfast/limo-green'),
-('Mitsubishi','L100 EV','kantor',323.3,180,20.1,41,2,42,'https://www.oto.com/mobil-baru/mitsubishi/l100-ev');
+INSERT IGNORE INTO kendaraan_ev (brand, model, tipe_penggunaan, harga_rp_juta, range_km, battery_capacity_kwh, daya_kw, seats, waktu_isi_menit, source_url) VALUES
+('VinFast','VF 5','pribadi',323.17,260,29.6,70.1,5,30,'https://www.oto.com/mobil-baru/vinfast/vf-5'),
+('MG','4 EV','pribadi',382,425,57.5,137.6,5,35,'https://www.oto.com/mobil-baru/mg/4-ev'),
+('BYD','M6','pribadi',408,475,63.6,114.8,7,40,'https://www.oto.com/mobil-baru/byd/m6'),
+('Wuling','Binguo EV','pribadi',305.5,371.5,34.9,50,5,35,'https://www.oto.com/mobil-baru/wuling/binguo-ev'),
+('VinFast','VF e34','pribadi',411.86,318,41.9,109.6,5,27,'https://www.oto.com/mobil-baru/vinfast/vf-e34'),
+('Wuling','Cloud EV','pribadi',429,460,50.6,99.9,5,30,'https://www.oto.com/mobil-baru/wuling/cloud'),
+('BYD','Seal','pribadi',694.5,615,82.56,314.3,5,37,'https://www.oto.com/mobil-baru/byd/seal'),
+('BYD','Dolphin','pribadi',399,450,52.69,111.5,5,30,'https://www.oto.com/mobil-baru/byd/dolphin'),
+('CHERY','E5','pribadi',399.9,430,61,155.1,5,28,'https://www.oto.com/mobil-baru/chery/e5'),
+('BYD','Atto 3','pribadi',455,445,55.2,152.1,5,45,'https://www.oto.com/mobil-baru/byd/atto-3'),
+('Neta','V-II','pribadi',299,401,40.7,70.1,5,30,'https://www.oto.com/mobil-baru/neta/v-ii'),
+('ZEEKR','7X','pribadi',1100,692.5,100,475,5,15,'https://www.oto.com/mobil-baru/zeekr/7x'),
+('Suzuki','e-Vitara','pribadi',756.5,400,61,128.3,5,60,'https://www.oto.com/mobil-baru/suzuki/e-vitara'),
+('MG','S5 EV','pribadi',394.9,420,49,125.3,5,35,'https://www.oto.com/mobil-baru/mg/s5-ev'),
+('Mercedes Benz','G-Class Electric','pribadi',5900,473,116,437.7,5,32,'https://www.oto.com/mobil-baru/mercedes-benz/g-class-electric'),
+('BYD','Denza D9','pribadi',950,600,103.36,229.7,7,45,'https://www.oto.com/mobil-baru/byd/denza-d9'),
+('Hyundai','Ioniq 5','pribadi',871.3,432.5,65.3,142.4,5,18,'https://www.oto.com/mobil-baru/hyundai/ioniq-5'),
+('MG','ZS EV','pribadi',396.75,403,50.3,132,5,30,'https://www.oto.com/mobil-baru/mg/zs-ev'),
+('Hyundai','Kona Electric','pribadi',627.45,394.5,57.45,137.2,5,43,'https://www.oto.com/mobil-baru/hyundai/kona-electric'),
+('Hyundai','Ioniq 6','pribadi',1237,566.5,77.4,240.1,5,18,'https://www.oto.com/mobil-baru/hyundai/ioniq-6'),
+('Citroen','E-C3','pribadi',380.5,320,29.2,41.8,5,57,'https://www.oto.com/mobil-baru/citroen/e-c3'),
+('GAC','Aion Y Plus','pribadi',449,450,56.9,149.9,5,45,'https://www.oto.com/mobil-baru/gac/aion-y-plus'),
+('Volkswagen','ID Buzz','pribadi',1522.5,440,77,180.8,6,30,'https://www.oto.com/mobil-baru/volkswagen/id-buzz'),
+('GAC','Aion Hyptec HT','pribadi',767.25,600,83,249.8,5,15,'https://www.oto.com/mobil-baru/gac/aion-hyptec-ht'),
+('Neta','X','pribadi',438,480,63.56,120.1,5,30,'https://www.oto.com/mobil-baru/neta/x'),
+('MG','Cyberster','pribadi',1705,541.5,77,400.4,2,26,'https://www.oto.com/mobil-baru/mg/cyberster'),
+('VinFast','VF 6','pribadi',412.3,399,59.6,149.9,5,24,'https://www.oto.com/mobil-baru/vinfast/vf-6'),
+('BMW','i5','pribadi',2527.5,549,81.2,350.9,5,30,'https://www.oto.com/mobil-baru/bmw/i5'),
+('Kia','EV9','pribadi',1776.5,497,99.8,283.4,7,24,'https://www.oto.com/mobil-baru/kia/ev9'),
+('Mercedes Benz','EQS','pribadi',3622.5,770,107.8,248.3,5,31,'https://www.oto.com/mobil-baru/mercedes-benz/eqs'),
+('Nissan','Leaf','pribadi',740,311,40,110.4,5,60,'https://www.oto.com/mobil-baru/nissan/leaf'),
+('GWM','Ora 03 BEV','pribadi',379,400,47.7,77.6,5,45,'https://www.oto.com/mobil-baru/gwm/ora-03-bev'),
+('BMW','iX','pribadi',2628,398.5,94.05,304.2,5,35,'https://www.oto.com/mobil-baru/bmw/ix'),
+('Toyota','bZ4X','pribadi',1190,500,71.4,149.9,5,30,'https://www.oto.com/mobil-baru/toyota/bz4x'),
+('BMW','i7','pribadi',3415,625,101.7,405.7,5,34,'https://www.oto.com/mobil-baru/bmw/i7'),
+('BMW','iX1','pribadi',1379,438,64.7,233.4,5,29,'https://www.oto.com/mobil-baru/bmw/ix1'),
+('BMW','i5 Touring','pribadi',2275,506,81.2,253.5,5,30,'https://www.oto.com/mobil-baru/bmw/i5-touring'),
+('Volvo','EX30','pribadi',1015,476,57.5,202.8,5,26,'https://www.oto.com/mobil-baru/volvo/ex30'),
+('VinFast','VF 7','pribadi',549,431,75.3,204.7,5,28,'https://www.oto.com/mobil-baru/vinfast/vf-7'),
+('Hyundai','Ioniq 5 N','pribadi',1500,448,84,478,5,18,'https://www.oto.com/mobil-baru/hyundai/ioniq-5-n'),
+('Farizon','SV','kantor',698,415,82.88,169.3,16,45,'https://www.oto.com/mobil-baru/farizon/sv'),
+('VinFast','Limo Green','kantor',389,400,60.13,149.9,7,30,'https://www.oto.com/mobil-baru/vinfast/limo-green'),
+('Mitsubishi','L100 EV','kantor',323.3,180,20.1,30.6,2,42,'https://www.oto.com/mobil-baru/mitsubishi/l100-ev');

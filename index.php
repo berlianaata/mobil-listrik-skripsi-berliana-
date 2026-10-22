@@ -141,7 +141,7 @@ $totalUser  = fetchOne("SELECT COUNT(*) c FROM users WHERE role='user'")['c'] ??
   <div class="card steps-grid" style="max-width:1000px;margin:0 auto">
     <?php $steps = [
       ['1','filter','Set Preferensi','Pilih kebutuhan Anda: mobil listrik untuk perorangan atau untuk kantor.'],
-      ['2','scale','Penilaian AHP','Bandingkan 6 kriteria secara berpasangan menggunakan skala Saaty 1–9.'],
+      ['2','scale','Penilaian AHP','Bandingkan 5 kriteria secara berpasangan menggunakan skala Saaty 1–9.'],
       ['3','calc','Hitung TOPSIS','Sistem otomatis menghitung ranking semua mobil listrik berdasarkan bobot AHP Anda.'],
       ['4','trophy','Lihat Hasil','Dapatkan rekomendasi EV terbaik beserta detail perhitungan lengkap.'],
     ]; foreach ($steps as $s): ?>

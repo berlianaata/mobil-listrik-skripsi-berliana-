@@ -164,14 +164,13 @@ window.resetMatrix = function () {
     });
 };
 
-// Isi contoh nilai (untuk AHP 6 kriteria)
+// Isi contoh nilai (untuk AHP 5 kriteria)
 window.isiContoh = function () {
     const contoh = {
-        '0_1': 2, '0_2': 3, '0_3': 4, '0_4': 5, '0_5': 6,
-        '1_2': 2, '1_3': 3, '1_4': 4, '1_5': 5,
-        '2_3': 2, '2_4': 3, '2_5': 4,
-        '3_4': 2, '3_5': 3,
-        '4_5': 2,
+        '0_1': 2, '0_2': 3, '0_3': 4, '0_4': 5,
+        '1_2': 2, '1_3': 3, '1_4': 4,
+        '2_3': 2, '2_4': 3,
+        '3_4': 2,
     };
     Object.entries(contoh).forEach(([key, val]) => {
         const inp = document.getElementById('m_' + key);

@@ -41,6 +41,8 @@ foreach ($kriteria as $k) {
 $pref   = getPreferensiUser($userId);
 $filter = [
     'tipe'       => $pref['filter_tipe']    ?? null,
+    'kursi_min'  => $pref['filter_kursi_min'] ?? null,
+    'anggaran_max' => $pref['filter_anggaran_max'] ?? null,
 ];
 $limit      = $pref['jumlah_alt'] ?? 50;
 $kendaraan  = getKendaraanFiltered($filter, $limit);

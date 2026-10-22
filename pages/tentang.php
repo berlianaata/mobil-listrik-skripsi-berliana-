@@ -170,7 +170,7 @@ include __DIR__ . '/../includes/navbar.php';
       <!-- Alur -->
       <div style="display:flex;gap:0;overflow-x:auto;padding-bottom:8px;margin-bottom:24px">
         <?php $alur = [
-          ['','Definisi\nKriteria','Tentukan 6 kriteria evaluasi mobil listrik'],
+          ['','Definisi\nKriteria','Tentukan 5 kriteria evaluasi mobil listrik'],
           ['','Penilaian\nAHP','Isi matriks perbandingan berpasangan (Saaty 1-9)'],
           ['','Hitung\nBobot','Normalisasi → Eigenvector → Bobot w_j'],
           ['','Uji\nKonsistensi','CR ≤ 0.1 → Bobot valid'],
@@ -193,7 +193,7 @@ include __DIR__ . '/../includes/navbar.php';
         <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:18px">
           <div style="font-weight:700;color:#1D4ED8;margin-bottom:10px">Peran AHP dalam Sistem Ini</div>
           <ul style="padding-left:18px;font-size:0.86rem;color:var(--text-muted);line-height:1.8">
-            <li>Pengguna mengisi matriks perbandingan berpasangan antar 6 kriteria</li>
+            <li>Pengguna mengisi matriks perbandingan berpasangan antar 5 kriteria</li>
             <li>Sistem menghitung bobot prioritas menggunakan metode eigenvector</li>
             <li>Uji konsistensi (CR ≤ 0.1) memastikan penilaian logis</li>
             <li>Bobot yang dihasilkan mencerminkan preferensi subjektif pengguna</li>
@@ -219,7 +219,7 @@ include __DIR__ . '/../includes/navbar.php';
     <div class="card-header"><h3>Kriteria Pemilihan EV</h3></div>
     <div class="card-body">
       <div class="info-box mb-4">
-        Sistem menggunakan <strong>6 kriteria utama</strong> dalam pemilihan mobil listrik terbaik,
+        Sistem menggunakan <strong>5 kriteria utama</strong> dalam pemilihan mobil listrik terbaik,
         dipilih berdasarkan relevansi bagi pembeli dan ketersediaan data pada dataset mobil listrik Indonesia (Oto.com via Kaggle).
       </div>
       <?php foreach (getKriteria() as $k): ?>

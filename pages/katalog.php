@@ -106,7 +106,7 @@ include __DIR__ . '/../includes/navbar.php';
             <th title="Jangkauan (km)">Range</th>
             <th title="Kapasitas Baterai (kWh)">Baterai</th>
             <th title="Waktu pengisian cepat DC (menit)">Isi DC</th>
-            <th title="Daya motor (hp)">Daya</th>
+            <th title="Daya motor (kW)">Daya</th>
             <th>Kursi</th>
           </tr>
         </thead>
@@ -146,8 +146,8 @@ include __DIR__ . '/../includes/navbar.php';
               <span style="font-size:0.68rem;color:var(--text-muted)"> mnt</span>
             </td>
             <td>
-              <?= clean((float)$ev['daya_hp']) ?>
-              <span style="font-size:0.68rem;color:var(--text-muted)"> hp</span>
+              <?= clean((float)$ev['daya_kw']) ?>
+              <span style="font-size:0.68rem;color:var(--text-muted)"> kW</span>
             </td>
             <td><?= (int)$ev['seats'] ?></td>
           </tr>

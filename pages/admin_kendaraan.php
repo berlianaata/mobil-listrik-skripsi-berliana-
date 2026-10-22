@@ -23,7 +23,7 @@ function validasiKendaraan(array $in, array &$errors): array {
         'range_km'             => ['Jangkauan (km)', 20, 2000, true],
         'battery_capacity_kwh' => ['Kapasitas baterai (kWh)', 5, 300, true],
         'waktu_isi_menit'      => ['Waktu pengisian cepat DC (menit)', 1, 1500, true],
-        'daya_hp'              => ['Daya motor (hp)', 5, 2000, true],
+        'daya_kw'              => ['Daya motor (kW)', 3, 1500, true],
         'seats'                => ['Jumlah kursi', 1, 30, false],
     ];
     foreach ($aturan as $kol => [$label, $min, $max, $desimal]) {
@@ -61,17 +61,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $src = $d['source_url'] !== '' ? $d['source_url'] : null;
             if ($id > 0) {
                 executeQuery("UPDATE kendaraan_ev SET brand=?, model=?, tipe_penggunaan=?, harga_rp_juta=?, range_km=?,
-                    battery_capacity_kwh=?, waktu_isi_menit=?, daya_hp=?, seats=?, source_url=?, status=? WHERE id=?",
+                    battery_capacity_kwh=?, waktu_isi_menit=?, daya_kw=?, seats=?, source_url=?, status=? WHERE id=?",
                     [$d['brand'],$d['model'],$d['tipe_penggunaan'],$d['harga_rp_juta'],$d['range_km'],
-                     $d['battery_capacity_kwh'],$d['waktu_isi_menit'],$d['daya_hp'],$d['seats'],$src,$d['status'],$id],
+                     $d['battery_capacity_kwh'],$d['waktu_isi_menit'],$d['daya_kw'],$d['seats'],$src,$d['status'],$id],
                     'sssdddddissi');
                 setFlash('success', 'Data kendaraan berhasil diperbarui.');
             } else {
                 executeQuery("INSERT INTO kendaraan_ev (brand, model, tipe_penggunaan, harga_rp_juta, range_km,
-                    battery_capacity_kwh, waktu_isi_menit, daya_hp, seats, source_url, status)
+                    battery_capacity_kwh, waktu_isi_menit, daya_kw, seats, source_url, status)
                     VALUES (?,?,?,?,?,?,?,?,?,?,?)",
                     [$d['brand'],$d['model'],$d['tipe_penggunaan'],$d['harga_rp_juta'],$d['range_km'],
-                     $d['battery_capacity_kwh'],$d['waktu_isi_menit'],$d['daya_hp'],$d['seats'],$src,$d['status']],
+                     $d['battery_capacity_kwh'],$d['waktu_isi_menit'],$d['daya_kw'],$d['seats'],$src,$d['status']],
                     'sssdddddiss');
                 setFlash('success', 'Kendaraan baru berhasil ditambahkan.');
             }
@@ -129,15 +129,15 @@ showFlash();
         <div class="form-group"><label>Kebutuhan</label>
           <select class="form-control" name="tipe_penggunaan" required>
             <option value="">— pilih —</option>
-            <option value="pribadi" <?= ($edit['tipe_penggunaan'] ?? '') === 'pribadi' ? 'selected' : '' ?>>Perorangan (pribadi)</option>
+            <option value="pribadi" <?= ($edit['tipe_penggunaan'] ?? '') === 'pribadi' ? 'selected' : '' ?>>Perorangan</option>
             <option value="kantor" <?= ($edit['tipe_penggunaan'] ?? '') === 'kantor' ? 'selected' : '' ?>>Kantor / niaga</option>
           </select></div>
         <div class="form-group"><label>C1 Harga OTR (Rp juta) · cost</label><input class="form-control" type="number" step="0.01" name="harga_rp_juta" value="<?= $f('harga_rp_juta') ?>" required></div>
         <div class="form-group"><label>C2 Jangkauan (km) · benefit</label><input class="form-control" type="number" step="0.1" name="range_km" value="<?= $f('range_km') ?>" required></div>
         <div class="form-group"><label>C3 Kapasitas baterai (kWh) · benefit</label><input class="form-control" type="number" step="0.01" name="battery_capacity_kwh" value="<?= $f('battery_capacity_kwh') ?>" required></div>
-        <div class="form-group"><label>C4 Waktu pengisian cepat DC (menit) · cost</label><input class="form-control" type="number" step="0.1" name="waktu_isi_menit" value="<?= $f('waktu_isi_menit') ?>" required></div>
-        <div class="form-group"><label>C5 Daya motor (hp) · benefit</label><input class="form-control" type="number" step="0.1" name="daya_hp" value="<?= $f('daya_hp') ?>" required></div>
-        <div class="form-group"><label>C6 Jumlah kursi · benefit</label><input class="form-control" type="number" step="1" name="seats" value="<?= $f('seats', '5') ?>" required></div>
+        <div class="form-group"><label>C5 Waktu pengisian cepat DC (menit) · cost</label><input class="form-control" type="number" step="0.1" name="waktu_isi_menit" value="<?= $f('waktu_isi_menit') ?>" required></div>
+        <div class="form-group"><label>C4 Daya motor (kW) · benefit</label><input class="form-control" type="number" step="0.1" name="daya_kw" value="<?= $f('daya_kw') ?>" required></div>
+        <div class="form-group"><label>Jumlah kursi (filter, bukan kriteria)</label><input class="form-control" type="number" step="1" name="seats" value="<?= $f('seats', '5') ?>" required></div>
         <div class="form-group"><label>Link sumber (Oto.com)</label><input class="form-control" name="source_url" maxlength="150" value="<?= $f('source_url') ?>"></div>
         <div class="form-group"><label>Status</label>
           <select class="form-control" name="status">
@@ -170,7 +170,7 @@ showFlash();
             <td><?= $r['tipe_penggunaan'] === 'kantor' ? 'Kantor' : 'Perorangan' ?></td>
             <td><?= clean((float)$r['harga_rp_juta']) ?></td>
             <td><?= clean((float)$r['range_km']) ?></td><td><?= clean((float)$r['battery_capacity_kwh']) ?></td>
-            <td><?= clean((float)$r['waktu_isi_menit']) ?></td><td><?= clean((float)$r['daya_hp']) ?></td>
+            <td><?= clean((float)$r['waktu_isi_menit']) ?></td><td><?= clean((float)$r['daya_kw']) ?></td>
             <td><?= (int)$r['seats'] ?></td>
             <td><span class="badge <?= $r['status'] === 'aktif' ? 'badge-green' : 'badge-orange' ?>"><?= clean($r['status']) ?></span></td>
             <td style="white-space:nowrap">

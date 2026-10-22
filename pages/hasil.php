@@ -36,6 +36,8 @@ foreach ($kriteria as $k) {
 $pref   = getPreferensiUser($userId);
 $filter = [
     'tipe'       => $pref['filter_tipe']    ?? null,
+    'kursi_min'  => $pref['filter_kursi_min'] ?? null,
+    'anggaran_max' => $pref['filter_anggaran_max'] ?? null,
 ];
 $limit     = $pref['jumlah_alt'] ?? 50;
 $kendaraan = getKendaraanFiltered($filter, $limit);
@@ -106,7 +108,7 @@ include __DIR__ . '/../includes/navbar.php';
         <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= (float)$ev1['battery_capacity_kwh'] ?> kWh</span>
         <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= (float)$ev1['range_km'] ?> km</span>
         <span style="color:rgba(255,255,255,0.86);font-size:0.85rem">Isi cepat DC <?= (float)$ev1['waktu_isi_menit'] ?> menit</span>
-        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= (float)$ev1['daya_hp'] ?> hp</span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= (float)$ev1['daya_kw'] ?> kW</span>
         <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= (int)$ev1['seats'] ?> kursi</span>
       </div>
       <?php endif; ?>
@@ -170,8 +172,8 @@ include __DIR__ . '/../includes/navbar.php';
               <div style="font-size:0.68rem;color:var(--text-muted)">menit isi cepat DC</div>
             </div>
             <div style="background:#F8FAFC;border-radius:8px;padding:10px;text-align:center">
-              <div style="font-size:1.1rem;font-weight:800;color:var(--success)"><?= (float)$evX['daya_hp'] ?></div>
-              <div style="font-size:0.68rem;color:var(--text-muted)">hp Daya motor</div>
+              <div style="font-size:1.1rem;font-weight:800;color:var(--success)"><?= (float)$evX['daya_kw'] ?></div>
+              <div style="font-size:0.68rem;color:var(--text-muted)">kW Daya motor</div>
             </div>
           </div>
           <?php endif; ?>

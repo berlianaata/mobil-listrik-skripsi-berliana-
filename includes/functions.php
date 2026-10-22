@@ -178,7 +178,7 @@ function getKendaraanFiltered($filter = [], $limit = 50) {
               "k.range_km IS NOT NULL",
               "k.battery_capacity_kwh IS NOT NULL",
               "k.waktu_isi_menit IS NOT NULL",
-              "k.daya_hp IS NOT NULL",
+              "k.daya_kw IS NOT NULL",
               "k.seats IS NOT NULL"];
     $params = [];
     $types  = '';
@@ -188,6 +188,19 @@ function getKendaraanFiltered($filter = [], $limit = 50) {
         $where[]  = "k.tipe_penggunaan = ?";
         $params[] = $filter['tipe'];
         $types   .= 's';
+    }
+
+    // Filter jumlah kursi minimum
+    if (!empty($filter['kursi_min'])) {
+        $where[]  = "k.seats >= ?";
+        $params[] = (int)$filter['kursi_min'];
+        $types   .= 'i';
+    }
+    // Filter anggaran maksimum (Rp juta)
+    if (!empty($filter['anggaran_max'])) {
+        $where[]  = "k.harga_rp_juta <= ?";
+        $params[] = (float)$filter['anggaran_max'];
+        $types   .= 'd';
     }
 
     $whereStr = implode(' AND ', $where);
@@ -277,15 +290,19 @@ function savePreferensiUser($userId, $data) {
     $conn = db();
     $tipe = in_array($data['tipe'] ?? null, ['pribadi','kantor'], true) ? $data['tipe'] : null;
     $jml  = isset($data['jumlah_alt']) ? (int)$data['jumlah_alt'] : 50;
+    $kursi = !empty($data['kursi_min']) ? (int)$data['kursi_min'] : null;
+    $ang   = !empty($data['anggaran_max']) ? (float)$data['anggaran_max'] : null;
 
     $stmt = $conn->prepare("
-        INSERT INTO preferensi_user (user_id, filter_tipe, jumlah_alt)
-        VALUES (?, ?, ?)
+        INSERT INTO preferensi_user (user_id, filter_tipe, filter_kursi_min, filter_anggaran_max, jumlah_alt)
+        VALUES (?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
             filter_tipe = VALUES(filter_tipe),
+            filter_kursi_min = VALUES(filter_kursi_min),
+            filter_anggaran_max = VALUES(filter_anggaran_max),
             jumlah_alt  = VALUES(jumlah_alt)
     ");
-    $stmt->bind_param('isi', $userId, $tipe, $jml);
+    $stmt->bind_param('isidi', $userId, $tipe, $kursi, $ang, $jml);
     return $stmt->execute();
 }
 

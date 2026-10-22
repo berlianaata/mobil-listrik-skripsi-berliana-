@@ -125,12 +125,12 @@ Buka browser: http://localhost/spk_ev_php
 | C1   | Harga (OTR)              | Cost    | Rp juta | sama rata     |
 | C2   | Jangkauan (Range)        | Benefit | km      | sama rata     |
 | C3   | Kapasitas Baterai        | Benefit | kWh     | sama rata     |
-| C4   | Waktu Pengisian Cepat DC | Cost    | menit   | sama rata     |
-| C5   | Daya Motor               | Benefit | hp      | sama rata     |
-| C6   | Jumlah Kursi             | Benefit | kursi   | sama rata     |
+| C4   | Daya Motor               | Benefit | kW      | sama rata     |
+| C5   | Waktu Pengisian Cepat DC | Cost    | menit   | sama rata     |
 
-Bobot sebenarnya dihitung dari matriks perbandingan berpasangan AHP (6 kriteria = 15 pasangan, RI = 1,24).
-Kebutuhan pengguna (**perorangan** atau **kantor**) berfungsi sebagai filter alternatif, bukan kriteria.
+Bobot sebenarnya dihitung dari matriks perbandingan berpasangan AHP (5 kriteria = 10 pasangan, RI = 1,12; bobot diisi sendiri oleh pengguna dan admin).
+Kebutuhan pengguna (**perorangan** atau **kantor**), **jumlah kursi minimum**, dan **anggaran maksimum** berfungsi sebagai filter alternatif, bukan kriteria.
+Daya motor pada data sumber (hp) dikonversi ke kW (1 hp = 0,7457 kW).
 
 ## 🗂️ Data
 
@@ -220,7 +220,7 @@ Kebutuhan pengguna (**perorangan** atau **kantor**) berfungsi sebagai filter alt
 - [x] Responsive design (mobile-friendly)
 - [x] Cetak laporan
 - [x] Ekspor hasil ranking ke CSV (halaman Hasil dan detail Riwayat)
-- [x] Modul Admin: CRUD kendaraan (validasi rentang C1–C6, cegah duplikat, aktif/nonaktif)
+- [x] Modul Admin: CRUD kendaraan (validasi rentang C1–C5, cegah duplikat, aktif/nonaktif)
 - [x] Modul Admin: kelola pengguna (ubah peran, hapus)
 - [x] Keamanan: CSRF token di semua form, password bcrypt (hash SHA-256 lama otomatis di-upgrade saat login), session_regenerate_id, cookie HttpOnly/SameSite, akses admin dibatasi
 
