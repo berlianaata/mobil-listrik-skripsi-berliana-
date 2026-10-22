@@ -104,11 +104,11 @@ $totalUser  = fetchOne("SELECT COUNT(*) c FROM users WHERE role='user'")['c'] ??
     <!-- Stats -->
     <div class="hero-stats">
       <div class="hero-stat">
-        <div class="hval"><?= number_format($totalEV) ?>+</div>
+        <div class="hval"><?= number_format($totalEV) ?></div>
         <div class="hlbl">Data EV</div>
       </div>
       <div class="hero-stat">
-        <div class="hval"><?= $totalBrand ?>+</div>
+        <div class="hval"><?= $totalBrand ?></div>
         <div class="hlbl">Brand</div>
       </div>
       <div class="hero-stat">
@@ -140,9 +140,9 @@ $totalUser  = fetchOne("SELECT COUNT(*) c FROM users WHERE role='user'")['c'] ??
   </div>
   <div class="card steps-grid" style="max-width:1000px;margin:0 auto">
     <?php $steps = [
-      ['1','filter','Set Preferensi','Filter kendaraan berdasarkan segmen, tipe bodi, penggerak, dan jumlah kursi.'],
+      ['1','filter','Set Preferensi','Pilih kebutuhan Anda: mobil listrik untuk perorangan atau untuk kantor.'],
       ['2','scale','Penilaian AHP','Bandingkan 5 kriteria secara berpasangan menggunakan skala Saaty 1–9.'],
-      ['3','calc','Hitung TOPSIS','Sistem otomatis menghitung ranking semua EV berdasarkan bobot AHP Anda.'],
+      ['3','calc','Hitung TOPSIS','Sistem otomatis menghitung ranking semua mobil listrik berdasarkan bobot AHP Anda.'],
       ['4','trophy','Lihat Hasil','Dapatkan rekomendasi EV terbaik beserta detail perhitungan lengkap.'],
     ]; foreach ($steps as $s): ?>
     <div class="step-card">
@@ -165,8 +165,8 @@ $totalUser  = fetchOne("SELECT COUNT(*) c FROM users WHERE role='user'")['c'] ??
     <?php $features = [
       ['scale','Metode AHP Lengkap','Matriks perbandingan berpasangan dengan uji konsistensi Saaty (CR ≤ 0.1). Detail perhitungan setiap langkah ditampilkan.'],
       ['calc','Algoritma TOPSIS 7 Langkah','Implementasi lengkap: normalisasi vektor, pembobotan, solusi ideal, jarak Euclidean, dan skor CC.'],
-      ['database','Database EV Lengkap','Ratusan data kendaraan listrik dari berbagai brand global dengan spesifikasi teknis detail.'],
-      ['filter','Filter Preferensi','Sesuaikan analisis berdasarkan segmen, tipe bodi, drivetrain, dan jumlah kursi yang Anda inginkan.'],
+      ['database','Data Pasar Indonesia','Model mobil listrik yang dipasarkan di Indonesia dengan harga rupiah (data Oto.com via Kaggle, April 2026).'],
+      ['filter','Pilihan Kebutuhan','Sesuaikan analisis untuk kebutuhan perorangan atau kantor.'],
       ['clock','Riwayat Tersimpan','Setiap hasil perhitungan disimpan otomatis. Bandingkan berbagai skenario bobot kriteria.'],
       ['doc','Siap untuk Skripsi','Semua detail perhitungan ditampilkan lengkap dan dapat dicetak sebagai dokumentasi penelitian.'],
     ]; foreach ($features as $f): ?>

@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <h1><span>Sistem Pendukung Keputusan</span> Kendaraan Listrik Terbaik</h1>
       <p>Manfaatkan kecerdasan matematika AHP & TOPSIS untuk memilih Electric Vehicle yang paling sesuai kebutuhan Anda dari ratusan pilihan tersedia.</p>
       <ul class="feature-list">
-        <li><span class="fi"><?= icon('check') ?></span> Database 450+ kendaraan listrik dari berbagai brand</li>
+        <li><span class="fi"><?= icon('check') ?></span> Data 43 mobil listrik yang dipasarkan di Indonesia</li>
         <li><span class="fi"><?= icon('check') ?></span> Filter berdasarkan segmen, jenis penggerak, body type</li>
         <li><span class="fi"><?= icon('check') ?></span> Perhitungan AHP dengan uji konsistensi Saaty</li>
         <li><span class="fi"><?= icon('check') ?></span> Ranking TOPSIS dengan solusi ideal positif &amp; negatif</li>

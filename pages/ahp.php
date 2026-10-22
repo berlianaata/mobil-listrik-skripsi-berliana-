@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($hasil['konsisten']) {
         setFlash('success', 'Perhitungan AHP berhasil! CR = ' . round($cr, 4) . ' (Konsisten). Lanjutkan ke TOPSIS.');
     } else {
-        setFlash('warning', 'CR = ' . round($cr, 4) . ' > 0.1. Matriks belum konsisten. Silakan revisi nilai perbandingan.');
+        setFlash('warning', 'Penilaian TIDAK KONSISTEN (CR = ' . round($cr, 4) . ' > 0,1). Silakan perbaiki nilai perbandingan berpasangan sebelum melanjutkan.');
     }
 }
 

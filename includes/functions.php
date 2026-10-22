@@ -171,54 +171,56 @@ function getKriteriaByKode($kode) {
 // KENDARAAN HELPERS
 // ─────────────────────────────────────────
 
-function getKendaraanFiltered($filter = [], $limit = 30) {
+function getKendaraanFiltered($filter = [], $limit = 50) {
     $conn  = db();
     $where = ["k.status = 'aktif'",
+              "k.harga_rp_juta IS NOT NULL",
               "k.range_km IS NOT NULL",
-              "k.efficiency_wh_per_km IS NOT NULL",
-              "k.acceleration_0_100_s IS NOT NULL",
               "k.battery_capacity_kwh IS NOT NULL",
-              "k.fast_charging_power_kw IS NOT NULL"];
+              "k.waktu_isi_menit IS NOT NULL",
+              "k.daya_kw IS NOT NULL",
+              "k.seats IS NOT NULL"];
     $params = [];
+    $types  = '';
 
-    if (!empty($filter['segment'])) {
-        $where[] = "k.segment = ?";
-        $params[] = $filter['segment'];
+    // Pilihan kebutuhan pengguna: 'pribadi' (perorangan) atau 'kantor' (niaga)
+    if (!empty($filter['tipe'])) {
+        $where[]  = "k.tipe_penggunaan = ?";
+        $params[] = $filter['tipe'];
+        $types   .= 's';
     }
-    if (!empty($filter['drivetrain'])) {
-        $where[] = "k.drivetrain = ?";
-        $params[] = $filter['drivetrain'];
+
+    // Filter jumlah kursi minimum
+    if (!empty($filter['kursi_min'])) {
+        $where[]  = "k.seats >= ?";
+        $params[] = (int)$filter['kursi_min'];
+        $types   .= 'i';
     }
-    if (!empty($filter['body_type'])) {
-        $where[] = "k.car_body_type = ?";
-        $params[] = $filter['body_type'];
-    }
-    if (!empty($filter['seats'])) {
-        $where[] = "k.seats = ?";
-        $params[] = (int)$filter['seats'];
+    // Filter anggaran maksimum (Rp juta)
+    if (!empty($filter['anggaran_max'])) {
+        $where[]  = "k.harga_rp_juta <= ?";
+        $params[] = (float)$filter['anggaran_max'];
+        $types   .= 'd';
     }
 
     $whereStr = implode(' AND ', $where);
-    $types    = str_repeat('s', count($params));
-    $sql = "SELECT * FROM kendaraan_ev k WHERE $whereStr ORDER BY k.range_km DESC LIMIT ?";
+    $sql = "SELECT * FROM kendaraan_ev k WHERE $whereStr ORDER BY k.harga_rp_juta ASC LIMIT ?";
     $params[] = (int)$limit;
-    $types .= 'i';
+    $types   .= 'i';
 
     $stmt = $conn->prepare($sql);
     if (!$stmt) return [];
-    if (!empty($params)) {
-        $stmt->bind_param($types, ...$params);
-    }
+    $stmt->bind_param($types, ...$params);
     $stmt->execute();
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 }
 
 function getFilterOptions() {
     return [
-        'segments'   => fetchAll("SELECT DISTINCT segment FROM kendaraan_ev WHERE segment IS NOT NULL AND status='aktif' ORDER BY segment"),
-        'drivetrains'=> fetchAll("SELECT DISTINCT drivetrain FROM kendaraan_ev WHERE drivetrain IS NOT NULL AND status='aktif' ORDER BY drivetrain"),
-        'body_types' => fetchAll("SELECT DISTINCT car_body_type FROM kendaraan_ev WHERE car_body_type IS NOT NULL AND status='aktif' ORDER BY car_body_type"),
-        'seats'      => fetchAll("SELECT DISTINCT seats FROM kendaraan_ev WHERE seats IS NOT NULL AND status='aktif' ORDER BY seats"),
+        'tipe' => [
+            ['value' => 'pribadi', 'label' => 'Perorangan (penggunaan pribadi)'],
+            ['value' => 'kantor',  'label' => 'Kantor / niaga'],
+        ],
     ];
 }
 
@@ -285,24 +287,22 @@ function getPreferensiUser($userId) {
 }
 
 function savePreferensiUser($userId, $data) {
-    $conn    = db();
-    $segment = $data['segment'] ?? null;
-    $drive   = $data['drivetrain'] ?? null;
-    $body    = $data['body_type'] ?? null;
-    $seats   = !empty($data['seats']) ? (int)$data['seats'] : null;
-    $jml     = isset($data['jumlah_alt']) ? (int)$data['jumlah_alt'] : 20;
+    $conn = db();
+    $tipe = in_array($data['tipe'] ?? null, ['pribadi','kantor'], true) ? $data['tipe'] : null;
+    $jml  = isset($data['jumlah_alt']) ? (int)$data['jumlah_alt'] : 50;
+    $kursi = !empty($data['kursi_min']) ? (int)$data['kursi_min'] : null;
+    $ang   = !empty($data['anggaran_max']) ? (float)$data['anggaran_max'] : null;
 
     $stmt = $conn->prepare("
-        INSERT INTO preferensi_user (user_id, filter_segment, filter_drive, filter_body, filter_seats, jumlah_alt)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO preferensi_user (user_id, filter_tipe, filter_kursi_min, filter_anggaran_max, jumlah_alt)
+        VALUES (?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
-            filter_segment = VALUES(filter_segment),
-            filter_drive   = VALUES(filter_drive),
-            filter_body    = VALUES(filter_body),
-            filter_seats   = VALUES(filter_seats),
-            jumlah_alt     = VALUES(jumlah_alt)
+            filter_tipe = VALUES(filter_tipe),
+            filter_kursi_min = VALUES(filter_kursi_min),
+            filter_anggaran_max = VALUES(filter_anggaran_max),
+            jumlah_alt  = VALUES(jumlah_alt)
     ");
-    $stmt->bind_param('isssii', $userId, $segment, $drive, $body, $seats, $jml);
+    $stmt->bind_param('isidi', $userId, $tipe, $kursi, $ang, $jml);
     return $stmt->execute();
 }
 
@@ -407,6 +407,15 @@ function formatAngka($val, $desimal = 2) {
     return number_format((float)$val, $desimal, '.', ',');
 }
 
+// Format harga (nilai dalam Rp juta) menjadi teks rupiah yang mudah dibaca
+function formatRupiahJuta($juta) {
+    $juta = (float)$juta;
+    if ($juta >= 1000) {
+        return 'Rp ' . number_format($juta / 1000, 2, ',', '.') . ' miliar';
+    }
+    return 'Rp ' . number_format($juta, 2, ',', '.') . ' juta';
+}
+
 function formatPersen($val, $desimal = 2) {
     return number_format((float)$val * 100, $desimal) . '%';
 }
@@ -444,6 +453,8 @@ function getStatistikDB() {
         'total_history' => fetchOne("SELECT COUNT(*) c FROM history_perhitungan")['c'] ?? 0,
         'max_range'     => fetchOne("SELECT MAX(range_km) c FROM kendaraan_ev WHERE status='aktif'")['c'] ?? 0,
         'avg_range'     => fetchOne("SELECT ROUND(AVG(range_km)) c FROM kendaraan_ev WHERE status='aktif'")['c'] ?? 0,
+        'total_pribadi' => fetchOne("SELECT COUNT(*) c FROM kendaraan_ev WHERE status='aktif' AND tipe_penggunaan='pribadi'")['c'] ?? 0,
+        'total_kantor'  => fetchOne("SELECT COUNT(*) c FROM kendaraan_ev WHERE status='aktif' AND tipe_penggunaan='kantor'")['c'] ?? 0,
     ];
 }
 ?>

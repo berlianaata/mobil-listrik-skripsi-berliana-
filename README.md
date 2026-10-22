@@ -12,9 +12,9 @@ dua metode **Sistem Pendukung Keputusan (SPK)**:
 - **TOPSIS** (Technique for Order Preference by Similarity to Ideal Solution) — untuk merangking alternatif
 
 **Judul Lengkap:**
-> Sistem Pendukung Keputusan Pemilihan Kendaraan Listrik (Electric Vehicle/EV) Terbaik
-> Menggunakan Metode Analytic Hierarchy Process (AHP) dan Technique for Order Preference
-> by Similarity to Ideal Solution (TOPSIS) Berbasis Web
+> Sistem Pendukung Keputusan Pemilihan Mobil Listrik Berbasis Baterai (BEV) di Indonesia
+> untuk Kebutuhan Perorangan dan Kantor Menggunakan Metode Analytic Hierarchy Process (AHP)
+> dan Technique for Order Preference by Similarity to Ideal Solution (TOPSIS) Berbasis Web
 
 ---
 
@@ -120,8 +120,31 @@ Buka browser: http://localhost/spk_ev_php
 
 ## 🎯 Kriteria Analisis
 
-| Kode | Nama Kriteria           | Tipe    | Satuan  | Bobot Default |
-|------|-------------------------|---------|---------|---------------|
+| Kode | Nama Kriteria            | Tipe    | Satuan  | Bobot Default |
+|------|--------------------------|---------|---------|---------------|
+| C1   | Harga (OTR)              | Cost    | Rp juta | sama rata     |
+| C2   | Jangkauan (Range)        | Benefit | km      | sama rata     |
+| C3   | Kapasitas Baterai        | Benefit | kWh     | sama rata     |
+| C4   | Daya Motor               | Benefit | kW      | sama rata     |
+| C5   | Waktu Pengisian Cepat DC | Cost    | menit   | sama rata     |
+
+Bobot sebenarnya dihitung dari matriks perbandingan berpasangan AHP (5 kriteria = 10 pasangan, RI = 1,12; bobot diisi sendiri oleh pengguna dan admin).
+Kebutuhan pengguna (**perorangan** atau **kantor**), **jumlah kursi minimum**, dan **anggaran maksimum** berfungsi sebagai filter alternatif, bukan kriteria.
+Daya motor pada data sumber (hp) dikonversi ke kW (1 hp = 0,7457 kW).
+
+## 🗂️ Data
+
+- Sumber: Kaggle `arsan5623/indonesia-electric-vehicle-ev-dataset-2026` (bersumber dari Oto.com, harga OTR per April 2026).
+- Dataset berisi 60 model; setelah penyaringan menjadi **43 model** (40 perorangan, 3 kantor).
+  Dikeluarkan: 12 model dengan harga belum diumumkan resmi dan 5 model tanpa data pengisian cepat DC.
+- Nilai per model: rata-rata nilai minimum dan maksimum (jumlah kursi memakai nilai maksimum).
+- Keterbatasan: waktu pengisian pada sumber tidak selalu menyebut batas pengisian (0–80% atau 0–100%).
+
+> **Update dari versi sebelumnya:** skema tabel `kendaraan_ev`, `kriteria`, dan `preferensi_user` berubah.
+> Hapus database lama (`DROP DATABASE spk_ev_db;`) lalu import ulang `config/init.sql`
+> (akun, matriks AHP, dan riwayat lama ikut terhapus).
+
+------|-------------------------|---------|---------|---------------|
 | C1   | Jangkauan (Range)       | Benefit | km      | 34.29%        |
 | C2   | Efisiensi Energi        | Cost    | Wh/km   | 22.86%        |
 | C3   | Daya Pengisian Cepat    | Benefit | kW      | 17.14%        |
@@ -161,7 +184,7 @@ Buka browser: http://localhost/spk_ev_php
 3. Saaty, T. L. (1990). How to make a decision: The Analytic Hierarchy Process. *European Journal of Operational Research*, 48(1), 9–26.
 4. Chen, C. T. (2000). Extensions of the TOPSIS for group decision-making under fuzzy environment. *Fuzzy Sets and Systems*, 114(1), 1–9.
 5. Kusumadewi, S., et al. (2006). *Fuzzy Multi-Attribute Decision Making (Fuzzy MADM)*. Graha Ilmu, Yogyakarta.
-6. EV Database. (2024). Electric Vehicle Specifications. https://ev-database.org
+6. arsan5623. (2026). Indonesia Electric Vehicle (EV) Dataset 2026 (sumber: Oto.com). Kaggle. https://www.kaggle.com/datasets/arsan5623/indonesia-electric-vehicle-ev-dataset-2026
 
 ---
 
