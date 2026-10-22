@@ -6,14 +6,11 @@
 require_once __DIR__ . '/../includes/functions.php';
 requireLogin();
 
-$pageTitle = 'Katalog Kendaraan EV';
+$pageTitle = 'Katalog Mobil Listrik Indonesia';
 $opts      = getFilterOptions();
 
 // ─── Filter dari GET ───
-$filterSegment  = $_GET['segment']    ?? '';
-$filterDrive    = $_GET['drivetrain'] ?? '';
-$filterBody     = $_GET['body_type']  ?? '';
-$filterSeats    = $_GET['seats']      ?? '';
+$filterTipe     = $_GET['tipe']       ?? '';
 $search         = trim($_GET['q']     ?? '');
 $page           = max(1, (int)($_GET['page'] ?? 1));
 $perPage        = 15;
@@ -23,10 +20,7 @@ $conn  = db();
 $where = ["status = 'aktif'"];
 $params= [];
 
-if ($filterSegment)  { $where[] = "segment = ?";       $params[] = $filterSegment; }
-if ($filterDrive)    { $where[] = "drivetrain = ?";     $params[] = $filterDrive; }
-if ($filterBody)     { $where[] = "car_body_type = ?";  $params[] = $filterBody; }
-if ($filterSeats)    { $where[] = "seats = ?";          $params[] = (int)$filterSeats; }
+if (in_array($filterTipe, ['pribadi','kantor'], true)) { $where[] = "tipe_penggunaan = ?"; $params[] = $filterTipe; }
 if ($search)         { $where[] = "(brand LIKE ? OR model LIKE ?)"; $params[] = "%$search%"; $params[] = "%$search%"; }
 
 $whereStr = 'WHERE ' . implode(' AND ', $where);
@@ -44,7 +38,7 @@ $totalPage= ceil($total / $perPage);
 $offset   = ($page - 1) * $perPage;
 
 // Data
-$dataSql  = "SELECT * FROM kendaraan_ev $whereStr ORDER BY range_km DESC LIMIT ? OFFSET ?";
+$dataSql  = "SELECT * FROM kendaraan_ev $whereStr ORDER BY harga_rp_juta ASC LIMIT ? OFFSET ?";
 $allParams= array_merge($params, [$perPage, $offset]);
 $types2   = str_repeat('s', count($params)) . 'ii';
 $stmtData = $conn->prepare($dataSql);
@@ -65,45 +59,12 @@ include __DIR__ . '/../includes/navbar.php';
            value="<?= clean($search) ?>">
   </div>
   <div class="filter-group">
-    <label>Segmen</label>
-    <select class="form-control" name="segment">
-      <option value="">Semua Segmen</option>
-      <?php foreach ($opts['segments'] as $s): ?>
-        <option value="<?= clean($s['segment']) ?>" <?= $filterSegment===$s['segment']?'selected':''?>>
-          <?= clean($s['segment']) ?>
-        </option>
-      <?php endforeach; ?>
-    </select>
-  </div>
-  <div class="filter-group">
-    <label>Penggerak</label>
-    <select class="form-control" name="drivetrain">
+    <label>Kebutuhan</label>
+    <select class="form-control" name="tipe">
       <option value="">Semua</option>
-      <?php foreach ($opts['drivetrains'] as $d): ?>
-        <option value="<?= clean($d['drivetrain']) ?>" <?= $filterDrive===$d['drivetrain']?'selected':''?>>
-          <?= clean($d['drivetrain']) ?>
-        </option>
-      <?php endforeach; ?>
-    </select>
-  </div>
-  <div class="filter-group">
-    <label>Tipe Bodi</label>
-    <select class="form-control" name="body_type">
-      <option value="">Semua</option>
-      <?php foreach ($opts['body_types'] as $bt): ?>
-        <option value="<?= clean($bt['car_body_type']) ?>" <?= $filterBody===$bt['car_body_type']?'selected':''?>>
-          <?= clean($bt['car_body_type']) ?>
-        </option>
-      <?php endforeach; ?>
-    </select>
-  </div>
-  <div class="filter-group">
-    <label>Kursi</label>
-    <select class="form-control" name="seats">
-      <option value="">Semua</option>
-      <?php foreach ($opts['seats'] as $st): ?>
-        <option value="<?= (int)$st['seats'] ?>" <?= $filterSeats==(int)$st['seats']?'selected':''?>>
-          <?= (int)$st['seats'] ?> Penumpang
+      <?php foreach ($opts['tipe'] as $t): ?>
+        <option value="<?= clean($t['value']) ?>" <?= $filterTipe===$t['value']?'selected':''?>>
+          <?= clean($t['label']) ?>
         </option>
       <?php endforeach; ?>
     </select>
@@ -140,22 +101,19 @@ include __DIR__ . '/../includes/navbar.php';
             <th>#</th>
             <th>Brand</th>
             <th>Model</th>
-            <th>Segmen</th>
-            <th>Bodi</th>
-            <th>Penggerak</th>
-            <th title="Range (km)">Range</th>
-            <th title="Efisiensi (Wh/km)">Efisiensi</th>
-            <th title="Daya Pengisian (kW)">Fast Charge</th>
-            <th title="Akselerasi 0-100km/h">0-100</th>
+            <th>Kebutuhan</th>
+            <th title="Harga OTR (Rp juta)">Harga</th>
+            <th title="Jangkauan (km)">Range</th>
             <th title="Kapasitas Baterai (kWh)">Baterai</th>
+            <th title="Waktu pengisian cepat DC (menit)">Isi DC</th>
+            <th title="Daya motor (hp)">Daya</th>
             <th>Kursi</th>
-            <th>Port</th>
           </tr>
         </thead>
         <tbody>
           <?php if (empty($evList)): ?>
           <tr>
-            <td colspan="13" style="text-align:center;padding:32px;color:var(--text-muted)">
+            <td colspan="10" style="text-align:center;padding:32px;color:var(--text-muted)">
               Tidak ada data yang cocok dengan filter Anda.
             </td>
           </tr>
@@ -170,47 +128,28 @@ include __DIR__ . '/../includes/navbar.php';
               <?= clean($ev['model']) ?>
             </td>
             <td>
-              <span class="badge badge-gray" style="font-size:0.68rem">
-                <?= clean($ev['segment'] ?? '-') ?>
+              <span class="badge <?= $ev['tipe_penggunaan']==='kantor' ? 'badge-orange' : 'badge-green' ?>" style="font-size:0.68rem">
+                <?= $ev['tipe_penggunaan']==='kantor' ? 'Kantor' : 'Perorangan' ?>
               </span>
             </td>
-            <td style="font-size:0.82rem"><?= clean($ev['car_body_type'] ?? '-') ?></td>
+            <td><?= formatRupiahJuta($ev['harga_rp_juta']) ?></td>
             <td>
-              <?php
-                $dr = $ev['drivetrain'] ?? '-';
-                $drClass = $dr === 'AWD' ? 'badge-blue' : ($dr === 'RWD' ? 'badge-green' : 'badge-orange');
-              ?>
-              <span class="badge <?= $drClass ?>"><?= $dr ?></span>
-            </td>
-            <td>
-              <strong style="color:var(--primary)"><?= $ev['range_km'] ?? '-' ?></strong>
+              <strong style="color:var(--primary)"><?= clean((float)$ev['range_km']) ?></strong>
               <span style="font-size:0.68rem;color:var(--text-muted)"> km</span>
             </td>
             <td>
-              <?= $ev['efficiency_wh_per_km'] ?? '-' ?>
-              <span style="font-size:0.68rem;color:var(--text-muted)"> Wh/km</span>
-            </td>
-            <td>
-              <?php $fc = $ev['fast_charging_power_kw'] ?? 0; ?>
-              <span style="color:<?= $fc >= 150 ? 'var(--success)' : ($fc >= 100 ? 'var(--warning)' : 'var(--text-muted)') ?>">
-                <?= $fc ?: '-' ?>
-              </span>
-              <?php if ($fc): ?><span style="font-size:0.68rem;color:var(--text-muted)"> kW</span><?php endif; ?>
-            </td>
-            <td>
-              <?= $ev['acceleration_0_100_s'] ?? '-' ?>
-              <span style="font-size:0.68rem;color:var(--text-muted)"> s</span>
-            </td>
-            <td>
-              <?= $ev['battery_capacity_kwh'] ?? '-' ?>
+              <?= clean((float)$ev['battery_capacity_kwh']) ?>
               <span style="font-size:0.68rem;color:var(--text-muted)"> kWh</span>
             </td>
-            <td><?= $ev['seats'] ?? '-' ?></td>
             <td>
-              <span class="badge badge-gray" style="font-size:0.68rem">
-                <?= clean($ev['fast_charge_port'] ?? '-') ?>
-              </span>
+              <?= clean((float)$ev['waktu_isi_menit']) ?>
+              <span style="font-size:0.68rem;color:var(--text-muted)"> mnt</span>
             </td>
+            <td>
+              <?= clean((float)$ev['daya_hp']) ?>
+              <span style="font-size:0.68rem;color:var(--text-muted)"> hp</span>
+            </td>
+            <td><?= (int)$ev['seats'] ?></td>
           </tr>
           <?php endforeach; ?>
           <?php endif; ?>

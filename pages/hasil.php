@@ -35,12 +35,9 @@ foreach ($kriteria as $k) {
 // ─── Ambil kendaraan ───
 $pref   = getPreferensiUser($userId);
 $filter = [
-    'segment'    => $pref['filter_segment'] ?? null,
-    'drivetrain' => $pref['filter_drive']   ?? null,
-    'body_type'  => $pref['filter_body']    ?? null,
-    'seats'      => $pref['filter_seats']   ?? null,
+    'tipe'       => $pref['filter_tipe']    ?? null,
 ];
-$limit     = $pref['jumlah_alt'] ?? 20;
+$limit     = $pref['jumlah_alt'] ?? 50;
 $kendaraan = getKendaraanFiltered($filter, $limit);
 
 if (count($kendaraan) < 2) {
@@ -105,15 +102,16 @@ include __DIR__ . '/../includes/navbar.php';
       </h2>
       <?php if ($ev1): ?>
       <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">
-        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= $ev1['battery_capacity_kwh'] ?> kWh</span>
-        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= $ev1['range_km'] ?> km</span>
-        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= $ev1['fast_charging_power_kw'] ?> kW Charging</span>
-        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem">0-100 dalam <?= $ev1['acceleration_0_100_s'] ?>s</span>
-        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= $ev1['seats'] ?> kursi</span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= formatRupiahJuta($ev1['harga_rp_juta']) ?></span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= (float)$ev1['battery_capacity_kwh'] ?> kWh</span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= (float)$ev1['range_km'] ?> km</span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem">Isi cepat DC <?= (float)$ev1['waktu_isi_menit'] ?> menit</span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= (float)$ev1['daya_hp'] ?> hp</span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= (int)$ev1['seats'] ?> kursi</span>
       </div>
       <?php endif; ?>
       <p style="color:rgba(255,255,255,0.86);font-size:0.85rem">
-        Dipilih sebagai EV terbaik berdasarkan analisis AHP & TOPSIS
+        Dipilih sebagai mobil listrik terbaik berdasarkan analisis AHP & TOPSIS
         dari <?= count($kendaraan) ?> alternatif kendaraan listrik.
       </p>
     </div>
@@ -160,20 +158,20 @@ include __DIR__ . '/../includes/navbar.php';
           <?php if ($evX): ?>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
             <div style="background:#F8FAFC;border-radius:8px;padding:10px;text-align:center">
-              <div style="font-size:1.1rem;font-weight:800;color:var(--primary)"><?= $evX['range_km'] ?></div>
+              <div style="font-size:1.1rem;font-weight:800;color:var(--primary)"><?= formatRupiahJuta($evX['harga_rp_juta']) ?></div>
+              <div style="font-size:0.68rem;color:var(--text-muted)">Harga OTR</div>
+            </div>
+            <div style="background:#F8FAFC;border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:1.1rem;font-weight:800;color:var(--info)"><?= (float)$evX['range_km'] ?></div>
               <div style="font-size:0.68rem;color:var(--text-muted)">km Jangkauan</div>
             </div>
             <div style="background:#F8FAFC;border-radius:8px;padding:10px;text-align:center">
-              <div style="font-size:1.1rem;font-weight:800;color:var(--info)"><?= $evX['fast_charging_power_kw'] ?></div>
-              <div style="font-size:0.68rem;color:var(--text-muted)">kW Charging</div>
+              <div style="font-size:1.1rem;font-weight:800;color:var(--warning)"><?= (float)$evX['waktu_isi_menit'] ?></div>
+              <div style="font-size:0.68rem;color:var(--text-muted)">menit isi cepat DC</div>
             </div>
             <div style="background:#F8FAFC;border-radius:8px;padding:10px;text-align:center">
-              <div style="font-size:1.1rem;font-weight:800;color:var(--warning)"><?= $evX['acceleration_0_100_s'] ?>s</div>
-              <div style="font-size:0.68rem;color:var(--text-muted)">0-100 km/h</div>
-            </div>
-            <div style="background:#F8FAFC;border-radius:8px;padding:10px;text-align:center">
-              <div style="font-size:1.1rem;font-weight:800;color:var(--success)"><?= $evX['efficiency_wh_per_km'] ?></div>
-              <div style="font-size:0.68rem;color:var(--text-muted)">Wh/km</div>
+              <div style="font-size:1.1rem;font-weight:800;color:var(--success)"><?= (float)$evX['daya_hp'] ?></div>
+              <div style="font-size:0.68rem;color:var(--text-muted)">hp Daya motor</div>
             </div>
           </div>
           <?php endif; ?>

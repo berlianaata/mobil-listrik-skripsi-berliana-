@@ -170,7 +170,7 @@ include __DIR__ . '/../includes/navbar.php';
       <!-- Alur -->
       <div style="display:flex;gap:0;overflow-x:auto;padding-bottom:8px;margin-bottom:24px">
         <?php $alur = [
-          ['','Definisi\nKriteria','Tentukan 5 kriteria evaluasi EV'],
+          ['','Definisi\nKriteria','Tentukan 6 kriteria evaluasi mobil listrik'],
           ['','Penilaian\nAHP','Isi matriks perbandingan berpasangan (Saaty 1-9)'],
           ['','Hitung\nBobot','Normalisasi → Eigenvector → Bobot w_j'],
           ['','Uji\nKonsistensi','CR ≤ 0.1 → Bobot valid'],
@@ -193,7 +193,7 @@ include __DIR__ . '/../includes/navbar.php';
         <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:18px">
           <div style="font-weight:700;color:#1D4ED8;margin-bottom:10px">Peran AHP dalam Sistem Ini</div>
           <ul style="padding-left:18px;font-size:0.86rem;color:var(--text-muted);line-height:1.8">
-            <li>Pengguna mengisi matriks perbandingan berpasangan antar 5 kriteria</li>
+            <li>Pengguna mengisi matriks perbandingan berpasangan antar 6 kriteria</li>
             <li>Sistem menghitung bobot prioritas menggunakan metode eigenvector</li>
             <li>Uji konsistensi (CR ≤ 0.1) memastikan penilaian logis</li>
             <li>Bobot yang dihasilkan mencerminkan preferensi subjektif pengguna</li>
@@ -219,8 +219,8 @@ include __DIR__ . '/../includes/navbar.php';
     <div class="card-header"><h3>Kriteria Pemilihan EV</h3></div>
     <div class="card-body">
       <div class="info-box mb-4">
-        Sistem menggunakan <strong>5 kriteria utama</strong> dalam pemilihan EV terbaik,
-        dipilih berdasarkan relevansi teknis dan kemudahan pengukuran dari data dataset EV global.
+        Sistem menggunakan <strong>6 kriteria utama</strong> dalam pemilihan mobil listrik terbaik,
+        dipilih berdasarkan relevansi bagi pembeli dan ketersediaan data pada dataset mobil listrik Indonesia (Oto.com via Kaggle).
       </div>
       <?php foreach (getKriteria() as $k): ?>
       <div style="padding:18px 0;border-bottom:1px solid var(--border)">
@@ -261,7 +261,7 @@ include __DIR__ . '/../includes/navbar.php';
         ['[4]','Chen, C. T.','(2000)','Extensions of the TOPSIS for group decision-making under fuzzy environment','Fuzzy Sets and Systems, 114(1), 1–9.'],
         ['[5]','Yoon, K. P., & Hwang, C. L.','(1995)','Multiple Attribute Decision Making: An Introduction','Sage Publications, California.'],
         ['[6]','Kusumadewi, S., et al.','(2006)','Fuzzy Multi-Attribute Decision Making (Fuzzy MADM)','Graha Ilmu, Yogyakarta.'],
-        ['[7]','EV Database','(2024)','Electric Vehicle Specifications Database','https://ev-database.org'],
+        ['[7]','arsan5623','(2026)','Indonesia Electric Vehicle (EV) Dataset 2026 (sumber: Oto.com)','https://www.kaggle.com/datasets/arsan5623/indonesia-electric-vehicle-ev-dataset-2026'],
       ]; ?>
       <div style="display:flex;flex-direction:column;gap:14px">
         <?php foreach ($refs as $r): ?>

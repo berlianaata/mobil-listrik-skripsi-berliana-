@@ -40,12 +40,9 @@ foreach ($kriteria as $k) {
 // ─── Ambil data kendaraan sesuai preferensi ───
 $pref   = getPreferensiUser($userId);
 $filter = [
-    'segment'    => $pref['filter_segment'] ?? null,
-    'drivetrain' => $pref['filter_drive']   ?? null,
-    'body_type'  => $pref['filter_body']    ?? null,
-    'seats'      => $pref['filter_seats']   ?? null,
+    'tipe'       => $pref['filter_tipe']    ?? null,
 ];
-$limit      = $pref['jumlah_alt'] ?? 20;
+$limit      = $pref['jumlah_alt'] ?? 50;
 $kendaraan  = getKendaraanFiltered($filter, $limit);
 
 if (count($kendaraan) < 2) {

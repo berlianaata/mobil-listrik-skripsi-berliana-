@@ -12,20 +12,11 @@ $pref      = getPreferensiUser($_SESSION['user_id']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
+    $tipe = $_POST['tipe'] ?? '';
     $data = [
-        'segment'    => $_POST['segment']    ?? null,
-        'drivetrain' => $_POST['drivetrain'] ?? null,
-        'body_type'  => $_POST['body_type']  ?? null,
-        'seats'      => !empty($_POST['seats']) ? (int)$_POST['seats'] : null,
-        'jumlah_alt' => min(50, max(5, (int)($_POST['jumlah_alt'] ?? 20))),
+        'tipe'       => in_array($tipe, ['pribadi','kantor'], true) ? $tipe : null,
+        'jumlah_alt' => min(50, max(5, (int)($_POST['jumlah_alt'] ?? 50))),
     ];
-
-    // Bersihkan nilai kosong
-    foreach ($data as $k => &$v) {
-        if ($v === '' || $v === '0' || $v === null) $v = null;
-    }
-    unset($v);
-    $data['jumlah_alt'] = (int)($_POST['jumlah_alt'] ?? 20);
 
     savePreferensiUser($_SESSION['user_id'], $data);
     setFlash('success', 'Preferensi berhasil disimpan! Sekarang lanjutkan ke penilaian AHP.');
@@ -51,7 +42,7 @@ include __DIR__ . '/../includes/navbar.php';
   <!-- FORM PREFERENSI -->
   <div class="card">
     <div class="card-header">
-      <h3>Filter Kendaraan EV</h3>
+      <h3>Pilih Kebutuhan Anda</h3>
     </div>
     <div class="card-body">
       <div class="info-box">
@@ -62,69 +53,22 @@ include __DIR__ . '/../includes/navbar.php';
 
       <form method="POST" action="">
         <?= csrf_field() ?>
-        <!-- Segmen Kendaraan -->
+        <!-- Kebutuhan Pengguna -->
         <div class="form-group">
-          <label for="segment">Segmen Kendaraan</label>
-          <select class="form-control" name="segment" id="segment">
-            <option value="">— Semua Segmen —</option>
-            <?php foreach ($opts['segments'] as $s): ?>
-              <option value="<?= clean($s['segment']) ?>"
-                <?= ($pref['filter_segment'] ?? '') === $s['segment'] ? 'selected' : '' ?>>
-                <?= clean($s['segment']) ?>
+          <label for="tipe">Kebutuhan Pengguna</label>
+          <select class="form-control" name="tipe" id="tipe">
+            <option value="">— Semua (perorangan &amp; kantor) —</option>
+            <?php foreach ($opts['tipe'] as $t): ?>
+              <option value="<?= clean($t['value']) ?>"
+                <?= ($pref['filter_tipe'] ?? '') === $t['value'] ? 'selected' : '' ?>>
+                <?= clean($t['label']) ?>
               </option>
             <?php endforeach; ?>
           </select>
           <small class="text-muted text-xs mt-1">
-            Contoh: B - Compact, D - Medium, E - Executive, JD - Large
+            Perorangan: mobil untuk penggunaan pribadi. Kantor: kendaraan niaga/operasional.
+            Pilihan ini hanya menyaring alternatif, bukan kriteria penilaian.
           </small>
-        </div>
-
-        <!-- Jenis Penggerak -->
-        <div class="form-group">
-          <label for="drivetrain">Jenis Penggerak (Drivetrain)</label>
-          <select class="form-control" name="drivetrain" id="drivetrain">
-            <option value="">— Semua Penggerak —</option>
-            <?php foreach ($opts['drivetrains'] as $d): ?>
-              <option value="<?= clean($d['drivetrain']) ?>"
-                <?= ($pref['filter_drive'] ?? '') === $d['drivetrain'] ? 'selected' : '' ?>>
-                <?= clean($d['drivetrain']) ?>
-                <?php
-                  $dr = $d['drivetrain'];
-                  if ($dr === 'FWD') echo ' — Penggerak Roda Depan';
-                  elseif ($dr === 'RWD') echo ' — Penggerak Roda Belakang';
-                  elseif ($dr === 'AWD') echo ' — Penggerak 4 Roda';
-                ?>
-              </option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-
-        <!-- Tipe Body -->
-        <div class="form-group">
-          <label for="body_type">Tipe Bodi Kendaraan</label>
-          <select class="form-control" name="body_type" id="body_type">
-            <option value="">— Semua Tipe Bodi —</option>
-            <?php foreach ($opts['body_types'] as $bt): ?>
-              <option value="<?= clean($bt['car_body_type']) ?>"
-                <?= ($pref['filter_body'] ?? '') === $bt['car_body_type'] ? 'selected' : '' ?>>
-                <?= clean($bt['car_body_type']) ?>
-              </option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-
-        <!-- Jumlah Kursi -->
-        <div class="form-group">
-          <label for="seats">Jumlah Kursi</label>
-          <select class="form-control" name="seats" id="seats">
-            <option value="">— Semua —</option>
-            <?php foreach ($opts['seats'] as $st): ?>
-              <option value="<?= (int)$st['seats'] ?>"
-                <?= (int)($pref['filter_seats'] ?? 0) === (int)$st['seats'] ? 'selected' : '' ?>>
-                <?= (int)$st['seats'] ?> Penumpang
-              </option>
-            <?php endforeach; ?>
-          </select>
         </div>
 
         <!-- Jumlah Alternatif -->
@@ -133,13 +77,13 @@ include __DIR__ . '/../includes/navbar.php';
           <select class="form-control" name="jumlah_alt" id="jumlah_alt">
             <?php foreach ([10,15,20,25,30,40,50] as $j): ?>
               <option value="<?= $j ?>"
-                <?= (int)($pref['jumlah_alt'] ?? 20) === $j ? 'selected' : '' ?>>
-                <?= $j ?> Kendaraan Teratas
+                <?= (int)($pref['jumlah_alt'] ?? 50) === $j ? 'selected' : '' ?>>
+                <?= $j ?> Kendaraan Termurah
               </option>
             <?php endforeach; ?>
           </select>
           <small class="text-muted text-xs mt-1">
-            Kendaraan diurutkan berdasarkan jangkauan terpanjang sebelum analisis.
+            Bila alternatif lebih banyak dari batas ini, kendaraan diurutkan dari harga termurah sebelum analisis.
           </small>
         </div>
 
@@ -160,7 +104,7 @@ include __DIR__ . '/../includes/navbar.php';
       <div class="card-header"><h3>Informasi Kriteria Analisis</h3></div>
       <div class="card-body">
         <p class="text-sm text-muted mb-3">
-          Berikut adalah <strong>5 kriteria</strong> yang digunakan dalam analisis AHP-TOPSIS:
+          Berikut adalah <strong><?= count(getKriteria()) ?> kriteria</strong> yang digunakan dalam analisis AHP-TOPSIS:
         </p>
         <?php $kriteria = getKriteria(); ?>
         <?php foreach ($kriteria as $k): ?>
@@ -187,13 +131,8 @@ include __DIR__ . '/../includes/navbar.php';
 
     <!-- Preview jumlah kendaraan -->
     <?php
-      $prevFilter = [
-          'segment'    => $pref['filter_segment'] ?? null,
-          'drivetrain' => $pref['filter_drive']   ?? null,
-          'body_type'  => $pref['filter_body']    ?? null,
-          'seats'      => $pref['filter_seats']   ?? null,
-      ];
-      $prevData = getKendaraanFiltered($prevFilter, $pref['jumlah_alt'] ?? 20);
+      $prevFilter = ['tipe' => $pref['filter_tipe'] ?? null];
+      $prevData = getKendaraanFiltered($prevFilter, $pref['jumlah_alt'] ?? 50);
     ?>
     <div class="card">
       <div class="card-header">
@@ -208,14 +147,14 @@ include __DIR__ . '/../includes/navbar.php';
         <?php else: ?>
           <div class="table-wrap" style="max-height:320px;overflow-y:auto">
             <table>
-              <thead><tr><th>#</th><th>Brand</th><th>Model</th><th>Range (km)</th></tr></thead>
+              <thead><tr><th>#</th><th>Brand</th><th>Model</th><th>Harga</th></tr></thead>
               <tbody>
                 <?php foreach (array_slice($prevData,0,10) as $i=>$ev): ?>
                 <tr>
                   <td><?= $i+1 ?></td>
                   <td><strong><?= clean($ev['brand']) ?></strong></td>
                   <td><?= clean($ev['model']) ?></td>
-                  <td><span class="badge badge-green"><?= $ev['range_km'] ?> km</span></td>
+                  <td><span class="badge badge-green"><?= formatRupiahJuta($ev['harga_rp_juta']) ?></span></td>
                 </tr>
                 <?php endforeach; ?>
                 <?php if (count($prevData)>10): ?>
