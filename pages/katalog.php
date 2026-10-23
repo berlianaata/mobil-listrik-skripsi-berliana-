@@ -12,6 +12,8 @@ $opts      = getFilterOptions();
 // ─── Filter dari GET ───
 $filterTipe     = $_GET['tipe']       ?? '';
 $filterBodi     = $_GET['bodi']       ?? '';
+$filterKursi    = max(0, (int)($_GET['kursi'] ?? 0));
+$filterAng      = max(0, (float)($_GET['anggaran'] ?? 0));
 $search         = trim($_GET['q']     ?? '');
 $page           = max(1, (int)($_GET['page'] ?? 1));
 $perPage        = 15;
@@ -23,6 +25,8 @@ $params= [];
 
 if (in_array($filterTipe, ['pribadi','kantor'], true)) { $where[] = "tipe_penggunaan = ?"; $params[] = $filterTipe; }
 if (in_array($filterBodi, $opts['bodi'], true)) { $where[] = "tipe_bodi = ?"; $params[] = $filterBodi; }
+if ($filterKursi > 0) { $where[] = "seats >= ?"; $params[] = $filterKursi; }
+if ($filterAng > 0)   { $where[] = "harga_rp_juta <= ?"; $params[] = $filterAng; }
 if ($search)         { $where[] = "(brand LIKE ? OR model LIKE ?)"; $params[] = "%$search%"; $params[] = "%$search%"; }
 
 $whereStr = 'WHERE ' . implode(' AND ', $where);
@@ -79,6 +83,20 @@ include __DIR__ . '/../includes/navbar.php';
         <option value="<?= clean($b) ?>" <?= $filterBodi===$b?'selected':''?>><?= clean($b) ?></option>
       <?php endforeach; ?>
     </select>
+  </div>
+  <div class="filter-group">
+    <label>Kursi minimum</label>
+    <select class="form-control" name="kursi">
+      <option value="">Semua</option>
+      <?php foreach ([2,4,5,6,7,8,9] as $k): ?>
+        <option value="<?= $k ?>" <?= $filterKursi===$k?'selected':''?>>≥ <?= $k ?> kursi</option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Anggaran maks (Rp juta)</label>
+    <input class="form-control" type="number" min="0" step="1" name="anggaran" placeholder="mis. 500"
+           value="<?= $filterAng > 0 ? clean($filterAng) : '' ?>" style="width:140px">
   </div>
   <div class="filter-group" style="justify-content:flex-end">
     <label>&nbsp;</label>
