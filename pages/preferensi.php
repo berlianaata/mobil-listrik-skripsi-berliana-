@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tipe = $_POST['tipe'] ?? '';
     $data = [
         'tipe'       => in_array($tipe, ['pribadi','kantor'], true) ? $tipe : null,
+        'bodi'         => in_array($_POST['bodi'] ?? '', $opts['bodi'], true) ? $_POST['bodi'] : null,
         'kursi_min'    => max(0, (int)($_POST['kursi_min'] ?? 0)) ?: null,
         'anggaran_max' => max(0, (float)($_POST['anggaran_max'] ?? 0)) ?: null,
         'jumlah_alt' => min(50, max(5, (int)($_POST['jumlah_alt'] ?? 50))),
@@ -71,6 +72,18 @@ include __DIR__ . '/../includes/navbar.php';
             Perorangan: mobil untuk keperluan perorangan. Kantor: kendaraan niaga/operasional.
             Pilihan ini hanya menyaring alternatif, bukan kriteria penilaian.
           </small>
+        </div>
+
+        <!-- Filter Jenis Mobil -->
+        <div class="form-group">
+          <label for="bodi">Jenis Mobil</label>
+          <select class="form-control" name="bodi" id="bodi">
+            <option value="">— Semua jenis —</option>
+            <?php foreach ($opts['bodi'] as $b): ?>
+              <option value="<?= clean($b) ?>" <?= ($pref['filter_bodi'] ?? '') === $b ? 'selected' : '' ?>><?= clean($b) ?></option>
+            <?php endforeach; ?>
+          </select>
+          <small class="text-muted text-xs mt-1">Jenis bodi menurut Oto.com. Filter alternatif, bukan kriteria penilaian.</small>
         </div>
 
         <!-- Filter Jumlah Kursi -->
@@ -153,7 +166,7 @@ include __DIR__ . '/../includes/navbar.php';
 
     <!-- Preview jumlah kendaraan -->
     <?php
-      $prevFilter = ['tipe' => $pref['filter_tipe'] ?? null, 'kursi_min' => $pref['filter_kursi_min'] ?? null, 'anggaran_max' => $pref['filter_anggaran_max'] ?? null];
+      $prevFilter = ['tipe' => $pref['filter_tipe'] ?? null, 'bodi' => $pref['filter_bodi'] ?? null, 'kursi_min' => $pref['filter_kursi_min'] ?? null, 'anggaran_max' => $pref['filter_anggaran_max'] ?? null];
       $prevData = getKendaraanFiltered($prevFilter, $pref['jumlah_alt'] ?? 50);
     ?>
     <div class="card">
