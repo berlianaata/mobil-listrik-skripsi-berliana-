@@ -38,6 +38,10 @@ function validasiKendaraan(array $in, array &$errors): array {
     }
     $d['tipe_penggunaan'] = in_array($in['tipe_penggunaan'] ?? '', ['pribadi','kantor'], true) ? $in['tipe_penggunaan'] : '';
     if ($d['tipe_penggunaan'] === '') $errors[] = 'Kebutuhan harus Perorangan atau Kantor.';
+    $d['tipe_bodi'] = trim($in['tipe_bodi'] ?? '');
+    if (mb_strlen($d['tipe_bodi']) > 20) $errors[] = 'Jenis bodi maksimal 20 karakter.';
+    $d['foto_url'] = trim($in['foto_url'] ?? '');
+    if ($d['foto_url'] !== '' && (!preg_match('~^https?://~i', $d['foto_url']) || mb_strlen($d['foto_url']) > 255)) $errors[] = 'Link foto harus diawali http(s):// dan maksimal 255 karakter.';
     $d['source_url'] = trim($in['source_url'] ?? '');
     if (mb_strlen($d['source_url']) > 150) $errors[] = 'Link sumber maksimal 150 karakter.';
     $d['status'] = ($in['status'] ?? 'aktif') === 'nonaktif' ? 'nonaktif' : 'aktif';
@@ -59,20 +63,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if (!$errors) {
             $src = $d['source_url'] !== '' ? $d['source_url'] : null;
+            $bodi = $d['tipe_bodi'] !== '' ? $d['tipe_bodi'] : null;
+            $foto = $d['foto_url'] !== '' ? $d['foto_url'] : null;
             if ($id > 0) {
                 executeQuery("UPDATE kendaraan_ev SET brand=?, model=?, tipe_penggunaan=?, harga_rp_juta=?, range_km=?,
-                    battery_capacity_kwh=?, waktu_isi_menit=?, daya_kw=?, seats=?, source_url=?, status=? WHERE id=?",
+                    battery_capacity_kwh=?, waktu_isi_menit=?, daya_kw=?, seats=?, tipe_bodi=?, foto_url=?, source_url=?, status=? WHERE id=?",
                     [$d['brand'],$d['model'],$d['tipe_penggunaan'],$d['harga_rp_juta'],$d['range_km'],
-                     $d['battery_capacity_kwh'],$d['waktu_isi_menit'],$d['daya_kw'],$d['seats'],$src,$d['status'],$id],
-                    'sssdddddissi');
+                     $d['battery_capacity_kwh'],$d['waktu_isi_menit'],$d['daya_kw'],$d['seats'],$bodi,$foto,$src,$d['status'],$id],
+                    'sssdddddissssi');
                 setFlash('success', 'Data kendaraan berhasil diperbarui.');
             } else {
                 executeQuery("INSERT INTO kendaraan_ev (brand, model, tipe_penggunaan, harga_rp_juta, range_km,
-                    battery_capacity_kwh, waktu_isi_menit, daya_kw, seats, source_url, status)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                    battery_capacity_kwh, waktu_isi_menit, daya_kw, seats, tipe_bodi, foto_url, source_url, status)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     [$d['brand'],$d['model'],$d['tipe_penggunaan'],$d['harga_rp_juta'],$d['range_km'],
-                     $d['battery_capacity_kwh'],$d['waktu_isi_menit'],$d['daya_kw'],$d['seats'],$src,$d['status']],
-                    'sssdddddiss');
+                     $d['battery_capacity_kwh'],$d['waktu_isi_menit'],$d['daya_kw'],$d['seats'],$bodi,$foto,$src,$d['status']],
+                    'sssdddddissss');
                 setFlash('success', 'Kendaraan baru berhasil ditambahkan.');
             }
             header('Location: ' . APP_URL . '/pages/admin_kendaraan.php');
@@ -138,6 +144,8 @@ showFlash();
         <div class="form-group"><label>C5 Waktu pengisian cepat DC (menit) · cost</label><input class="form-control" type="number" step="0.1" name="waktu_isi_menit" value="<?= $f('waktu_isi_menit') ?>" required></div>
         <div class="form-group"><label>C4 Daya motor (kW) · benefit</label><input class="form-control" type="number" step="0.1" name="daya_kw" value="<?= $f('daya_kw') ?>" required></div>
         <div class="form-group"><label>Jumlah kursi (filter, bukan kriteria)</label><input class="form-control" type="number" step="1" name="seats" value="<?= $f('seats', '5') ?>" required></div>
+        <div class="form-group"><label>Jenis mobil (filter)</label><input class="form-control" name="tipe_bodi" maxlength="20" placeholder="SUV / Sedan / Hatchback / MPV ..." value="<?= $f('tipe_bodi') ?>"></div>
+        <div class="form-group"><label>Link foto</label><input class="form-control" name="foto_url" maxlength="255" placeholder="https://..." value="<?= $f('foto_url') ?>"></div>
         <div class="form-group"><label>Link sumber (Oto.com)</label><input class="form-control" name="source_url" maxlength="150" value="<?= $f('source_url') ?>"></div>
         <div class="form-group"><label>Status</label>
           <select class="form-control" name="status">

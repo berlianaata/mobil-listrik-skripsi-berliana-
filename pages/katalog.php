@@ -11,6 +11,7 @@ $opts      = getFilterOptions();
 
 // ─── Filter dari GET ───
 $filterTipe     = $_GET['tipe']       ?? '';
+$filterBodi     = $_GET['bodi']       ?? '';
 $search         = trim($_GET['q']     ?? '');
 $page           = max(1, (int)($_GET['page'] ?? 1));
 $perPage        = 15;
@@ -21,6 +22,7 @@ $where = ["status = 'aktif'"];
 $params= [];
 
 if (in_array($filterTipe, ['pribadi','kantor'], true)) { $where[] = "tipe_penggunaan = ?"; $params[] = $filterTipe; }
+if (in_array($filterBodi, $opts['bodi'], true)) { $where[] = "tipe_bodi = ?"; $params[] = $filterBodi; }
 if ($search)         { $where[] = "(brand LIKE ? OR model LIKE ?)"; $params[] = "%$search%"; $params[] = "%$search%"; }
 
 $whereStr = 'WHERE ' . implode(' AND ', $where);
@@ -69,6 +71,15 @@ include __DIR__ . '/../includes/navbar.php';
       <?php endforeach; ?>
     </select>
   </div>
+  <div class="filter-group">
+    <label>Jenis Mobil</label>
+    <select class="form-control" name="bodi">
+      <option value="">Semua</option>
+      <?php foreach ($opts['bodi'] as $b): ?>
+        <option value="<?= clean($b) ?>" <?= $filterBodi===$b?'selected':''?>><?= clean($b) ?></option>
+      <?php endforeach; ?>
+    </select>
+  </div>
   <div class="filter-group" style="justify-content:flex-end">
     <label>&nbsp;</label>
     <div style="display:flex;gap:8px">
@@ -99,8 +110,10 @@ include __DIR__ . '/../includes/navbar.php';
         <thead>
           <tr>
             <th>#</th>
+            <th>Foto</th>
             <th>Brand</th>
             <th>Model</th>
+            <th>Jenis</th>
             <th>Kebutuhan</th>
             <th title="Harga OTR (Rp juta)">Harga</th>
             <th title="Jangkauan (km)">Range</th>
@@ -113,7 +126,7 @@ include __DIR__ . '/../includes/navbar.php';
         <tbody>
           <?php if (empty($evList)): ?>
           <tr>
-            <td colspan="10" style="text-align:center;padding:32px;color:var(--text-muted)">
+            <td colspan="12" style="text-align:center;padding:32px;color:var(--text-muted)">
               Tidak ada data yang cocok dengan filter Anda.
             </td>
           </tr>
@@ -122,11 +135,18 @@ include __DIR__ . '/../includes/navbar.php';
           <tr>
             <td style="color:var(--text-muted)"><?= ($page-1)*$perPage + $i + 1 ?></td>
             <td>
+              <?php if (!empty($ev['foto_url'])): ?>
+              <img src="<?= clean($ev['foto_url']) ?>" alt="<?= clean($ev['brand'].' '.$ev['model']) ?>" loading="lazy" referrerpolicy="no-referrer"
+                   style="width:84px;height:56px;object-fit:cover;border-radius:6px;display:block">
+              <?php endif; ?>
+            </td>
+            <td>
               <strong style="color:var(--primary)"><?= clean($ev['brand']) ?></strong>
             </td>
             <td style="font-size:0.83rem;max-width:200px">
               <?= clean($ev['model']) ?>
             </td>
+            <td style="font-size:0.8rem"><?= clean($ev['tipe_bodi'] ?? '-') ?></td>
             <td>
               <span class="badge <?= $ev['tipe_penggunaan']==='kantor' ? 'badge-orange' : 'badge-green' ?>" style="font-size:0.68rem">
                 <?= $ev['tipe_penggunaan']==='kantor' ? 'Kantor' : 'Perorangan' ?>

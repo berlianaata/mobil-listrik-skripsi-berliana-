@@ -41,6 +41,7 @@ foreach ($kriteria as $k) {
 $pref   = getPreferensiUser($userId);
 $filter = [
     'tipe'       => $pref['filter_tipe']    ?? null,
+    'bodi'       => $pref['filter_bodi'] ?? null,
     'kursi_min'  => $pref['filter_kursi_min'] ?? null,
     'anggaran_max' => $pref['filter_anggaran_max'] ?? null,
 ];

@@ -129,7 +129,7 @@ Buka browser: http://localhost/spk_ev_php
 | C5   | Waktu Pengisian Cepat DC | Cost    | menit   | sama rata     |
 
 Bobot sebenarnya dihitung dari matriks perbandingan berpasangan AHP (5 kriteria = 10 pasangan, RI = 1,12; bobot diisi sendiri oleh pengguna dan admin).
-Kebutuhan pengguna (**perorangan** atau **kantor**), **jumlah kursi minimum**, dan **anggaran maksimum** berfungsi sebagai filter alternatif, bukan kriteria.
+Kebutuhan pengguna (**perorangan** atau **kantor**), **jenis mobil** (SUV, Sedan, Hatchback, dst.), **jumlah kursi minimum**, dan **anggaran maksimum** berfungsi sebagai filter alternatif, bukan kriteria.
 Daya motor pada data sumber (hp) dikonversi ke kW (1 hp = 0,7457 kW).
 
 ## 🗂️ Data
@@ -137,6 +137,7 @@ Daya motor pada data sumber (hp) dikonversi ke kW (1 hp = 0,7457 kW).
 - Sumber: Kaggle `arsan5623/indonesia-electric-vehicle-ev-dataset-2026` (bersumber dari Oto.com, harga OTR per April 2026).
 - Dataset berisi 60 model; setelah penyaringan menjadi **43 model** (40 perorangan, 3 kantor).
   Dikeluarkan: 12 model dengan harga belum diumumkan resmi dan 5 model tanpa data pengisian cepat DC.
+- Jenis mobil dan foto diambil dari halaman Oto.com tiap model (tidak ada di dataset Kaggle); foto ditampilkan lewat tautan gambar Oto.com.
 - Nilai per model: rata-rata nilai minimum dan maksimum (jumlah kursi memakai nilai maksimum).
 - Keterbatasan: waktu pengisian pada sumber tidak selalu menyebut batas pengisian (0–80% atau 0–100%).
 

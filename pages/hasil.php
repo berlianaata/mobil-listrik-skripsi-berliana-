@@ -36,6 +36,7 @@ foreach ($kriteria as $k) {
 $pref   = getPreferensiUser($userId);
 $filter = [
     'tipe'       => $pref['filter_tipe']    ?? null,
+    'bodi'       => $pref['filter_bodi'] ?? null,
     'kursi_min'  => $pref['filter_kursi_min'] ?? null,
     'anggaran_max' => $pref['filter_anggaran_max'] ?? null,
 ];
@@ -110,6 +111,7 @@ include __DIR__ . '/../includes/navbar.php';
         <span style="color:rgba(255,255,255,0.86);font-size:0.85rem">Isi cepat DC <?= (float)$ev1['waktu_isi_menit'] ?> menit</span>
         <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= (float)$ev1['daya_kw'] ?> kW</span>
         <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= (int)$ev1['seats'] ?> kursi</span>
+        <?php if (!empty($ev1['tipe_bodi'])): ?><span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= clean($ev1['tipe_bodi']) ?></span><?php endif; ?>
       </div>
       <?php endif; ?>
       <p style="color:rgba(255,255,255,0.86);font-size:0.85rem">
@@ -117,6 +119,10 @@ include __DIR__ . '/../includes/navbar.php';
         dari <?= count($kendaraan) ?> alternatif kendaraan listrik.
       </p>
     </div>
+    <?php if (!empty($ev1['foto_url'])): ?>
+    <img src="<?= clean($ev1['foto_url']) ?>" alt="<?= clean($top1['nama']) ?>" referrerpolicy="no-referrer"
+         style="width:240px;max-width:100%;border-radius:12px;flex-shrink:0">
+    <?php endif; ?>
     <div style="text-align:right;flex-shrink:0">
       <div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.35);border-radius:var(--radius);padding:18px 24px">
         <div style="font-size:0.72rem;color:rgba(255,255,255,0.86);margin-bottom:4px">Skor TOPSIS (CC)</div>

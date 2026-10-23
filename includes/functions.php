@@ -190,6 +190,12 @@ function getKendaraanFiltered($filter = [], $limit = 50) {
         $types   .= 's';
     }
 
+    // Filter jenis bodi (SUV, Sedan, Hatchback, MPV, dll)
+    if (!empty($filter['bodi'])) {
+        $where[]  = "k.tipe_bodi = ?";
+        $params[] = $filter['bodi'];
+        $types   .= 's';
+    }
     // Filter jumlah kursi minimum
     if (!empty($filter['kursi_min'])) {
         $where[]  = "k.seats >= ?";
@@ -216,7 +222,9 @@ function getKendaraanFiltered($filter = [], $limit = 50) {
 }
 
 function getFilterOptions() {
+    $bodi = array_column(fetchAll("SELECT DISTINCT tipe_bodi FROM kendaraan_ev WHERE status='aktif' AND tipe_bodi IS NOT NULL ORDER BY tipe_bodi"), 'tipe_bodi');
     return [
+        'bodi' => $bodi,
         'tipe' => [
             ['value' => 'pribadi', 'label' => 'Perorangan (penggunaan pribadi)'],
             ['value' => 'kantor',  'label' => 'Kantor / niaga'],
@@ -290,19 +298,21 @@ function savePreferensiUser($userId, $data) {
     $conn = db();
     $tipe = in_array($data['tipe'] ?? null, ['pribadi','kantor'], true) ? $data['tipe'] : null;
     $jml  = isset($data['jumlah_alt']) ? (int)$data['jumlah_alt'] : 50;
+    $bodi  = !empty($data['bodi']) ? substr((string)$data['bodi'], 0, 20) : null;
     $kursi = !empty($data['kursi_min']) ? (int)$data['kursi_min'] : null;
     $ang   = !empty($data['anggaran_max']) ? (float)$data['anggaran_max'] : null;
 
     $stmt = $conn->prepare("
-        INSERT INTO preferensi_user (user_id, filter_tipe, filter_kursi_min, filter_anggaran_max, jumlah_alt)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO preferensi_user (user_id, filter_tipe, filter_bodi, filter_kursi_min, filter_anggaran_max, jumlah_alt)
+        VALUES (?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
             filter_tipe = VALUES(filter_tipe),
+            filter_bodi = VALUES(filter_bodi),
             filter_kursi_min = VALUES(filter_kursi_min),
             filter_anggaran_max = VALUES(filter_anggaran_max),
             jumlah_alt  = VALUES(jumlah_alt)
     ");
-    $stmt->bind_param('isidi', $userId, $tipe, $kursi, $ang, $jml);
+    $stmt->bind_param('issidi', $userId, $tipe, $bodi, $kursi, $ang, $jml);
     return $stmt->execute();
 }
 
