@@ -136,15 +136,15 @@ include __DIR__ . '/../includes/navbar.php';
             <td style="color:var(--text-muted)"><?= ($page-1)*$perPage + $i + 1 ?></td>
             <td>
               <?php if (!empty($ev['foto_url'])): ?>
-              <img src="<?= clean($ev['foto_url']) ?>" alt="<?= clean($ev['brand'].' '.$ev['model']) ?>" loading="lazy" referrerpolicy="no-referrer"
-                   style="width:84px;height:56px;object-fit:cover;border-radius:6px;display:block">
+              <a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$ev['id'] ?>"><img src="<?= clean($ev['foto_url']) ?>" alt="<?= clean($ev['brand'].' '.$ev['model']) ?>" loading="lazy" referrerpolicy="no-referrer"
+                   style="width:84px;height:56px;object-fit:cover;border-radius:6px;display:block"></a>
               <?php endif; ?>
             </td>
             <td>
-              <strong style="color:var(--primary)"><?= clean($ev['brand']) ?></strong>
+              <a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$ev['id'] ?>" style="text-decoration:none"><strong style="color:var(--primary)"><?= clean($ev['brand']) ?></strong></a>
             </td>
             <td style="font-size:0.83rem;max-width:200px">
-              <?= clean($ev['model']) ?>
+              <a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$ev['id'] ?>"><?= clean($ev['model']) ?></a>
             </td>
             <td style="font-size:0.8rem"><?= clean($ev['tipe_bodi'] ?? '-') ?></td>
             <td>

@@ -101,7 +101,7 @@ include __DIR__ . '/../includes/navbar.php';
         Rekomendasi Terbaik — Rank #1
       </div>
       <h2 style="font-size:1.9rem;font-weight:600;color:#fff;margin-bottom:6px;line-height:1.15">
-        <?= clean($top1['nama']) ?>
+        <?php if ($ev1): ?><a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$ev1['id'] ?>" style="color:#fff;text-decoration:underline"><?= clean($top1['nama']) ?></a><?php else: ?><?= clean($top1['nama']) ?><?php endif; ?>
       </h2>
       <?php if ($ev1): ?>
       <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">
@@ -159,7 +159,7 @@ include __DIR__ . '/../includes/navbar.php';
             </div>
             <div>
               <div style="font-size:0.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase">Peringkat <?= $r['rank'] ?></div>
-              <div style="font-weight:700;font-size:0.95rem;color:var(--secondary)"><?= clean($r['nama']) ?></div>
+              <div style="font-weight:700;font-size:0.95rem;color:var(--secondary)"><?php if ($evX): ?><a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$evX['id'] ?>"><?= clean($r['nama']) ?></a><?php else: ?><?= clean($r['nama']) ?><?php endif; ?></div>
             </div>
           </div>
 
@@ -236,7 +236,7 @@ include __DIR__ . '/../includes/navbar.php';
               ?>
             </td>
             <td style="font-weight:700;color:var(--primary);white-space:nowrap"><?= clean($parts3[0]) ?></td>
-            <td style="font-size:0.82rem;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis"><?= clean($parts3[1] ?? '') ?></td>
+            <td style="font-size:0.82rem;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis"><?php $evR = $evMap[$r['nama']] ?? null; if ($evR): ?><a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$evR['id'] ?>"><?= clean($parts3[1] ?? '') ?></a><?php else: ?><?= clean($parts3[1] ?? '') ?><?php endif; ?></td>
             <?php foreach ($r['data_krit'] as $kode => $val): ?>
               <td><?= formatAngka($val, 1) ?></td>
             <?php endforeach; ?>
