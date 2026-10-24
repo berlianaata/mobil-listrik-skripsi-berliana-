@@ -1,204 +1,272 @@
 <?php
 // ============================================================
 // FILE: pages/katalog.php
-// FUNGSI: Katalog semua kendaraan EV dengan filter dan pencarian
+// FUNGSI: Katalog EV: filter sisi kiri, urutan, kartu bergambar
 // ============================================================
 require_once __DIR__ . '/../includes/functions.php';
 requireLogin();
 
 $pageTitle = 'Katalog Mobil Listrik Indonesia';
 $opts      = getFilterOptions();
+$conn      = db();
 
 // ─── Filter dari GET ───
-$filterTipe     = $_GET['tipe']       ?? '';
-$filterBodi     = $_GET['bodi']       ?? '';
-$filterKursi    = max(0, (int)($_GET['kursi'] ?? 0));
-$filterAng      = max(0, (float)($_GET['anggaran'] ?? 0));
-$search         = trim($_GET['q']     ?? '');
-$page           = max(1, (int)($_GET['page'] ?? 1));
-$perPage        = 12;
+$f = [
+    'q'      => trim($_GET['q'] ?? ''),
+    'brand'  => trim($_GET['brand'] ?? ''),
+    'bodi'   => trim($_GET['bodi'] ?? ''),
+    'tipe'   => $_GET['tipe'] ?? '',
+    'kursi'  => max(0, (int)($_GET['kursi'] ?? 0)),
+    'hmin'   => max(0, (float)($_GET['hmin'] ?? 0)),
+    'hmax'   => max(0, (float)($_GET['hmax'] ?? 0)),
+    'range'  => max(0, (int)($_GET['range'] ?? 0)),
+    'dc'     => max(0, (int)($_GET['dc'] ?? 0)),
+];
+$sortOpts = [
+    'harga_asc'  => ['Harga terendah',     'harga_rp_juta ASC'],
+    'harga_desc' => ['Harga tertinggi',    'harga_rp_juta DESC'],
+    'range'      => ['Jangkauan terjauh',  'range_km DESC'],
+    'baterai'    => ['Baterai terbesar',   'battery_capacity_kwh DESC'],
+    'daya'       => ['Daya tertinggi',     'daya_kw DESC'],
+    'dc'         => ['Pengisian tercepat', 'waktu_isi_menit ASC'],
+    'nama'       => ['Nama A–Z',           'brand ASC, model ASC'],
+];
+$sort    = isset($sortOpts[$_GET['sort'] ?? '']) ? $_GET['sort'] : 'harga_asc';
+$page    = max(1, (int)($_GET['page'] ?? 1));
+$perPage = 12;
 
-// ─── Query ───
-$conn  = db();
-$where = ["status = 'aktif'"];
-$params= [];
+$where  = ["status = 'aktif'"];
+$params = [];
+$types  = '';
+$add = function ($sql, $val, $t) use (&$where, &$params, &$types) { $where[] = $sql; $params[] = $val; $types .= $t; };
 
-if (in_array($filterTipe, ['pribadi','kantor'], true)) { $where[] = "tipe_penggunaan = ?"; $params[] = $filterTipe; }
-if (in_array($filterBodi, $opts['bodi'], true)) { $where[] = "tipe_bodi = ?"; $params[] = $filterBodi; }
-if ($filterKursi > 0) { $where[] = "seats >= ?"; $params[] = $filterKursi; }
-if ($filterAng > 0)   { $where[] = "harga_rp_juta <= ?"; $params[] = $filterAng; }
-if ($search)         { $where[] = "(brand LIKE ? OR model LIKE ?)"; $params[] = "%$search%"; $params[] = "%$search%"; }
-
+if (in_array($f['tipe'], ['pribadi', 'kantor'], true)) $add('tipe_penggunaan = ?', $f['tipe'], 's');
+if ($f['bodi'] !== '' && in_array($f['bodi'], $opts['bodi'], true)) $add('tipe_bodi = ?', $f['bodi'], 's');
+if ($f['brand'] !== '') $add('brand = ?', $f['brand'], 's');
+if ($f['kursi'] > 0)    $add('seats >= ?', $f['kursi'], 'i');
+if ($f['hmin'] > 0)     $add('harga_rp_juta >= ?', $f['hmin'], 'd');
+if ($f['hmax'] > 0)     $add('harga_rp_juta <= ?', $f['hmax'], 'd');
+if ($f['range'] > 0)    $add('range_km >= ?', $f['range'], 'i');
+if ($f['dc'] > 0)       $add('waktu_isi_menit <= ?', $f['dc'], 'i');
+if ($f['q'] !== '') {
+    $where[] = '(brand LIKE ? OR model LIKE ?)';
+    $params[] = '%' . $f['q'] . '%'; $params[] = '%' . $f['q'] . '%'; $types .= 'ss';
+}
 $whereStr = 'WHERE ' . implode(' AND ', $where);
 
-// Count total
-$countSql  = "SELECT COUNT(*) FROM kendaraan_ev $whereStr";
-$stmtCount = $conn->prepare($countSql);
-if (!empty($params)) {
-    $types = str_repeat('s', count($params));
-    $stmtCount->bind_param($types, ...$params);
-}
-$stmtCount->execute();
-$total    = $stmtCount->get_result()->fetch_row()[0];
-$totalPage= ceil($total / $perPage);
-$offset   = ($page - 1) * $perPage;
+$stmt = $conn->prepare("SELECT COUNT(*) FROM kendaraan_ev $whereStr");
+if ($params) $stmt->bind_param($types, ...$params);
+$stmt->execute();
+$total     = (int)$stmt->get_result()->fetch_row()[0];
+$totalPage = max(1, (int)ceil($total / $perPage));
+$page      = min($page, $totalPage);
+$offset    = ($page - 1) * $perPage;
 
-// Data
-$dataSql  = "SELECT * FROM kendaraan_ev $whereStr ORDER BY harga_rp_juta ASC LIMIT ? OFFSET ?";
-$allParams= array_merge($params, [$perPage, $offset]);
-$types2   = str_repeat('s', count($params)) . 'ii';
-$stmtData = $conn->prepare($dataSql);
-$stmtData->bind_param($types2, ...$allParams);
-$stmtData->execute();
-$evList   = $stmtData->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt = $conn->prepare("SELECT * FROM kendaraan_ev $whereStr ORDER BY {$sortOpts[$sort][1]} LIMIT ? OFFSET ?");
+$stmt->bind_param($types . 'ii', ...array_merge($params, [$perPage, $offset]));
+$stmt->execute();
+$evList = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+$brands = fetchAll("SELECT brand, COUNT(*) c FROM kendaraan_ev WHERE status='aktif' GROUP BY brand ORDER BY brand");
+$bodiCnt = [];
+foreach (fetchAll("SELECT tipe_bodi, COUNT(*) c FROM kendaraan_ev WHERE status='aktif' AND tipe_bodi IS NOT NULL GROUP BY tipe_bodi") as $r) $bodiCnt[$r['tipe_bodi']] = $r['c'];
+
+// Tautan pintas
+$pintas = [
+    'Termurah'            => ['sort' => 'harga_asc'],
+    'Jangkauan terjauh'   => ['sort' => 'range'],
+    'Pengisian tercepat'  => ['sort' => 'dc'],
+    'SUV termurah'        => ['bodi' => 'SUV', 'sort' => 'harga_asc'],
+    'Tujuh kursi ke atas' => ['kursi' => 7, 'sort' => 'harga_asc'],
+    'Kendaraan kantor'    => ['tipe' => 'kantor'],
+];
+$aktif = array_filter($f, fn($v) => $v !== '' && $v !== 0 && $v !== 0.0);
+$qs = fn(array $o) => '?' . http_build_query($o);
 
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/navbar.php';
 ?>
 
-<!-- SEARCH & FILTER BAR -->
-<form method="GET" action="">
-<div class="filter-bar fade-up">
-  <div class="filter-group" style="flex:1;min-width:200px">
-    <label>Cari Kendaraan</label>
-    <input class="form-control" type="text" name="q" placeholder="Nama brand atau model..."
-           value="<?= clean($search) ?>">
-  </div>
-  <div class="filter-group">
-    <label>Kebutuhan</label>
-    <select class="form-control" name="tipe">
-      <option value="">Semua</option>
-      <?php foreach ($opts['tipe'] as $t): ?>
-        <option value="<?= clean($t['value']) ?>" <?= $filterTipe===$t['value']?'selected':''?>>
-          <?= clean($t['label']) ?>
-        </option>
-      <?php endforeach; ?>
-    </select>
-  </div>
-  <div class="filter-group">
-    <label>Jenis Mobil</label>
-    <select class="form-control" name="bodi">
-      <option value="">Semua</option>
-      <?php foreach ($opts['bodi'] as $b): ?>
-        <option value="<?= clean($b) ?>" <?= $filterBodi===$b?'selected':''?>><?= clean($b) ?></option>
-      <?php endforeach; ?>
-    </select>
-  </div>
-  <div class="filter-group">
-    <label>Kursi minimum</label>
-    <select class="form-control" name="kursi">
-      <option value="">Semua</option>
-      <?php foreach ([2,4,5,6,7,8,9] as $k): ?>
-        <option value="<?= $k ?>" <?= $filterKursi===$k?'selected':''?>>≥ <?= $k ?> kursi</option>
-      <?php endforeach; ?>
-    </select>
-  </div>
-  <div class="filter-group">
-    <label>Anggaran maks (Rp juta)</label>
-    <input class="form-control" type="number" min="0" step="1" name="anggaran" placeholder="mis. 500"
-           id="anggaran" value="<?= $filterAng > 0 ? clean($filterAng) : '' ?>" style="width:140px">
-    <div class="quick-ang">
-      <?php foreach ([300,500,750,1000] as $q): ?>
-        <button type="button" onclick="document.getElementById('anggaran').value=<?= $q ?>">≤ <?= $q ?></button>
-      <?php endforeach; ?>
-    </div>
-  </div>
-  <div class="filter-group" style="justify-content:flex-end">
-    <label>&nbsp;</label>
-    <div style="display:flex;gap:8px">
-      <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-      <a href="<?= APP_URL ?>/pages/katalog.php" class="btn btn-outline btn-sm">Reset</a>
-    </div>
-  </div>
-</div>
-</form>
+<div class="cat-layout fade-up">
 
-<!-- HASIL INFO -->
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px" class="fade-up">
-  <div style="font-size:0.86rem;color:var(--text-muted)">
-    Menampilkan <strong><?= $total ?></strong> kendaraan
-    <?= $search ? "untuk pencarian \"<em>".clean($search)."</em>\"" : '' ?>
-    (Halaman <?= $page ?> dari <?= max(1,$totalPage) ?>)
-  </div>
-  <a href="<?= APP_URL ?>/pages/preferensi.php" class="btn btn-primary btn-sm">
-    Mulai Analisis SPK
-  </a>
-</div>
+  <!-- FILTER SISI KIRI -->
+  <aside class="cat-side">
+    <details class="cat-filter" open>
+      <summary>Filter kendaraan</summary>
+      <form method="GET" action="" id="formFilter">
+        <input type="hidden" name="sort" value="<?= clean($sort) ?>">
 
-<!-- KARTU EV -->
-<?php if (empty($evList)): ?>
-  <div class="card fade-up"><div class="card-body" style="text-align:center;padding:40px;color:var(--text-muted)">
-    Tidak ada data yang cocok dengan filter Anda.
-  </div></div>
-<?php else: ?>
-<div class="ev-grid fade-up">
-  <?php foreach ($evList as $ev):
-    $url = APP_URL . '/pages/detail.php?id=' . (int)$ev['id']; ?>
-  <a class="ev-card" href="<?= $url ?>">
-    <div class="ev-photo">
-      <?php if (!empty($ev['foto_url'])): ?>
-        <img src="<?= clean($ev['foto_url']) ?>" alt="<?= clean($ev['brand'].' '.$ev['model']) ?>" loading="lazy" referrerpolicy="no-referrer">
-      <?php else: ?><div class="ev-nophoto">Foto belum tersedia</div><?php endif; ?>
-      <span class="ev-tag"><?= $ev['tipe_penggunaan']==='kantor' ? 'Kantor' : 'Perorangan' ?></span>
-    </div>
-    <div class="ev-body">
-      <div class="ev-brand"><?= clean($ev['brand']) ?></div>
-      <div class="ev-name"><?= clean($ev['model']) ?></div>
-      <div class="ev-meta"><?= clean($ev['tipe_bodi'] ?? '') ?><?= !empty($ev['tipe_bodi']) ? ' · ' : '' ?><?= (int)$ev['seats'] ?> kursi</div>
-      <div class="ev-price"><?= formatRupiahJuta($ev['harga_rp_juta']) ?></div>
-      <div class="ev-spec">
-        <span><strong><?= clean((float)$ev['range_km']) ?></strong> km</span>
-        <span><strong><?= clean((float)$ev['battery_capacity_kwh']) ?></strong> kWh</span>
-        <span><strong><?= clean((float)$ev['daya_kw']) ?></strong> kW</span>
-        <span>DC <strong><?= clean((float)$ev['waktu_isi_menit']) ?></strong> mnt</span>
-      </div>
-    </div>
-  </a>
-  <?php endforeach; ?>
-</div>
-
-<!-- PAGINATION -->
-<?php if ($totalPage > 1): ?>
-<div style="padding:20px 0">
-  <div class="pagination">
-    <?php if ($page > 1): ?>
-      <a href="?<?= http_build_query(array_merge($_GET, ['page'=>$page-1])) ?>" class="page-btn">← Prev</a>
-    <?php endif; ?>
-    <?php for ($p = max(1,$page-2); $p <= min($totalPage,$page+2); $p++): ?>
-      <a href="?<?= http_build_query(array_merge($_GET, ['page'=>$p])) ?>"
-         class="page-btn <?= $p===$page?'active':'' ?>"><?= $p ?></a>
-    <?php endfor; ?>
-    <?php if ($page < $totalPage): ?>
-      <a href="?<?= http_build_query(array_merge($_GET, ['page'=>$page+1])) ?>" class="page-btn">Next →</a>
-    <?php endif; ?>
-  </div>
-</div>
-<?php endif; ?>
-<?php endif; ?>
-
-<!-- LEGENDA KRITERIA -->
-<div class="card fade-up mt-4">
-  <div class="card-header"><h3>Keterangan Kriteria Analisis SPK</h3></div>
-  <div class="card-body">
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px">
-      <?php foreach (getKriteria() as $k): ?>
-      <div style="display:flex;gap:10px;align-items:flex-start">
-        <span style="background:var(--primary-light);color:var(--primary);font-weight:700;font-size:0.72rem;padding:3px 10px;border-radius:20px;flex-shrink:0;margin-top:2px">
-          <?= clean($k['kode']) ?>
-        </span>
-        <div>
-          <div style="font-weight:600;font-size:0.86rem"><?= clean($k['nama']) ?></div>
-          <div style="font-size:0.75rem;color:var(--text-muted)"><?= clean($k['deskripsi'] ?? $k['satuan'] ?? '') ?></div>
+        <div class="fgroup">
+          <label>Cari</label>
+          <input class="form-control" type="text" name="q" placeholder="Merek atau model..." value="<?= clean($f['q']) ?>">
         </div>
+
+        <div class="fgroup">
+          <label>Merek</label>
+          <select class="form-control" name="brand">
+            <option value="">Semua merek</option>
+            <?php foreach ($brands as $b): ?>
+              <option value="<?= clean($b['brand']) ?>" <?= $f['brand'] === $b['brand'] ? 'selected' : '' ?>><?= clean($b['brand']) ?> (<?= (int)$b['c'] ?>)</option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <div class="fgroup">
+          <label>Jenis mobil</label>
+          <div class="opt-list">
+            <label><input type="radio" name="bodi" value="" <?= $f['bodi'] === '' ? 'checked' : '' ?>> Semua</label>
+            <?php foreach ($opts['bodi'] as $b): ?>
+              <label><input type="radio" name="bodi" value="<?= clean($b) ?>" <?= $f['bodi'] === $b ? 'checked' : '' ?>> <?= clean($b) ?> <em><?= (int)($bodiCnt[$b] ?? 0) ?></em></label>
+            <?php endforeach; ?>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label>Kebutuhan</label>
+          <select class="form-control" name="tipe">
+            <option value="">Perorangan &amp; kantor</option>
+            <?php foreach ($opts['tipe'] as $t): ?>
+              <option value="<?= clean($t['value']) ?>" <?= $f['tipe'] === $t['value'] ? 'selected' : '' ?>><?= clean($t['label']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <div class="fgroup">
+          <label>Jumlah kursi (minimum)</label>
+          <div class="chip-radio">
+            <?php foreach ([0 => 'Semua', 2 => '2+', 4 => '4+', 5 => '5+', 6 => '6+', 7 => '7+'] as $v => $lbl): ?>
+              <label><input type="radio" name="kursi" value="<?= $v ?>" <?= $f['kursi'] === $v ? 'checked' : '' ?>><span><?= $lbl ?></span></label>
+            <?php endforeach; ?>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label>Harga (Rp juta)</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input class="form-control" type="number" min="0" name="hmin" id="hmin" placeholder="Min" value="<?= $f['hmin'] > 0 ? clean($f['hmin']) : '' ?>">
+            <span>–</span>
+            <input class="form-control" type="number" min="0" name="hmax" id="hmax" placeholder="Maks" value="<?= $f['hmax'] > 0 ? clean($f['hmax']) : '' ?>">
+          </div>
+          <div class="quick-ang">
+            <?php foreach ([300, 500, 750, 1000, 2000] as $q): ?>
+              <button type="button" onclick="document.getElementById('hmin').value='';document.getElementById('hmax').value=<?= $q ?>">≤ <?= $q ?></button>
+            <?php endforeach; ?>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label>Jangkauan minimum: <strong id="rangeOut"><?= $f['range'] > 0 ? $f['range'] . ' km' : 'semua' ?></strong></label>
+          <input type="range" name="range" min="0" max="700" step="50" value="<?= (int)$f['range'] ?>"
+                 oninput="document.getElementById('rangeOut').textContent = this.value > 0 ? this.value + ' km' : 'semua'">
+        </div>
+
+        <div class="fgroup">
+          <label>Pengisian cepat DC (maksimum)</label>
+          <select class="form-control" name="dc">
+            <option value="0">Semua</option>
+            <?php foreach ([30, 45, 60, 90] as $m): ?>
+              <option value="<?= $m ?>" <?= $f['dc'] === $m ? 'selected' : '' ?>>≤ <?= $m ?> menit</option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button type="submit" class="btn btn-primary btn-sm" style="flex:1">Terapkan</button>
+          <a href="<?= APP_URL ?>/pages/katalog.php" class="btn btn-outline btn-sm">Reset</a>
+        </div>
+      </form>
+    </details>
+  </aside>
+
+  <!-- DAFTAR KENDARAAN -->
+  <section class="cat-main">
+    <div class="pintas">
+      <?php foreach ($pintas as $lbl => $o): ?>
+        <a href="<?= clean($qs($o)) ?>"><?= clean($lbl) ?></a>
+      <?php endforeach; ?>
+    </div>
+
+    <div class="cat-top">
+      <div class="cat-count">
+        <?php if ($total > 0): ?>
+          Menampilkan <strong><?= $offset + 1 ?>–<?= min($offset + $perPage, $total) ?></strong> dari <strong><?= $total ?></strong> kendaraan
+        <?php else: ?>Tidak ada kendaraan<?php endif; ?>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <form method="GET" action="" style="display:flex;gap:6px;align-items:center">
+          <?php foreach ($_GET as $k => $v): if ($k === 'sort' || $k === 'page' || is_array($v)) continue; ?>
+            <input type="hidden" name="<?= clean($k) ?>" value="<?= clean($v) ?>">
+          <?php endforeach; ?>
+          <label for="sort" style="font-size:.8rem;color:var(--text-muted)">Urutkan</label>
+          <select class="form-control" id="sort" name="sort" onchange="this.form.submit()" style="width:auto">
+            <?php foreach ($sortOpts as $k => [$lbl]): ?>
+              <option value="<?= $k ?>" <?= $sort === $k ? 'selected' : '' ?>><?= clean($lbl) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </form>
+        <a href="<?= APP_URL ?>/pages/preferensi.php" class="btn btn-primary btn-sm">Mulai Analisis SPK</a>
+      </div>
+    </div>
+
+    <?php if (empty($evList)): ?>
+      <div class="card"><div class="card-body" style="text-align:center;padding:40px;color:var(--text-muted)">
+        Tidak ada data yang cocok dengan filter Anda. <a href="<?= APP_URL ?>/pages/katalog.php">Reset filter</a>
+      </div></div>
+    <?php else: ?>
+    <div class="ev-grid">
+      <?php foreach ($evList as $ev):
+        $url = APP_URL . '/pages/detail.php?id=' . (int)$ev['id'];
+        $namaEv = $ev['brand'] . ' ' . $ev['model']; ?>
+      <div class="ev-wrap">
+        <a class="ev-card" href="<?= $url ?>">
+          <div class="ev-photo">
+            <?php if (!empty($ev['foto_url'])): ?>
+              <img src="<?= clean($ev['foto_url']) ?>" alt="<?= clean($namaEv) ?>" data-foto loading="lazy" referrerpolicy="no-referrer">
+            <?php else: ?><div class="ev-nophoto">Foto tidak tersedia</div><?php endif; ?>
+            <span class="ev-tag"><?= $ev['tipe_penggunaan'] === 'kantor' ? 'Kantor' : 'Perorangan' ?></span>
+          </div>
+          <div class="ev-body">
+            <div class="ev-brand"><?= clean($ev['brand']) ?></div>
+            <div class="ev-name"><?= clean($ev['model']) ?></div>
+            <div class="ev-meta"><?= clean($ev['tipe_bodi'] ?? '') ?><?= !empty($ev['tipe_bodi']) ? ' · ' : '' ?><?= (int)$ev['seats'] ?> kursi</div>
+            <div class="ev-price"><?= formatRupiahJuta($ev['harga_rp_juta']) ?></div>
+            <div class="ev-spec">
+              <span><strong><?= angkaId($ev['range_km']) ?></strong> km</span>
+              <span><strong><?= angkaId($ev['battery_capacity_kwh']) ?></strong> kWh</span>
+              <span><strong><?= angkaId($ev['daya_kw']) ?></strong> kW</span>
+              <span>DC <strong><?= angkaId($ev['waktu_isi_menit']) ?></strong> mnt</span>
+            </div>
+          </div>
+        </a>
       </div>
       <?php endforeach; ?>
     </div>
-  </div>
+
+    <?php if ($totalPage > 1): ?>
+    <div style="padding:22px 0">
+      <div class="pagination">
+        <?php if ($page > 1): ?>
+          <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="page-btn">← Prev</a>
+        <?php endif; ?>
+        <?php for ($p = max(1, $page - 2); $p <= min($totalPage, $page + 2); $p++): ?>
+          <a href="?<?= http_build_query(array_merge($_GET, ['page' => $p])) ?>" class="page-btn <?= $p === $page ? 'active' : '' ?>"><?= $p ?></a>
+        <?php endfor; ?>
+        <?php if ($page < $totalPage): ?>
+          <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="page-btn">Next →</a>
+        <?php endif; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+    <?php endif; ?>
+  </section>
 </div>
+
+<script>
+// Di layar kecil, panel filter tertutup dulu
+if (window.innerWidth < 900) { var d = document.querySelector('.cat-filter'); if (d) d.removeAttribute('open'); }
+</script>
 
 <?php
-
-// Pagination helper CSS
 $extraScript = '<style>
 .pagination { display:flex; gap:6px; align-items:center; justify-content:center; }
 .page-btn { padding:7px 13px; border-radius:8px; border:1.5px solid var(--border); background:#fff; font-size:0.85rem; cursor:pointer; transition:all 0.2s; color:var(--text); text-decoration:none; }

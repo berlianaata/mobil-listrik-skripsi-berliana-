@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="auth-left-inner fade-up">
       <div class="auth-badge">Sistem Pendukung Keputusan EV</div>
       <h1>Temukan <span>EV Terbaik</span> untuk Anda, Secara Ilmiah</h1>
-      <p>Daftar dan gunakan metode AHP & TOPSIS untuk membandingkan ratusan kendaraan listrik berdasarkan kriteria yang Anda tentukan sendiri.</p>
+      <p>Daftar dan gunakan metode AHP & TOPSIS untuk membandingkan puluhan kendaraan listrik berdasarkan kriteria yang Anda tentukan sendiri.</p>
       <ul class="feature-list">
         <li><span class="fi"><?= icon('check') ?></span> Penilaian AHP dengan matriks perbandingan berpasangan</li>
         <li><span class="fi"><?= icon('check') ?></span> Perangkingan TOPSIS berbasis solusi ideal</li>

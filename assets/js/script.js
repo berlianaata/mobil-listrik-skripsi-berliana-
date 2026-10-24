@@ -332,3 +332,13 @@ function copyToClipboard(text) {
         showToast('Berhasil disalin!', 'success', 2000);
     });
 }
+
+
+// Cadangan foto: bila gambar dari Oto.com gagal dimuat, tampilkan keterangan
+document.addEventListener('error', function (e) {
+    var el = e.target;
+    if (el && el.tagName === 'IMG' && el.hasAttribute('data-foto')) {
+        el.style.display = 'none';
+        if (el.parentNode) el.parentNode.classList.add('foto-gagal');
+    }
+}, true);
