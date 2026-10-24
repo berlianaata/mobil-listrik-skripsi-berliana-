@@ -102,7 +102,13 @@ include __DIR__ . '/../includes/navbar.php';
         <div class="form-group">
           <label for="anggaran_max">Anggaran Maksimum (Rp juta)</label>
           <input class="form-control" type="number" min="0" step="1" name="anggaran_max" id="anggaran_max"
-                 placeholder="Kosongkan bila tanpa batas" value="<?= clean($pref['filter_anggaran_max'] ?? '') ?>">
+                 id="anggaran_max" placeholder="Kosongkan bila tanpa batas" value="<?= clean($pref['filter_anggaran_max'] ?? '') ?>">
+          <div class="quick-ang">
+            <?php foreach ([300,500,750,1000,1500] as $q): ?>
+              <button type="button" onclick="document.getElementById('anggaran_max').value=<?= $q ?>">≤ <?= $q ?></button>
+            <?php endforeach; ?>
+            <button type="button" onclick="document.getElementById('anggaran_max').value=''">Tanpa batas</button>
+          </div>
           <small class="text-muted text-xs mt-1">Hanya mobil dengan harga ≤ anggaran yang dianalisis.</small>
         </div>
 

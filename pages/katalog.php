@@ -16,7 +16,7 @@ $filterKursi    = max(0, (int)($_GET['kursi'] ?? 0));
 $filterAng      = max(0, (float)($_GET['anggaran'] ?? 0));
 $search         = trim($_GET['q']     ?? '');
 $page           = max(1, (int)($_GET['page'] ?? 1));
-$perPage        = 15;
+$perPage        = 12;
 
 // ─── Query ───
 $conn  = db();
@@ -96,7 +96,12 @@ include __DIR__ . '/../includes/navbar.php';
   <div class="filter-group">
     <label>Anggaran maks (Rp juta)</label>
     <input class="form-control" type="number" min="0" step="1" name="anggaran" placeholder="mis. 500"
-           value="<?= $filterAng > 0 ? clean($filterAng) : '' ?>" style="width:140px">
+           id="anggaran" value="<?= $filterAng > 0 ? clean($filterAng) : '' ?>" style="width:140px">
+    <div class="quick-ang">
+      <?php foreach ([300,500,750,1000] as $q): ?>
+        <button type="button" onclick="document.getElementById('anggaran').value=<?= $q ?>">≤ <?= $q ?></button>
+      <?php endforeach; ?>
+    </div>
   </div>
   <div class="filter-group" style="justify-content:flex-end">
     <label>&nbsp;</label>
@@ -120,102 +125,56 @@ include __DIR__ . '/../includes/navbar.php';
   </a>
 </div>
 
-<!-- TABEL EV -->
-<div class="card fade-up">
-  <div class="card-body" style="padding:0">
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Foto</th>
-            <th>Brand</th>
-            <th>Model</th>
-            <th>Jenis</th>
-            <th>Kebutuhan</th>
-            <th title="Harga OTR (Rp juta)">Harga</th>
-            <th title="Jangkauan (km)">Range</th>
-            <th title="Kapasitas Baterai (kWh)">Baterai</th>
-            <th title="Waktu pengisian cepat DC (menit)">Isi DC</th>
-            <th title="Daya motor (kW)">Daya</th>
-            <th>Kursi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php if (empty($evList)): ?>
-          <tr>
-            <td colspan="12" style="text-align:center;padding:32px;color:var(--text-muted)">
-              Tidak ada data yang cocok dengan filter Anda.
-            </td>
-          </tr>
-          <?php else: ?>
-          <?php foreach ($evList as $i => $ev): ?>
-          <tr>
-            <td style="color:var(--text-muted)"><?= ($page-1)*$perPage + $i + 1 ?></td>
-            <td>
-              <?php if (!empty($ev['foto_url'])): ?>
-              <a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$ev['id'] ?>"><img src="<?= clean($ev['foto_url']) ?>" alt="<?= clean($ev['brand'].' '.$ev['model']) ?>" loading="lazy" referrerpolicy="no-referrer"
-                   style="width:84px;height:56px;object-fit:cover;border-radius:6px;display:block"></a>
-              <?php endif; ?>
-            </td>
-            <td>
-              <a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$ev['id'] ?>" style="text-decoration:none"><strong style="color:var(--primary)"><?= clean($ev['brand']) ?></strong></a>
-            </td>
-            <td style="font-size:0.83rem;max-width:200px">
-              <a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$ev['id'] ?>"><?= clean($ev['model']) ?></a>
-            </td>
-            <td style="font-size:0.8rem"><?= clean($ev['tipe_bodi'] ?? '-') ?></td>
-            <td>
-              <span class="badge <?= $ev['tipe_penggunaan']==='kantor' ? 'badge-orange' : 'badge-green' ?>" style="font-size:0.68rem">
-                <?= $ev['tipe_penggunaan']==='kantor' ? 'Kantor' : 'Perorangan' ?>
-              </span>
-            </td>
-            <td><?= formatRupiahJuta($ev['harga_rp_juta']) ?></td>
-            <td>
-              <strong style="color:var(--primary)"><?= clean((float)$ev['range_km']) ?></strong>
-              <span style="font-size:0.68rem;color:var(--text-muted)"> km</span>
-            </td>
-            <td>
-              <?= clean((float)$ev['battery_capacity_kwh']) ?>
-              <span style="font-size:0.68rem;color:var(--text-muted)"> kWh</span>
-            </td>
-            <td>
-              <?= clean((float)$ev['waktu_isi_menit']) ?>
-              <span style="font-size:0.68rem;color:var(--text-muted)"> mnt</span>
-            </td>
-            <td>
-              <?= clean((float)$ev['daya_kw']) ?>
-              <span style="font-size:0.68rem;color:var(--text-muted)"> kW</span>
-            </td>
-            <td><?= (int)$ev['seats'] ?></td>
-          </tr>
-          <?php endforeach; ?>
-          <?php endif; ?>
-        </tbody>
-      </table>
+<!-- KARTU EV -->
+<?php if (empty($evList)): ?>
+  <div class="card fade-up"><div class="card-body" style="text-align:center;padding:40px;color:var(--text-muted)">
+    Tidak ada data yang cocok dengan filter Anda.
+  </div></div>
+<?php else: ?>
+<div class="ev-grid fade-up">
+  <?php foreach ($evList as $ev):
+    $url = APP_URL . '/pages/detail.php?id=' . (int)$ev['id']; ?>
+  <a class="ev-card" href="<?= $url ?>">
+    <div class="ev-photo">
+      <?php if (!empty($ev['foto_url'])): ?>
+        <img src="<?= clean($ev['foto_url']) ?>" alt="<?= clean($ev['brand'].' '.$ev['model']) ?>" loading="lazy" referrerpolicy="no-referrer">
+      <?php else: ?><div class="ev-nophoto">Foto belum tersedia</div><?php endif; ?>
+      <span class="ev-tag"><?= $ev['tipe_penggunaan']==='kantor' ? 'Kantor' : 'Perorangan' ?></span>
     </div>
-
-    <!-- PAGINATION -->
-    <?php if ($totalPage > 1): ?>
-    <div style="padding:16px 20px;border-top:1px solid var(--border)">
-      <div class="pagination">
-        <?php if ($page > 1): ?>
-          <a href="?<?= http_build_query(array_merge($_GET, ['page'=>$page-1])) ?>" class="page-btn">← Prev</a>
-        <?php endif; ?>
-
-        <?php for ($p = max(1,$page-2); $p <= min($totalPage,$page+2); $p++): ?>
-          <a href="?<?= http_build_query(array_merge($_GET, ['page'=>$p])) ?>"
-             class="page-btn <?= $p===$page?'active':'' ?>"><?= $p ?></a>
-        <?php endfor; ?>
-
-        <?php if ($page < $totalPage): ?>
-          <a href="?<?= http_build_query(array_merge($_GET, ['page'=>$page+1])) ?>" class="page-btn">Next →</a>
-        <?php endif; ?>
+    <div class="ev-body">
+      <div class="ev-brand"><?= clean($ev['brand']) ?></div>
+      <div class="ev-name"><?= clean($ev['model']) ?></div>
+      <div class="ev-meta"><?= clean($ev['tipe_bodi'] ?? '') ?><?= !empty($ev['tipe_bodi']) ? ' · ' : '' ?><?= (int)$ev['seats'] ?> kursi</div>
+      <div class="ev-price"><?= formatRupiahJuta($ev['harga_rp_juta']) ?></div>
+      <div class="ev-spec">
+        <span><strong><?= clean((float)$ev['range_km']) ?></strong> km</span>
+        <span><strong><?= clean((float)$ev['battery_capacity_kwh']) ?></strong> kWh</span>
+        <span><strong><?= clean((float)$ev['daya_kw']) ?></strong> kW</span>
+        <span>DC <strong><?= clean((float)$ev['waktu_isi_menit']) ?></strong> mnt</span>
       </div>
     </div>
+  </a>
+  <?php endforeach; ?>
+</div>
+
+<!-- PAGINATION -->
+<?php if ($totalPage > 1): ?>
+<div style="padding:20px 0">
+  <div class="pagination">
+    <?php if ($page > 1): ?>
+      <a href="?<?= http_build_query(array_merge($_GET, ['page'=>$page-1])) ?>" class="page-btn">← Prev</a>
+    <?php endif; ?>
+    <?php for ($p = max(1,$page-2); $p <= min($totalPage,$page+2); $p++): ?>
+      <a href="?<?= http_build_query(array_merge($_GET, ['page'=>$p])) ?>"
+         class="page-btn <?= $p===$page?'active':'' ?>"><?= $p ?></a>
+    <?php endfor; ?>
+    <?php if ($page < $totalPage): ?>
+      <a href="?<?= http_build_query(array_merge($_GET, ['page'=>$page+1])) ?>" class="page-btn">Next →</a>
     <?php endif; ?>
   </div>
 </div>
+<?php endif; ?>
+<?php endif; ?>
 
 <!-- LEGENDA KRITERIA -->
 <div class="card fade-up mt-4">
