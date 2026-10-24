@@ -1,7 +1,7 @@
 <?php
 // ============================================================
 // FILE: pages/katalog.php
-// FUNGSI: Katalog EV: filter sisi kiri, urutan, kartu bergambar, bandingkan
+// FUNGSI: Katalog EV: filter sisi kiri, urutan, kartu bergambar
 // ============================================================
 require_once __DIR__ . '/../includes/functions.php';
 requireLogin();
@@ -238,7 +238,6 @@ include __DIR__ . '/../includes/navbar.php';
             </div>
           </div>
         </a>
-        <button type="button" class="cmp-btn" data-id="<?= (int)$ev['id'] ?>" data-nama="<?= clean($namaEv) ?>">+ Bandingkan</button>
       </div>
       <?php endforeach; ?>
     </div>
@@ -262,48 +261,9 @@ include __DIR__ . '/../includes/navbar.php';
   </section>
 </div>
 
-<!-- BAR BANDINGKAN -->
-<div class="cmp-bar" id="cmpBar" hidden>
-  <div><strong id="cmpN">0</strong> mobil dipilih <span id="cmpNames" style="color:var(--text-muted);font-size:.8rem"></span></div>
-  <div style="display:flex;gap:8px">
-    <button type="button" class="btn btn-outline btn-sm" id="cmpClear">Kosongkan</button>
-    <a class="btn btn-primary btn-sm" id="cmpGo" href="#">Bandingkan</a>
-  </div>
-</div>
-
 <script>
-(function () {
-  var KEY = 'spkev_bandingkan', base = '<?= APP_URL ?>/pages/bandingkan.php';
-  function load() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } }
-  function save(a) { try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {} }
-  var sel = load();
-  var bar = document.getElementById('cmpBar');
-  function render() {
-    document.querySelectorAll('.cmp-btn').forEach(function (b) {
-      var on = sel.some(function (s) { return s.id === b.dataset.id; });
-      b.classList.toggle('on', on); b.textContent = on ? '✓ Dipilih' : '+ Bandingkan';
-    });
-    bar.hidden = sel.length === 0;
-    document.getElementById('cmpN').textContent = sel.length;
-    document.getElementById('cmpNames').textContent = '(' + sel.map(function (s) { return s.nama; }).join(', ') + ')';
-    var go = document.getElementById('cmpGo');
-    go.href = base + '?ids=' + sel.map(function (s) { return s.id; }).join(',');
-    go.style.opacity = sel.length < 2 ? .5 : 1; go.style.pointerEvents = sel.length < 2 ? 'none' : 'auto';
-  }
-  document.querySelectorAll('.cmp-btn').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var i = sel.findIndex(function (s) { return s.id === b.dataset.id; });
-      if (i >= 0) sel.splice(i, 1);
-      else if (sel.length >= 4) { alert('Maksimal 4 mobil untuk dibandingkan.'); return; }
-      else sel.push({ id: b.dataset.id, nama: b.dataset.nama });
-      save(sel); render();
-    });
-  });
-  document.getElementById('cmpClear').addEventListener('click', function () { sel = []; save(sel); render(); });
-  render();
-  // Di layar kecil, panel filter tertutup dulu
-  if (window.innerWidth < 900) { var d = document.querySelector('.cat-filter'); if (d) d.removeAttribute('open'); }
-})();
+// Di layar kecil, panel filter tertutup dulu
+if (window.innerWidth < 900) { var d = document.querySelector('.cat-filter'); if (d) d.removeAttribute('open'); }
 </script>
 
 <?php
