@@ -145,13 +145,6 @@ Daya motor pada data sumber (hp) dikonversi ke kW (1 hp = 0,7457 kW).
 > Hapus database lama (`DROP DATABASE spk_ev_db;`) lalu import ulang `config/init.sql`
 > (akun, matriks AHP, dan riwayat lama ikut terhapus).
 
-------|-------------------------|---------|---------|---------------|
-| C1   | Jangkauan (Range)       | Benefit | km      | 34.29%        |
-| C2   | Efisiensi Energi        | Cost    | Wh/km   | 22.86%        |
-| C3   | Daya Pengisian Cepat    | Benefit | kW      | 17.14%        |
-| C4   | Akselerasi 0-100 km/h   | Cost    | detik   | 17.14%        |
-| C5   | Kapasitas Baterai       | Benefit | kWh     | 8.57%         |
-
 ---
 
 ## 📐 Alur Sistem SPK

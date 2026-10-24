@@ -417,6 +417,12 @@ function formatAngka($val, $desimal = 2) {
     return number_format((float)$val, $desimal, '.', ',');
 }
 
+// Format angka gaya Indonesia (koma desimal, titik ribuan), nol di belakang koma dibuang
+function angkaId($v, $maksDesimal = 2) {
+    $s = number_format((float)$v, $maksDesimal, ',', '.');
+    return strpos($s, ',') !== false ? rtrim(rtrim($s, '0'), ',') : $s;
+}
+
 // Format harga (nilai dalam Rp juta) menjadi teks rupiah yang mudah dibaca
 function formatRupiahJuta($juta) {
     $juta = (float)$juta;

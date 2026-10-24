@@ -106,10 +106,10 @@ include __DIR__ . '/../includes/navbar.php';
       <?php if ($ev1): ?>
       <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">
         <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= formatRupiahJuta($ev1['harga_rp_juta']) ?></span>
-        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= (float)$ev1['battery_capacity_kwh'] ?> kWh</span>
-        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= (float)$ev1['range_km'] ?> km</span>
-        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem">Isi cepat DC <?= (float)$ev1['waktu_isi_menit'] ?> menit</span>
-        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= (float)$ev1['daya_kw'] ?> kW</span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= angkaId($ev1['battery_capacity_kwh']) ?> kWh</span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= angkaId($ev1['range_km']) ?> km</span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem">Isi cepat DC <?= angkaId($ev1['waktu_isi_menit']) ?> menit</span>
+        <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= angkaId($ev1['daya_kw']) ?> kW</span>
         <span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= (int)$ev1['seats'] ?> kursi</span>
         <?php if (!empty($ev1['tipe_bodi'])): ?><span style="color:rgba(255,255,255,0.86);font-size:0.85rem"><?= clean($ev1['tipe_bodi']) ?></span><?php endif; ?>
       </div>
@@ -120,7 +120,7 @@ include __DIR__ . '/../includes/navbar.php';
       </p>
     </div>
     <?php if (!empty($ev1['foto_url'])): ?>
-    <img src="<?= clean($ev1['foto_url']) ?>" alt="<?= clean($top1['nama']) ?>" referrerpolicy="no-referrer"
+    <img data-foto src="<?= clean($ev1['foto_url']) ?>" alt="<?= clean($top1['nama']) ?>" referrerpolicy="no-referrer"
          style="width:240px;max-width:100%;border-radius:12px;flex-shrink:0">
     <?php endif; ?>
     <div style="text-align:right;flex-shrink:0">
@@ -170,15 +170,15 @@ include __DIR__ . '/../includes/navbar.php';
               <div style="font-size:0.68rem;color:var(--text-muted)">Harga OTR</div>
             </div>
             <div style="background:#F8FAFC;border-radius:8px;padding:10px;text-align:center">
-              <div style="font-size:1.1rem;font-weight:800;color:var(--info)"><?= (float)$evX['range_km'] ?></div>
+              <div style="font-size:1.1rem;font-weight:800;color:var(--info)"><?= angkaId($evX['range_km']) ?></div>
               <div style="font-size:0.68rem;color:var(--text-muted)">km Jangkauan</div>
             </div>
             <div style="background:#F8FAFC;border-radius:8px;padding:10px;text-align:center">
-              <div style="font-size:1.1rem;font-weight:800;color:var(--warning)"><?= (float)$evX['waktu_isi_menit'] ?></div>
+              <div style="font-size:1.1rem;font-weight:800;color:var(--warning)"><?= angkaId($evX['waktu_isi_menit']) ?></div>
               <div style="font-size:0.68rem;color:var(--text-muted)">menit isi cepat DC</div>
             </div>
             <div style="background:#F8FAFC;border-radius:8px;padding:10px;text-align:center">
-              <div style="font-size:1.1rem;font-weight:800;color:var(--success)"><?= (float)$evX['daya_kw'] ?></div>
+              <div style="font-size:1.1rem;font-weight:800;color:var(--success)"><?= angkaId($evX['daya_kw']) ?></div>
               <div style="font-size:0.68rem;color:var(--text-muted)">kW Daya motor</div>
             </div>
           </div>
