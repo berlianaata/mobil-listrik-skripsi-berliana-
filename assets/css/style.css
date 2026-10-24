@@ -551,3 +551,41 @@ tbody tr:last-child td { border-bottom: none; }
 .menu-section:nth-child(4) .menu-item .icon { background: var(--green-bg); color: var(--green); }
 .menu-item.active .icon { background: var(--primary); color: #fff; }
 .menu-item:hover .icon { filter: brightness(.96); }
+
+/* ── Katalog bentuk kartu ── */
+.ev-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:20px; }
+.ev-card { display:flex; flex-direction:column; background:var(--card); border:1px solid var(--border); border-radius:12px;
+  overflow:hidden; text-decoration:none; color:var(--text); box-shadow:var(--shadow-card); transition:transform .15s ease, box-shadow .15s ease; }
+.ev-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); }
+.ev-photo { position:relative; aspect-ratio:3/2; background:#EEF1F4; }
+.ev-photo img { width:100%; height:100%; object-fit:cover; display:block; }
+.ev-nophoto { height:100%; display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:.85rem; }
+.ev-tag { position:absolute; top:10px; left:10px; background:rgba(23,33,43,.78); color:#fff; font-size:.68rem; padding:3px 9px; border-radius:20px; }
+.ev-body { padding:14px 16px 16px; }
+.ev-brand { font-size:.72rem; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:.5px; }
+.ev-name { font-size:1.1rem; font-weight:700; margin:2px 0 2px; }
+.ev-meta { font-size:.78rem; color:var(--text-muted); margin-bottom:8px; }
+.ev-price { font-size:1.05rem; font-weight:700; color:var(--primary); margin-bottom:10px; }
+.ev-spec { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:.78rem; color:var(--text-muted); border-top:1px solid var(--border); padding-top:10px; }
+.ev-spec strong { color:var(--text); }
+.quick-ang { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+.quick-ang button { border:1px solid var(--border-strong); background:#fff; color:var(--text); border-radius:20px; padding:2px 10px; font-size:.72rem; cursor:pointer; }
+.quick-ang button:hover { background:var(--primary-light); }
+
+/* ── Galeri halaman detail ── */
+.gal-tabs { display:flex; gap:6px; margin-bottom:10px; }
+.gal-tabs button { border:1px solid var(--border-strong); background:#fff; border-radius:20px; padding:4px 14px; font-size:.8rem; cursor:pointer; }
+.gal-tabs button.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+.gal-main { position:relative; background:#EEF1F4; border-radius:12px; overflow:hidden; aspect-ratio:3/2; }
+.gal-main img { width:100%; height:100%; object-fit:cover; display:block; }
+.gal-nav { position:absolute; top:50%; transform:translateY(-50%); width:38px; height:38px; border-radius:50%; border:none;
+  background:rgba(255,255,255,.88); font-size:1.2rem; cursor:pointer; box-shadow:var(--shadow-md); }
+.gal-nav.prev { left:10px; } .gal-nav.next { right:10px; }
+.gal-count { position:absolute; right:10px; bottom:10px; background:rgba(23,33,43,.75); color:#fff; font-size:.72rem; padding:2px 9px; border-radius:20px; }
+.gal-cap { position:absolute; left:10px; bottom:10px; background:rgba(23,33,43,.75); color:#fff; font-size:.75rem; padding:2px 10px; border-radius:20px; }
+.gal-thumbs { display:flex; gap:6px; margin-top:8px; overflow-x:auto; padding-bottom:4px; }
+.gal-thumbs img { width:72px; height:48px; object-fit:cover; border-radius:6px; border:2px solid transparent; cursor:pointer; flex-shrink:0; opacity:.75; }
+.gal-thumbs img.active { border-color:var(--primary); opacity:1; }
+.warna-chips { display:flex; flex-wrap:wrap; gap:6px; }
+.warna-chips button, .warna-chips span { border:1px solid var(--border-strong); background:#fff; border-radius:20px; padding:3px 12px; font-size:.75rem; }
+.warna-chips button { cursor:pointer; } .warna-chips button:hover, .warna-chips button.active { background:var(--primary); color:#fff; border-color:var(--primary); }

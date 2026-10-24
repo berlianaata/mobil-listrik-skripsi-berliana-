@@ -43,6 +43,14 @@ $spek = [
 ];
 $varian = !empty($ev['varian_json']) ? (json_decode($ev['varian_json'], true) ?: []) : [];
 $warna  = array_filter(array_map('trim', explode(',', (string)($ev['warna'] ?? ''))));
+$galeri = !empty($ev['galeri_json']) ? (json_decode($ev['galeri_json'], true) ?: []) : [];
+$galData = [
+    'Eksterior' => array_map(fn($u) => ['url' => $u], $galeri['eksterior'] ?? []),
+    'Interior'  => array_map(fn($u) => ['url' => $u], $galeri['interior'] ?? []),
+    'Warna'     => array_map(fn($w) => ['url' => $w['url'], 'cap' => $w['nama']], $galeri['warna'] ?? []),
+];
+if (!$galData['Eksterior'] && !empty($ev['foto_url'])) $galData['Eksterior'][] = ['url' => $ev['foto_url']];
+$galData = array_filter($galData);
 ?>
 <div class="mb-3"><a href="<?= clean($back) ?>" class="btn btn-outline btn-sm">← Kembali</a></div>
 
@@ -50,12 +58,15 @@ $warna  = array_filter(array_map('trim', explode(',', (string)($ev['warna'] ?? '
   <div class="card-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;align-items:start">
       <div>
-        <?php if (!empty($ev['foto_url'])): ?>
-          <img src="<?= clean($ev['foto_url']) ?>" alt="<?= clean($nama) ?>" referrerpolicy="no-referrer"
-               style="width:100%;border-radius:12px;display:block">
-        <?php else: ?>
-          <div style="background:#F1F5F9;border-radius:12px;padding:60px 20px;text-align:center;color:var(--text-muted)">Foto belum tersedia</div>
-        <?php endif; ?>
+        <div class="gal-tabs" id="galTabs"></div>
+        <div class="gal-main">
+          <img id="galImg" src="<?= clean($ev['foto_url'] ?? '') ?>" alt="<?= clean($nama) ?>" referrerpolicy="no-referrer">
+          <button type="button" class="gal-nav prev" id="galPrev" aria-label="Sebelumnya">‹</button>
+          <button type="button" class="gal-nav next" id="galNext" aria-label="Berikutnya">›</button>
+          <span class="gal-cap" id="galCap" style="display:none"></span>
+          <span class="gal-count" id="galCount"></span>
+        </div>
+        <div class="gal-thumbs" id="galThumbs"></div>
       </div>
       <div>
         <h2 style="font-size:1.6rem;font-weight:700;margin-bottom:4px"><?= clean($nama) ?></h2>
@@ -87,10 +98,10 @@ $warna  = array_filter(array_map('trim', explode(',', (string)($ev['warna'] ?? '
           </table>
         <?php endif; ?>
         <?php if ($warna): ?>
-          <h4 style="margin:18px 0 6px;font-size:0.95rem">Pilihan warna</h4>
-          <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <h4 style="margin:18px 0 6px;font-size:0.95rem">Pilihan warna <span style="font-weight:400;font-size:0.74rem;color:var(--text-muted)">(klik untuk melihat fotonya)</span></h4>
+          <div class="warna-chips" id="warnaChips">
             <?php foreach ($warna as $w): ?>
-              <span class="badge badge-blue" style="font-size:0.72rem"><?= clean($w) ?></span>
+              <button type="button" data-warna="<?= clean($w) ?>"><?= clean($w) ?></button>
             <?php endforeach; ?>
           </div>
         <?php endif; ?>
@@ -109,4 +120,45 @@ $warna  = array_filter(array_map('trim', explode(',', (string)($ev['warna'] ?? '
   </div>
 </div>
 
+<script>
+(function () {
+  var data = <?= json_encode($galData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
+  var tabs = Object.keys(data), cur = tabs[0], idx = 0;
+  var img = document.getElementById('galImg'), cap = document.getElementById('galCap'),
+      cnt = document.getElementById('galCount'), thumbs = document.getElementById('galThumbs'),
+      tabBox = document.getElementById('galTabs');
+  if (!tabs.length) { document.querySelector('.gal-main').innerHTML = '<div style="padding:60px 20px;text-align:center;color:var(--text-muted)">Foto belum tersedia</div>'; return; }
+  function show() {
+    var list = data[cur]; if (idx < 0) idx = list.length - 1; if (idx >= list.length) idx = 0;
+    img.src = list[idx].url;
+    cap.style.display = list[idx].cap ? '' : 'none'; cap.textContent = list[idx].cap || '';
+    cnt.textContent = (idx + 1) + ' / ' + list.length;
+    Array.prototype.forEach.call(thumbs.children, function (t, i) { t.className = i === idx ? 'active' : ''; });
+    var chips = document.querySelectorAll('#warnaChips button');
+    Array.prototype.forEach.call(chips, function (c) { c.className = (cur === 'Warna' && list[idx].cap === c.getAttribute('data-warna')) ? 'active' : ''; });
+  }
+  function build() {
+    tabBox.innerHTML = '';
+    tabs.forEach(function (t) {
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = t + ' (' + data[t].length + ')';
+      b.className = t === cur ? 'active' : ''; b.onclick = function () { cur = t; idx = 0; build(); }; tabBox.appendChild(b);
+    });
+    thumbs.innerHTML = '';
+    data[cur].forEach(function (p, i) {
+      var t = document.createElement('img'); t.src = p.url; t.loading = 'lazy'; t.referrerPolicy = 'no-referrer';
+      t.onclick = function () { idx = i; show(); }; thumbs.appendChild(t);
+    });
+    show();
+  }
+  document.getElementById('galPrev').onclick = function () { idx--; show(); };
+  document.getElementById('galNext').onclick = function () { idx++; show(); };
+  Array.prototype.forEach.call(document.querySelectorAll('#warnaChips button'), function (c) {
+    var nama = c.getAttribute('data-warna');
+    var i = (data['Warna'] || []).findIndex(function (w) { return w.cap === nama; });
+    if (i < 0) { c.disabled = true; c.title = 'Foto warna ini belum tersedia'; c.style.opacity = .55; c.style.cursor = 'default'; return; }
+    c.onclick = function () { cur = 'Warna'; idx = i; build(); };
+  });
+  build();
+})();
+</script>
 <?php include __DIR__ . '/../includes/footer.php'; ?>

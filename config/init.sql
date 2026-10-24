@@ -60,6 +60,7 @@ CREATE TABLE IF NOT EXISTS kendaraan_ev (
     daya_maks_kw            DECIMAL(6,1) DEFAULT NULL,
     varian_json             TEXT         DEFAULT NULL,
     warna                   VARCHAR(400) DEFAULT NULL,
+    galeri_json             MEDIUMTEXT   DEFAULT NULL,
     source_url              VARCHAR(150) DEFAULT NULL,
     status                  ENUM('aktif','nonaktif') DEFAULT 'aktif',
     created_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
