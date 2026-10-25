@@ -52,73 +52,116 @@ $galData = [
 if (!$galData['Eksterior'] && !empty($ev['foto_url'])) $galData['Eksterior'][] = ['url' => $ev['foto_url']];
 $galData = array_filter($galData);
 ?>
+<?php
+$mm = fetchOne("SELECT MIN(harga_rp_juta) h0, MAX(harga_rp_juta) h1, MIN(range_km) r0, MAX(range_km) r1,
+    MIN(battery_capacity_kwh) b0, MAX(battery_capacity_kwh) b1, MIN(daya_kw) d0, MAX(daya_kw) d1,
+    MIN(waktu_isi_menit) w0, MAX(waktu_isi_menit) w1 FROM kendaraan_ev WHERE status='aktif'");
+function posisi($v, $min, $max) { return $max > $min ? max(4, min(100, round(($v - $min) / ($max - $min) * 100))) : 100; }
+$bar = [
+    ['C1', 'Harga',             formatRupiahJuta($ev['harga_rp_juta']),          posisi($ev['harga_rp_juta'], $mm['h0'], $mm['h1']),      'cost',    'makin pendek makin murah'],
+    ['C2', 'Jangkauan',         angkaId($ev['range_km']) . ' km',                posisi($ev['range_km'], $mm['r0'], $mm['r1']),           'benefit', 'makin panjang makin baik'],
+    ['C3', 'Kapasitas baterai', angkaId($ev['battery_capacity_kwh']) . ' kWh',   posisi($ev['battery_capacity_kwh'], $mm['b0'], $mm['b1']), 'benefit', 'makin panjang makin baik'],
+    ['C4', 'Daya motor',        angkaId($ev['daya_kw']) . ' kW',                 posisi($ev['daya_kw'], $mm['d0'], $mm['d1']),            'benefit', 'makin panjang makin baik'],
+    ['C5', 'Waktu isi cepat DC', angkaId($ev['waktu_isi_menit']) . ' menit',     posisi($ev['waktu_isi_menit'], $mm['w0'], $mm['w1']),    'cost',    'makin pendek makin cepat'],
+];
+?>
 <div class="mb-3"><a href="<?= clean($back) ?>" class="btn btn-outline btn-sm">← Kembali</a></div>
 
-<div class="card fade-up">
-  <div class="card-body">
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;align-items:start">
-      <div>
-        <div class="gal-tabs" id="galTabs"></div>
-        <div class="gal-main">
-          <img id="galImg" data-foto src="<?= clean($ev['foto_url'] ?? '') ?>" alt="<?= clean($nama) ?>" referrerpolicy="no-referrer">
-          <button type="button" class="gal-nav prev" id="galPrev" aria-label="Sebelumnya">‹</button>
-          <button type="button" class="gal-nav next" id="galNext" aria-label="Berikutnya">›</button>
-          <span class="gal-cap" id="galCap" style="display:none"></span>
-          <span class="gal-count" id="galCount"></span>
-        </div>
-        <div class="gal-thumbs" id="galThumbs"></div>
+<div class="dt-head fade-up">
+  <div>
+    <div class="dt-brand"><?= clean($ev['brand']) ?></div>
+    <h2 class="dt-title"><?= clean($ev['model']) ?></h2>
+    <div class="dt-tags">
+      <?php if (!empty($ev['tipe_bodi'])): ?><span><?= clean($ev['tipe_bodi']) ?></span><?php endif; ?>
+      <span><?= (int)$ev['seats'] ?> kursi</span>
+      <span><?= $ev['tipe_penggunaan'] === 'kantor' ? 'Kantor / niaga' : 'Perorangan' ?></span>
+    </div>
+  </div>
+  <div class="dt-price">
+    <small>Harga OTR</small>
+    <strong><?= $hargaTxt ?></strong>
+    <?php if (!empty($ev['source_url'])): ?>
+      <a class="btn btn-outline btn-sm" href="<?= clean($ev['source_url']) ?>" target="_blank" rel="noopener noreferrer">Lihat di Oto.com ↗</a>
+    <?php endif; ?>
+  </div>
+</div>
+
+<div class="dt-layout fade-up">
+  <div class="dt-gallery card">
+    <div class="card-body">
+      <div class="gal-tabs" id="galTabs"></div>
+      <div class="gal-main">
+        <img id="galImg" data-foto src="<?= clean($ev['foto_url'] ?? '') ?>" alt="<?= clean($nama) ?>" referrerpolicy="no-referrer">
+        <button type="button" class="gal-nav prev" id="galPrev" aria-label="Sebelumnya">‹</button>
+        <button type="button" class="gal-nav next" id="galNext" aria-label="Berikutnya">›</button>
+        <span class="gal-cap" id="galCap" style="display:none"></span>
+        <span class="gal-count" id="galCount"></span>
       </div>
-      <div>
-        <h2 style="font-size:1.6rem;font-weight:700;margin-bottom:4px"><?= clean($nama) ?></h2>
-        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:16px">
-          <?= clean($ev['tipe_bodi'] ?? '') ?><?= !empty($ev['tipe_bodi']) ? ' · ' : '' ?><?= (int)$ev['seats'] ?> kursi
-        </p>
-        <table class="table" style="width:100%">
-          <tbody>
-          <?php foreach ($spek as [$label, $nilai, $ket]): ?>
-            <tr>
-              <td style="color:var(--text-muted)"><?= $label ?></td>
-              <td><strong><?= $nilai ?></strong></td>
-              <td style="font-size:0.72rem;color:var(--text-muted)"><?= $ket ?></td>
-            </tr>
+      <div class="gal-thumbs" id="galThumbs"></div>
+      <?php if ($warna): ?>
+        <div class="dt-sub">Pilihan warna <span>(klik untuk melihat fotonya)</span></div>
+        <div class="warna-chips" id="warnaChips">
+          <?php foreach ($warna as $w): ?>
+            <button type="button" data-warna="<?= clean($w) ?>"><?= clean($w) ?></button>
           <?php endforeach; ?>
-          </tbody>
-        </table>
-        <?php if ($varian): ?>
-          <h4 style="margin:18px 0 6px;font-size:0.95rem">Varian dan harga di Oto.com</h4>
-          <table class="table" style="width:100%">
-            <tbody>
-            <?php foreach ($varian as $v): ?>
-              <tr>
-                <td><?= clean($v['nama']) ?></td>
-                <td><strong><?= isset($v['harga']) && $v['harga'] !== null ? formatRupiahJuta($v['harga']) : 'harga belum tercantum' ?></strong></td>
-              </tr>
-            <?php endforeach; ?>
-            </tbody>
-          </table>
-        <?php endif; ?>
-        <?php if ($warna): ?>
-          <h4 style="margin:18px 0 6px;font-size:0.95rem">Pilihan warna <span style="font-weight:400;font-size:0.74rem;color:var(--text-muted)">(klik untuk melihat fotonya)</span></h4>
-          <div class="warna-chips" id="warnaChips">
-            <?php foreach ($warna as $w): ?>
-              <button type="button" data-warna="<?= clean($w) ?>"><?= clean($w) ?></button>
-            <?php endforeach; ?>
-          </div>
-        <?php endif; ?>
-        <?php if (!empty($ev['source_url'])): ?>
-          <p style="margin-top:14px;font-size:0.82rem">
-            Sumber data: <a href="<?= clean($ev['source_url']) ?>" target="_blank" rel="noopener noreferrer">halaman Oto.com</a>
-          </p>
-        <?php endif; ?>
-        <p style="margin-top:8px;font-size:0.74rem;color:var(--text-muted)">
-          Rentang harga, jangkauan, baterai, dan daya berasal dari dataset Kaggle (harga OTR April 2026); perhitungan AHP-TOPSIS memakai
-          rata-rata nilai minimum dan maksimum. Daya motor dikonversi dari hp ke kW. Jenis mobil, foto, varian, harga varian, dan warna
-          diambil dari halaman Oto.com pada Oktober 2026, sehingga harga varian dapat berbeda dari dataset.
-        </p>
+        </div>
+      <?php endif; ?>
+    </div>
+  </div>
+
+  <div class="dt-side">
+    <div class="dt-tiles">
+      <div><strong><?= angkaId($ev['range_km']) ?></strong><span>km jangkauan</span></div>
+      <div><strong><?= angkaId($ev['battery_capacity_kwh']) ?></strong><span>kWh baterai</span></div>
+      <div><strong><?= angkaId($ev['daya_kw']) ?></strong><span>kW daya motor</span></div>
+      <div><strong><?= angkaId($ev['waktu_isi_menit']) ?></strong><span>menit isi cepat DC</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Posisi di antara <?= (int)fetchOne("SELECT COUNT(*) c FROM kendaraan_ev WHERE status='aktif'")['c'] ?> mobil</h3></div>
+      <div class="card-body">
+        <?php foreach ($bar as [$kode, $lbl, $nilai, $pos, $jenis, $ket]): ?>
+        <div class="dt-bar">
+          <div class="dt-bar-top"><span><b><?= $kode ?></b> <?= $lbl ?> <em>· <?= $jenis ?></em></span><strong><?= $nilai ?></strong></div>
+          <div class="dt-bar-track"><div class="dt-bar-fill <?= $jenis ?>" style="width:<?= $pos ?>%"></div></div>
+        </div>
+        <?php endforeach; ?>
+        <p class="dt-note">Panjang batang menunjukkan posisi nilai antara terendah dan tertinggi di seluruh data. Untuk kriteria cost (harga dan waktu isi), nilai kecil lebih baik.</p>
       </div>
     </div>
   </div>
 </div>
+
+<div class="dt-bottom fade-up">
+  <div class="card">
+    <div class="card-header"><h3>Spesifikasi lengkap</h3></div>
+    <div class="card-body" style="padding-top:6px;padding-bottom:6px">
+      <table class="table dt-table"><tbody>
+      <?php foreach ($spek as [$label, $nilai, $ket]): ?>
+        <tr><td><?= $label ?></td><td><strong><?= $nilai ?></strong></td><td class="k"><?= $ket ?></td></tr>
+      <?php endforeach; ?>
+      </tbody></table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>Varian dan harga</h3><span class="dt-src">Oto.com</span></div>
+    <div class="card-body" style="padding-top:6px;padding-bottom:6px">
+    <?php if ($varian): ?>
+      <table class="table dt-table"><tbody>
+      <?php foreach ($varian as $v): ?>
+        <tr><td><?= clean($v['nama']) ?></td>
+            <td style="text-align:right"><strong><?= isset($v['harga']) && $v['harga'] !== null ? formatRupiahJuta($v['harga']) : 'harga belum tercantum' ?></strong></td></tr>
+      <?php endforeach; ?>
+      </tbody></table>
+    <?php else: ?><p class="dt-note" style="padding:14px 0">Data varian belum tersedia.</p><?php endif; ?>
+    </div>
+  </div>
+</div>
+<p class="dt-note" style="margin:14px 2px 0">
+  Rentang harga, jangkauan, baterai, dan daya berasal dari dataset Kaggle (harga OTR April 2026); perhitungan AHP-TOPSIS memakai
+  rata-rata nilai minimum dan maksimum. Daya motor dikonversi dari hp ke kW. Jenis mobil, foto, varian, harga varian, dan warna
+  diambil dari halaman Oto.com pada Oktober 2026, sehingga harga varian dapat berbeda dari dataset.
+</p>
 
 <script>
 (function () {
