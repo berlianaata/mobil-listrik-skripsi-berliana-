@@ -143,25 +143,61 @@ $bar = [
       </tbody></table>
     </div>
   </div>
-  <div class="card">
-    <div class="card-header"><h3>Varian dan harga</h3><span class="dt-src">Oto.com</span></div>
-    <div class="card-body" style="padding-top:6px;padding-bottom:6px">
-    <?php if ($varian): ?>
-      <table class="table dt-table"><tbody>
-      <?php foreach ($varian as $v): ?>
-        <tr><td><?= clean($v['nama']) ?></td>
-            <td style="text-align:right"><strong><?= isset($v['harga']) && $v['harga'] !== null ? formatRupiahJuta($v['harga']) : 'harga belum tercantum' ?></strong></td></tr>
-      <?php endforeach; ?>
-      </tbody></table>
-    <?php else: ?><p class="dt-note" style="padding:14px 0">Data varian belum tersedia.</p><?php endif; ?>
+  <div class="dt-stack">
+    <div class="card">
+      <div class="card-header"><h3>Varian dan harga</h3><span class="dt-src">Oto.com · <?= count($varian) ?> varian</span></div>
+      <div class="card-body" style="padding-top:6px;padding-bottom:10px">
+      <?php if ($varian):
+        $hv = array_filter(array_column($varian, 'harga'), fn($x) => $x !== null);
+        $hmin = $hv ? min($hv) : null; ?>
+        <table class="table dt-table"><tbody>
+        <?php foreach ($varian as $v): $h = $v['harga'] ?? null; ?>
+          <tr><td><?= clean($v['nama']) ?></td>
+              <td style="text-align:right"><strong><?= $h !== null ? formatRupiahJuta($h) : 'harga belum tercantum' ?></strong>
+                <?php if ($h !== null && $hmin !== null && $h > $hmin): ?><div class="k">+<?= formatRupiahJuta($h - $hmin) ?> dari varian termurah</div><?php endif; ?></td></tr>
+        <?php endforeach; ?>
+        </tbody></table>
+        <?php if (count($varian) === 1): ?>
+          <p class="dt-note">Oto.com hanya mencantumkan satu varian untuk model ini.</p>
+        <?php elseif ($hv): ?>
+          <p class="dt-note">Selisih harga varian termurah dan termahal: <strong><?= formatRupiahJuta(max($hv) - $hmin) ?></strong>.</p>
+        <?php endif; ?>
+      <?php else: ?><p class="dt-note" style="padding:14px 0">Data varian belum tersedia.</p><?php endif; ?>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Sumber dan catatan data</h3></div>
+      <div class="card-body">
+        <?php if (!empty($ev['source_url'])): ?>
+          <p style="font-size:.85rem;margin-bottom:8px">Halaman asli: <a href="<?= clean($ev['source_url']) ?>" target="_blank" rel="noopener noreferrer">Oto.com ↗</a></p>
+        <?php endif; ?>
+        <p class="dt-note">Rentang harga, jangkauan, baterai, dan daya berasal dari dataset Kaggle (harga OTR April 2026); perhitungan AHP-TOPSIS memakai
+        rata-rata nilai minimum dan maksimum. Daya motor dikonversi dari hp ke kW. Jenis mobil, foto, varian, harga varian, dan warna
+        diambil dari halaman Oto.com pada Oktober 2026, sehingga harga varian dapat berbeda dari dataset.</p>
+      </div>
     </div>
   </div>
 </div>
-<p class="dt-note" style="margin:14px 2px 0">
-  Rentang harga, jangkauan, baterai, dan daya berasal dari dataset Kaggle (harga OTR April 2026); perhitungan AHP-TOPSIS memakai
-  rata-rata nilai minimum dan maksimum. Daya motor dikonversi dari hp ke kW. Jenis mobil, foto, varian, harga varian, dan warna
-  diambil dari halaman Oto.com pada Oktober 2026, sehingga harga varian dapat berbeda dari dataset.
-</p>
+
+<?php
+$mirip = fetchAll("SELECT * FROM kendaraan_ev WHERE status='aktif' AND id <> ? AND foto_url IS NOT NULL AND foto_url <> ''
+    ORDER BY (tipe_bodi = ?) DESC, ABS(harga_rp_juta - ?) ASC LIMIT 3", [$ev['id'], (string)$ev['tipe_bodi'], $ev['harga_rp_juta']], 'isd');
+if ($mirip): ?>
+<div class="dash-sec-head" style="margin-top:26px"><h3>Mobil serupa</h3><a href="<?= APP_URL ?>/pages/katalog.php">Lihat katalog →</a></div>
+<div class="ev-grid">
+  <?php foreach ($mirip as $m): $nm = $m['brand'].' '.$m['model']; ?>
+  <a class="ev-card" href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$m['id'] ?>">
+    <div class="ev-photo"><img src="<?= clean($m['foto_url']) ?>" alt="<?= clean($nm) ?>" data-foto loading="lazy" referrerpolicy="no-referrer">
+      <span class="ev-tag"><?= clean($m['tipe_bodi'] ?? '') ?></span></div>
+    <div class="ev-body">
+      <div class="ev-brand"><?= clean($m['brand']) ?></div><div class="ev-name"><?= clean($m['model']) ?></div>
+      <div class="ev-price"><?= formatRupiahJuta($m['harga_rp_juta']) ?></div>
+      <div class="ev-spec"><span><strong><?= angkaId($m['range_km']) ?></strong> km</span><span><strong><?= angkaId($m['battery_capacity_kwh']) ?></strong> kWh</span><span>DC <strong><?= angkaId($m['waktu_isi_menit']) ?></strong> mnt</span></div>
+    </div>
+  </a>
+  <?php endforeach; ?>
+</div>
+<?php endif; ?>
 
 <script>
 (function () {
