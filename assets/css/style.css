@@ -589,3 +589,33 @@ tbody tr:last-child td { border-bottom: none; }
 .warna-chips { display:flex; flex-wrap:wrap; gap:6px; }
 .warna-chips button, .warna-chips span { border:1px solid var(--border-strong); background:#fff; border-radius:20px; padding:3px 12px; font-size:.75rem; }
 .warna-chips button { cursor:pointer; } .warna-chips button:hover, .warna-chips button.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+
+/* ── Katalog ala EVStats: sidebar filter, urutan ── */
+.cat-layout { display:grid; grid-template-columns:260px 1fr; gap:22px; align-items:start; }
+.cat-side { position:sticky; top:14px; }
+.cat-filter { background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow-card); }
+.cat-filter > summary { padding:14px 16px; font-weight:700; cursor:pointer; list-style:none; }
+.cat-filter > summary::-webkit-details-marker { display:none; }
+.cat-filter form { padding:0 16px 16px; }
+.fgroup { margin-bottom:14px; }
+.fgroup > label { display:block; font-size:.8rem; font-weight:600; margin-bottom:5px; color:var(--secondary); }
+.opt-list { display:grid; gap:4px; }
+.opt-list label { font-size:.84rem; display:flex; gap:6px; align-items:center; font-weight:400; }
+.opt-list em { margin-left:auto; font-style:normal; color:var(--text-muted); font-size:.74rem; }
+.chip-radio { display:flex; flex-wrap:wrap; gap:6px; }
+.chip-radio input { position:absolute; opacity:0; }
+.chip-radio span { display:inline-block; border:1px solid var(--border-strong); border-radius:20px; padding:3px 11px; font-size:.78rem; cursor:pointer; background:#fff; }
+.chip-radio input:checked + span { background:var(--primary); color:#fff; border-color:var(--primary); }
+.pintas { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+.pintas a { border:1px solid var(--border-strong); background:#fff; border-radius:20px; padding:4px 13px; font-size:.8rem; color:var(--text); text-decoration:none; }
+.pintas a:hover { background:var(--primary-light); }
+.cat-top { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+.cat-count { font-size:.86rem; color:var(--text-muted); }
+.ev-wrap { position:relative; display:flex; flex-direction:column; }
+.ev-wrap .ev-card { flex:1; }
+.foto-gagal { display:flex; align-items:center; justify-content:center; }
+.foto-gagal::after { content:'Foto tidak tersedia'; color:var(--text-muted); font-size:.82rem; padding:30px 10px; text-align:center; }
+@media (max-width: 900px) {
+  .cat-layout { grid-template-columns:1fr; }
+  .cat-side { position:static; }
+}

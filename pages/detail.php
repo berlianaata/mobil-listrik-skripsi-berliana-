@@ -24,9 +24,9 @@ include __DIR__ . '/../includes/navbar.php';
 
 // Rentang min–maks dari dataset (bila ada); selain itu tampilkan nilai yang dipakai di perhitungan
 function rentang($min, $max, $satuan, $fallback) {
-    if ($min === null || $max === null) return clean((float)$fallback) . ' ' . $satuan;
-    if ((float)$min === (float)$max) return clean((float)$min) . ' ' . $satuan;
-    return clean((float)$min) . ' – ' . clean((float)$max) . ' ' . $satuan;
+    if ($min === null || $max === null) return angkaId($fallback) . ' ' . $satuan;
+    if ((float)$min === (float)$max) return angkaId($min) . ' ' . $satuan;
+    return angkaId($min) . ' – ' . angkaId($max) . ' ' . $satuan;
 }
 $hargaTxt = ($ev['harga_min'] !== null && $ev['harga_maks'] !== null && (float)$ev['harga_min'] !== (float)$ev['harga_maks'])
     ? formatRupiahJuta($ev['harga_min']) . ' – ' . formatRupiahJuta($ev['harga_maks'])
@@ -36,7 +36,7 @@ $spek = [
     ['Jangkauan', rentang($ev['range_min'], $ev['range_maks'], 'km', $ev['range_km']), 'C2 · benefit'],
     ['Kapasitas baterai', rentang($ev['baterai_min'], $ev['baterai_maks'], 'kWh', $ev['battery_capacity_kwh']), 'C3 · benefit'],
     ['Daya motor', rentang($ev['daya_min_kw'], $ev['daya_maks_kw'], 'kW', $ev['daya_kw']), 'C4 · benefit'],
-    ['Waktu pengisian cepat DC', clean((float)$ev['waktu_isi_menit']) . ' menit', 'C5 · cost'],
+    ['Waktu pengisian cepat DC', angkaId($ev['waktu_isi_menit']) . ' menit', 'C5 · cost'],
     ['Jumlah kursi', (int)$ev['seats'] . ' kursi', 'filter'],
     ['Jenis mobil', clean($ev['tipe_bodi'] ?? '-'), 'filter'],
     ['Kebutuhan', $ev['tipe_penggunaan'] === 'kantor' ? 'Kantor / niaga' : 'Perorangan', 'filter'],
@@ -60,7 +60,7 @@ $galData = array_filter($galData);
       <div>
         <div class="gal-tabs" id="galTabs"></div>
         <div class="gal-main">
-          <img id="galImg" src="<?= clean($ev['foto_url'] ?? '') ?>" alt="<?= clean($nama) ?>" referrerpolicy="no-referrer">
+          <img id="galImg" data-foto src="<?= clean($ev['foto_url'] ?? '') ?>" alt="<?= clean($nama) ?>" referrerpolicy="no-referrer">
           <button type="button" class="gal-nav prev" id="galPrev" aria-label="Sebelumnya">‹</button>
           <button type="button" class="gal-nav next" id="galNext" aria-label="Berikutnya">›</button>
           <span class="gal-cap" id="galCap" style="display:none"></span>

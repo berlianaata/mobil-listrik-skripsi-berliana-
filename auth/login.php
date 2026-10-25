@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="auth-left-inner fade-up">
       <div class="auth-badge">Sistem Skripsi — AHP &amp; TOPSIS</div>
       <h1><span>Sistem Pendukung Keputusan</span> Kendaraan Listrik Terbaik</h1>
-      <p>Manfaatkan kecerdasan matematika AHP & TOPSIS untuk memilih Electric Vehicle yang paling sesuai kebutuhan Anda dari ratusan pilihan tersedia.</p>
+      <p>Manfaatkan kecerdasan matematika AHP & TOPSIS untuk memilih Electric Vehicle yang paling sesuai kebutuhan Anda dari puluhan pilihan tersedia.</p>
       <ul class="feature-list">
         <li><span class="fi"><?= icon('check') ?></span> Data 43 mobil listrik yang dipasarkan di Indonesia</li>
         <li><span class="fi"><?= icon('check') ?></span> Filter berdasarkan segmen, jenis penggerak, body type</li>
