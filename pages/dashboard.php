@@ -19,34 +19,54 @@ $bobotAda = !empty(getBobotAHP($_SESSION['user_id']));
 // Cek preferensi
 $pref = getPreferensiUser($_SESSION['user_id']);
 
+// Mobil sorotan (untuk gambar di dashboard)
+$dasarSql = "SELECT * FROM kendaraan_ev WHERE status='aktif' AND foto_url IS NOT NULL AND foto_url <> ''";
+$sorot = [];
+foreach ([
+    ['Jangkauan terjauh',   'range_km DESC'],
+    ['Harga termurah',      'harga_rp_juta ASC'],
+    ['Pengisian tercepat',  'waktu_isi_menit ASC, range_km DESC'],
+] as [$jdl, $urut]) {
+    $r = fetchOne($dasarSql . " ORDER BY $urut LIMIT 1");
+    if ($r) { $r['_judul'] = $jdl; $sorot[] = $r; }
+}
+$kolase = fetchAll($dasarSql . " AND tipe_penggunaan='pribadi' ORDER BY RAND() LIMIT 4");
+
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/navbar.php';
 ?>
 
 <!-- WELCOME BANNER -->
-<div class="card hero-card mb-4" style="background:var(--primary);border-radius:var(--radius);padding:28px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px">
-  <div>
-    <div style="font-size:0.82rem;color:rgba(255,255,255,0.86);margin-bottom:4px">
-      Selamat datang kembali 
-    </div>
-    <h2 style="font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:8px">
-      <?= clean($user['nama']) ?>
-    </h2>
-    <p style="color:rgba(255,255,255,0.86);font-size:0.9rem;max-width:480px">
-      Gunakan sistem ini untuk menemukan kendaraan listrik terbaik menggunakan
-      metode <strong style="color:#fff">AHP &amp; TOPSIS</strong>.
+<div class="card hero-card dash-hero mb-4">
+  <div class="dash-hero-text">
+    <div class="dash-hero-hi">Selamat datang kembali</div>
+    <h2><?= clean($user['nama']) ?></h2>
+    <p>
+      Temukan mobil listrik terbaik yang dijual di Indonesia dengan metode
+      <strong>AHP &amp; TOPSIS</strong>.
       <?= $bobotAda ? 'Bobot AHP Anda sudah tersimpan.' : 'Mulai dengan mengatur bobot AHP.' ?>
     </p>
-    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+    <div class="dash-hero-btn">
       <?php if (!$bobotAda): ?>
         <a href="<?= APP_URL ?>/pages/ahp.php" class="btn btn-primary btn-sm">Mulai Penilaian AHP</a>
-        <a href="<?= APP_URL ?>/pages/preferensi.php" class="btn btn-outline btn-sm" style="border-color:rgba(255,255,255,0.3);color:#fff">Set Preferensi</a>
+        <a href="<?= APP_URL ?>/pages/preferensi.php" class="btn btn-outline btn-sm">Set Preferensi</a>
       <?php else: ?>
         <a href="<?= APP_URL ?>/pages/topsis.php" class="btn btn-primary btn-sm">Hitung TOPSIS</a>
-        <a href="<?= APP_URL ?>/pages/hasil.php" class="btn btn-outline btn-sm" style="border-color:rgba(255,255,255,0.3);color:#fff">Lihat Hasil</a>
+        <a href="<?= APP_URL ?>/pages/hasil.php" class="btn btn-outline btn-sm">Lihat Hasil</a>
       <?php endif; ?>
+      <a href="<?= APP_URL ?>/pages/katalog.php" class="btn btn-outline btn-sm">Jelajahi Katalog</a>
     </div>
   </div>
+  <?php if ($kolase): ?>
+  <div class="dash-collage">
+    <?php foreach ($kolase as $k): ?>
+      <a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$k['id'] ?>" title="<?= clean($k['brand'].' '.$k['model']) ?>">
+        <img src="<?= clean($k['foto_url']) ?>" alt="<?= clean($k['brand'].' '.$k['model']) ?>" data-foto loading="lazy" referrerpolicy="no-referrer">
+        <span><?= clean($k['brand'].' '.$k['model']) ?></span>
+      </a>
+    <?php endforeach; ?>
+  </div>
+  <?php endif; ?>
 </div>
 
 <!-- STATISTIK DATABASE -->
@@ -64,7 +84,7 @@ include __DIR__ . '/../includes/navbar.php';
     <div class="stat-info">
       <div class="value"><?= $stats['total_brand'] ?></div>
       <div class="label">Brand/Merek EV</div>
-      <div class="sub">Dari seluruh dunia</div>
+      <div class="sub">Dijual di Indonesia</div>
     </div>
   </div>
   <div class="stat-card orange">
@@ -72,7 +92,7 @@ include __DIR__ . '/../includes/navbar.php';
     <div class="stat-info">
       <div class="value"><?= number_format($stats['max_range']) ?></div>
       <div class="label">Range Terpanjang (km)</div>
-      <div class="sub">EV dengan jangkauan terbaik</div>
+      <div class="sub">Model dengan jangkauan terbaik</div>
     </div>
   </div>
   <div class="stat-card teal">
@@ -84,6 +104,35 @@ include __DIR__ . '/../includes/navbar.php';
     </div>
   </div>
 </div>
+
+<!-- MOBIL SOROTAN -->
+<?php if ($sorot): ?>
+<div class="dash-sec-head fade-up fade-up-d2">
+  <h3>Sorotan Katalog</h3>
+  <a href="<?= APP_URL ?>/pages/katalog.php">Lihat semua mobil →</a>
+</div>
+<div class="ev-grid mb-4 fade-up fade-up-d2">
+  <?php foreach ($sorot as $ev): $namaEv = $ev['brand'].' '.$ev['model']; ?>
+  <a class="ev-card" href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$ev['id'] ?>">
+    <div class="ev-photo">
+      <img src="<?= clean($ev['foto_url']) ?>" alt="<?= clean($namaEv) ?>" data-foto loading="lazy" referrerpolicy="no-referrer">
+      <span class="ev-tag"><?= clean($ev['_judul']) ?></span>
+    </div>
+    <div class="ev-body">
+      <div class="ev-brand"><?= clean($ev['brand']) ?></div>
+      <div class="ev-name"><?= clean($ev['model']) ?></div>
+      <div class="ev-meta"><?= clean($ev['tipe_bodi'] ?? '') ?><?= !empty($ev['tipe_bodi']) ? ' · ' : '' ?><?= (int)$ev['seats'] ?> kursi</div>
+      <div class="ev-price"><?= formatRupiahJuta($ev['harga_rp_juta']) ?></div>
+      <div class="ev-spec">
+        <span><strong><?= angkaId($ev['range_km']) ?></strong> km</span>
+        <span><strong><?= angkaId($ev['battery_capacity_kwh']) ?></strong> kWh</span>
+        <span>DC <strong><?= angkaId($ev['waktu_isi_menit']) ?></strong> mnt</span>
+      </div>
+    </div>
+  </a>
+  <?php endforeach; ?>
+</div>
+<?php endif; ?>
 
 <!-- PANDUAN LANGKAH -->
 <div class="card fade-up fade-up-d2 mb-4">
