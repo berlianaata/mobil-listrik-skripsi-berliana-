@@ -670,3 +670,6 @@ tbody tr:last-child td { border-bottom: none; }
 .dt-table td.k { font-size:.7rem; color:var(--text-muted); text-align:right; }
 .dt-src { font-size:.72rem; color:var(--text-muted); }
 @media (max-width:900px) { .dt-layout { grid-template-columns:1fr; } .dt-price { align-items:flex-start; text-align:left; } .dt-title { font-size:1.6rem; } }
+.dt-stack { display:flex; flex-direction:column; gap:20px; }
+.dt-table div.k { font-size:.7rem; color:var(--text-muted); text-align:right; margin-top:2px; }
+.dt-bottom { align-items:start; }
