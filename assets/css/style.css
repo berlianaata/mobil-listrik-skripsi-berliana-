@@ -673,3 +673,11 @@ tbody tr:last-child td { border-bottom: none; }
 .dt-stack { display:flex; flex-direction:column; gap:20px; }
 .dt-table div.k { font-size:.7rem; color:var(--text-muted); text-align:right; margin-top:2px; }
 .dt-bottom { align-items:start; }
+
+/* Foto pada peringkat */
+.rk-badge { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; font-weight:700; font-size:.82rem; background:#E8ECF0; color:var(--secondary); }
+.rk-badge.rk-1 { background:#F5B921; color:#fff; } .rk-badge.rk-2 { background:#9AA5B1; color:#fff; } .rk-badge.rk-3 { background:#C27A3C; color:#fff; }
+.rk-thumb { display:block; width:84px; height:56px; border-radius:8px; overflow:hidden; background:#EEF1F4; }
+.rk-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.pod-photo { display:block; aspect-ratio:3/2; background:#EEF1F4; overflow:hidden; }
+.pod-photo img { width:100%; height:100%; object-fit:cover; display:block; }
