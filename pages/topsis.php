@@ -6,6 +6,8 @@
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../classes/TOPSIS.php';
 requireLogin();
+$evFoto = [];
+foreach (fetchAll("SELECT id, brand, model, foto_url FROM kendaraan_ev") as $e0) { $evFoto[$e0['brand'].' '.$e0['model']] = $e0; }
 
 $pageTitle = 'Perhitungan TOPSIS';
 $userId    = $_SESSION['user_id'];
@@ -381,6 +383,7 @@ Alternatif dengan CC terbesar = rekomendasi terbaik</div>
               <thead>
                 <tr>
                   <th>Rank</th>
+                  <th>Foto</th>
                   <th>Brand</th>
                   <th>Model</th>
                   <?php foreach ($kriteria as $k): ?><th><?= clean($k['kode']) ?></th><?php endforeach; ?>
@@ -392,18 +395,15 @@ Alternatif dengan CC terbesar = rekomendasi terbaik</div>
               <tbody>
                 <?php foreach ($hasil['ranking'] as $r): ?>
                 <tr <?= $r['rank'] <= 3 ? 'style="background:'.($r['rank']==1?'#FFFBEB':($r['rank']==2?'#F8FAFC':'#FFF8F0')).'"' : '' ?>>
-                  <td>
-                    <?php
-                      if ($r['rank'] == 1) echo '<span style="font-size:1.2rem"></span>';
-                      elseif ($r['rank'] == 2) echo '<span style="font-size:1.2rem"></span>';
-                      elseif ($r['rank'] == 3) echo '<span style="font-size:1.2rem"></span>';
-                      else echo '<strong>' . $r['rank'] . '</strong>';
-                    ?>
-                  </td>
+                  <td><span class="rk-badge rk-<?= $r['rank'] <= 3 ? (int)$r['rank'] : 'n' ?>"><?= (int)$r['rank'] ?></span></td>
+                  <?php $evR = $evFoto[$r['nama']] ?? null; ?>
+                  <td><?php if ($evR && !empty($evR['foto_url'])): ?>
+                    <a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$evR['id'] ?>" class="rk-thumb"><img src="<?= clean($evR['foto_url']) ?>" alt="" data-foto loading="lazy" referrerpolicy="no-referrer"></a>
+                  <?php else: ?><span class="rk-thumb"></span><?php endif; ?></td>
                   <?php
                     $parts = explode(' ', $r['nama'], 2);
-                    $brand = $parts[0] ?? $r['nama'];
-                    $model = $parts[1] ?? '';
+                    $brand = $evR ? $evR['brand'] : ($parts[0] ?? $r['nama']);
+                    $model = $evR ? $evR['model'] : ($parts[1] ?? '');
                   ?>
                   <td style="font-weight:700;color:var(--primary)"><?= clean($brand) ?></td>
                   <td style="font-size:0.82rem"><?= clean($model) ?></td>

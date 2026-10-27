@@ -152,6 +152,11 @@ include __DIR__ . '/../includes/navbar.php';
         $colors = [1=>'var(--accent)',2=>'var(--border-strong)',3=>'var(--border-strong)'];
       ?>
       <div class="card" style="border:1px solid <?= $colors[$r['rank']] ?>;border-radius:var(--radius)">
+        <?php if ($evX && !empty($evX['foto_url'])): ?>
+        <a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$evX['id'] ?>" class="pod-photo">
+          <img src="<?= clean($evX['foto_url']) ?>" alt="<?= clean($r['nama']) ?>" data-foto loading="lazy" referrerpolicy="no-referrer">
+        </a>
+        <?php endif; ?>
         <div style="padding:20px">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
             <div class="rank-medal <?= $medals[$r['rank']] ?>" style="width:40px;height:40px">
@@ -210,6 +215,7 @@ include __DIR__ . '/../includes/navbar.php';
         <thead>
           <tr>
             <th>Rank</th>
+            <th>Foto</th>
             <th>Brand</th>
             <th>Model</th>
             <?php foreach ($kriteria as $k): ?>
@@ -227,16 +233,13 @@ include __DIR__ . '/../includes/navbar.php';
             $parts3 = explode(' ', $r['nama'], 2);
           ?>
           <tr <?= $r['rank'] == 1 ? 'style="background:#FFFBEB"' : ($r['rank'] <= 3 ? 'style="background:#F8FAFC"' : '') ?>>
-            <td>
-              <?php
-                if ($r['rank'] == 1) echo '';
-                elseif ($r['rank'] == 2) echo '';
-                elseif ($r['rank'] == 3) echo '';
-                else echo '<strong>'.$r['rank'].'</strong>';
-              ?>
-            </td>
-            <td style="font-weight:700;color:var(--primary);white-space:nowrap"><?= clean($parts3[0]) ?></td>
-            <td style="font-size:0.82rem;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis"><?php $evR = $evMap[$r['nama']] ?? null; if ($evR): ?><a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$evR['id'] ?>"><?= clean($parts3[1] ?? '') ?></a><?php else: ?><?= clean($parts3[1] ?? '') ?><?php endif; ?></td>
+            <td><span class="rk-badge rk-<?= $r['rank'] <= 3 ? (int)$r['rank'] : 'n' ?>"><?= (int)$r['rank'] ?></span></td>
+            <?php $evR = $evMap[$r['nama']] ?? null; ?>
+            <td><?php if ($evR && !empty($evR['foto_url'])): ?>
+              <a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$evR['id'] ?>" class="rk-thumb"><img src="<?= clean($evR['foto_url']) ?>" alt="" data-foto loading="lazy" referrerpolicy="no-referrer"></a>
+            <?php else: ?><span class="rk-thumb"></span><?php endif; ?></td>
+            <td style="font-weight:700;color:var(--primary);white-space:nowrap"><?= clean($evR ? $evR['brand'] : $parts3[0]) ?></td>
+            <td style="font-size:0.82rem;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis"><?php if ($evR): ?><a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$evR['id'] ?>"><?= clean($evR['model']) ?></a><?php else: ?><?= clean($parts3[1] ?? '') ?><?php endif; ?></td>
             <?php foreach ($r['data_krit'] as $kode => $val): ?>
               <td><?= formatAngka($val, 1) ?></td>
             <?php endforeach; ?>
