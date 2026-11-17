@@ -110,6 +110,10 @@ if (isset($_GET['edit'])) {
     if ($edit) $edit['nilai'] = json_decode($edit['nilai_json'], true);
 }
 
+$rincian = [];
+foreach ($responden as $r) {
+    $rincian[$r['id']] = hitungAHP($kodeList, matriksDariNilai(json_decode($r['nilai_json'], true), $pasangan, $n));
+}
 $konsistenList = array_values(array_filter($responden, fn($r) => (int)$r['konsisten'] === 1));
 $K = count($konsistenList);
 $gab = null; $hasilGab = null; $bobotResp = [];
@@ -199,6 +203,29 @@ include __DIR__ . '/../includes/navbar.php';
   </div>
 </div>
 
+<?php if ($responden): ?>
+<div class="card fade-up mb-4">
+  <div class="card-header"><h3>Rincian per Responden</h3><span class="badge badge-blue">untuk dicocokkan dengan Excel</span></div>
+  <div class="card-body">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Responden</th><?php foreach ($kriteria as $k): ?><th>w <?= clean($k['kode']) ?></th><?php endforeach; ?><th>λ_max</th><th>CI</th><th>CR</th><th>Status</th></tr></thead>
+      <tbody>
+      <?php foreach ($responden as $r): $h = $rincian[$r['id']]; ?>
+        <tr>
+          <td><strong><?= clean($r['nama']) ?></strong></td>
+          <?php foreach ($h['bobot'] as $w): ?><td><?= number_format($w, 6, ',', '') ?></td><?php endforeach; ?>
+          <td><?= number_format($h['lambda_max'], 6, ',', '') ?></td>
+          <td><?= number_format($h['CI'], 6, ',', '') ?></td>
+          <td><?= number_format($h['CR'], 6, ',', '') ?></td>
+          <td><?= $h['konsisten'] ? 'Konsisten' : 'Tidak konsisten' ?></td>
+        </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+<?php endif; ?>
+
 <?php if ($hasilGab): ?>
 <div class="card fade-up mb-4">
   <div class="card-header">
@@ -211,8 +238,8 @@ include __DIR__ . '/../includes/navbar.php';
       <tbody>
       <?php foreach ($gab as $i => $baris): ?>
         <tr><td><strong><?= clean($kriteria[$i]['kode']) ?></strong> <span class="text-muted" style="font-size:.74rem"><?= clean($kriteria[$i]['nama']) ?></span></td>
-        <?php foreach ($baris as $v): ?><td><?= formatAngka($v, 4) ?></td><?php endforeach; ?>
-        <td><strong style="color:var(--primary)"><?= formatAngka($hasilGab['bobot'][$i], 4) ?></strong> <span class="text-muted">(<?= formatPersen($hasilGab['bobot'][$i]) ?>)</span></td></tr>
+        <?php foreach ($baris as $v): ?><td><?= number_format($v, 6, ',', '') ?></td><?php endforeach; ?>
+        <td><strong style="color:var(--primary)"><?= number_format($hasilGab['bobot'][$i], 6, ',', '') ?></strong> <span class="text-muted">(<?= formatPersen($hasilGab['bobot'][$i]) ?>)</span></td></tr>
       <?php endforeach; ?>
       </tbody>
     </table></div>
