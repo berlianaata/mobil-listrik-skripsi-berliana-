@@ -183,7 +183,7 @@ function getKendaraanFiltered($filter = [], $limit = 50) {
     $params = [];
     $types  = '';
 
-    // Pilihan kebutuhan pengguna: 'pribadi' (perorangan) atau 'kantor' (niaga)
+    // Pilihan kebutuhan pengguna: 'pribadi' (Pribadi) atau 'kantor' (Kantor/Niaga)
     if (!empty($filter['tipe'])) {
         $where[]  = "k.tipe_penggunaan = ?";
         $params[] = $filter['tipe'];
@@ -226,8 +226,8 @@ function getFilterOptions() {
     return [
         'bodi' => $bodi,
         'tipe' => [
-            ['value' => 'pribadi', 'label' => 'Perorangan (penggunaan pribadi)'],
-            ['value' => 'kantor',  'label' => 'Kantor / niaga'],
+            ['value' => 'pribadi', 'label' => 'Pribadi'],
+            ['value' => 'kantor',  'label' => 'Kantor/Niaga'],
         ],
     ];
 }

@@ -37,7 +37,7 @@ function validasiKendaraan(array $in, array &$errors): array {
         }
     }
     $d['tipe_penggunaan'] = in_array($in['tipe_penggunaan'] ?? '', ['pribadi','kantor'], true) ? $in['tipe_penggunaan'] : '';
-    if ($d['tipe_penggunaan'] === '') $errors[] = 'Kebutuhan harus Perorangan atau Kantor.';
+    if ($d['tipe_penggunaan'] === '') $errors[] = 'Kebutuhan harus Pribadi atau Kantor/Niaga.';
     $d['tipe_bodi'] = trim($in['tipe_bodi'] ?? '');
     if (mb_strlen($d['tipe_bodi']) > 20) $errors[] = 'Jenis bodi maksimal 20 karakter.';
     $d['foto_url'] = trim($in['foto_url'] ?? '');
@@ -135,8 +135,8 @@ showFlash();
         <div class="form-group"><label>Kebutuhan</label>
           <select class="form-control" name="tipe_penggunaan" required>
             <option value="">— pilih —</option>
-            <option value="pribadi" <?= ($edit['tipe_penggunaan'] ?? '') === 'pribadi' ? 'selected' : '' ?>>Perorangan</option>
-            <option value="kantor" <?= ($edit['tipe_penggunaan'] ?? '') === 'kantor' ? 'selected' : '' ?>>Kantor / niaga</option>
+            <option value="pribadi" <?= ($edit['tipe_penggunaan'] ?? '') === 'pribadi' ? 'selected' : '' ?>>Pribadi</option>
+            <option value="kantor" <?= ($edit['tipe_penggunaan'] ?? '') === 'kantor' ? 'selected' : '' ?>>Kantor/Niaga</option>
           </select></div>
         <div class="form-group"><label>C1 Harga OTR (Rp juta) · cost</label><input class="form-control" type="number" step="0.01" name="harga_rp_juta" value="<?= $f('harga_rp_juta') ?>" required></div>
         <div class="form-group"><label>C2 Jangkauan (km) · benefit</label><input class="form-control" type="number" step="0.1" name="range_km" value="<?= $f('range_km') ?>" required></div>
@@ -175,7 +175,7 @@ showFlash();
         <?php foreach ($rows as $r): ?>
           <tr>
             <td><?= clean($r['brand']) ?></td><td><?= clean($r['model']) ?></td>
-            <td><?= $r['tipe_penggunaan'] === 'kantor' ? 'Kantor' : 'Perorangan' ?></td>
+            <td><?= $r['tipe_penggunaan'] === 'kantor' ? 'Kantor/Niaga' : 'Pribadi' ?></td>
             <td><?= clean((float)$r['harga_rp_juta']) ?></td>
             <td><?= clean((float)$r['range_km']) ?></td><td><?= clean((float)$r['battery_capacity_kwh']) ?></td>
             <td><?= clean((float)$r['waktu_isi_menit']) ?></td><td><?= clean((float)$r['daya_kw']) ?></td>

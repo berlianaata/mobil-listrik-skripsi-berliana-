@@ -121,6 +121,22 @@ CREATE TABLE IF NOT EXISTS bobot_ahp (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
+-- TABEL: responden_ahp
+-- Penilaian perbandingan berpasangan tiap responden ahli
+-- (nilai_json = 10 nilai segitiga atas, urutan C1-C2, C1-C3, ..., C4-C5)
+-- Digabung dengan rata-rata geometrik pada halaman Responden AHP
+-- ============================================================
+CREATE TABLE IF NOT EXISTS responden_ahp (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    nama        VARCHAR(100) NOT NULL,
+    jabatan     VARCHAR(100) DEFAULT NULL,
+    nilai_json  TEXT NOT NULL,
+    cr          DECIMAL(12,8) DEFAULT NULL,
+    konsisten   TINYINT(1) DEFAULT NULL,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
 -- TABEL: preferensi_user
 -- Menyimpan pilihan kebutuhan (perorangan/kantor) tiap user
 -- ============================================================

@@ -155,22 +155,12 @@ class AHP {
             $this->bobot[$i] = $sum / $this->n;
         }
 
-        // ── LANGKAH 4: Hitung λ_max ──
-        // AX = jumlah kolom × bobot tiap kriteria
-        $ax = array_fill(0, $this->n, 0.0);
-        for ($i = 0; $i < $this->n; $i++) {
-            for ($j = 0; $j < $this->n; $j++) {
-                $ax[$i] += $this->matriks[$i][$j] * $this->bobot[$j];
-            }
+        // ── LANGKAH 4: Hitung λ_max (Teknomo, 2006) ──
+        // λ_max = Σ_j ( jumlah kolom-j × bobot-j )
+        $this->lambdaMax = 0.0;
+        for ($j = 0; $j < $this->n; $j++) {
+            $this->lambdaMax += $this->jumlahKolom[$j] * $this->bobot[$j];
         }
-
-        $lambdaSum = 0;
-        for ($i = 0; $i < $this->n; $i++) {
-            $lambdaSum += ($this->bobot[$i] != 0)
-                ? $ax[$i] / $this->bobot[$i]
-                : 0;
-        }
-        $this->lambdaMax = $lambdaSum / $this->n;
 
         // ── LANGKAH 5: Consistency Index (CI) ──
         $this->CI = ($this->n > 1)
@@ -258,7 +248,7 @@ class AHP {
             [
                 'no'          => 5,
                 'judul'       => 'Uji Konsistensi',
-                'rumus'       => "λ_max = rata-rata(AX / w)\nCI = (λ_max − n) / (n − 1)\nCR = CI / RI",
+                'rumus'       => "λ_max = Σ (jumlah kolom_j × w_j)\nCI = (λ_max − n) / (n − 1)\nCR = CI / RI",
                 'keterangan'  => "n = {$this->n} | RI = {$this->RI} | λ_max = " . round($this->lambdaMax,4) .
                                  " | CI = " . round($this->CI,4) . " | CR = " . round($this->CR,4) .
                                  "\n" . ($this->konsisten ? 'CR ≤ 0.1 → Konsisten' : 'CR > 0.1 → TIDAK Konsisten'),

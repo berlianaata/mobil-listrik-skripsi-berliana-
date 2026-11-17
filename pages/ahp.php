@@ -308,7 +308,7 @@ Diagonal: a_ii = 1 | Simetri: a_ji = 1/a_ij</div>
       <div class="calc-step">
         <div class="calc-step-head"><div class="calc-step-num">2</div><div class="calc-step-title">Hitung λ_max, CI, CR</div></div>
         <div class="calc-step-body">
-          <div class="formula-box">λ_max = rata-rata dari (AW / w)_i
+          <div class="formula-box">λ_max = Σ (jumlah kolom_j × w_j)  (Teknomo, 2006)
 CI    = (λ_max − n) / (n − 1)  =  (<?=$hasil['lambda_max']?> − <?=$n?>) / (<?=$n?> − 1)  =  <?=$hasil['CI']?>
 RI    = <?=$hasil['RI']?>  (Tabel Random Index Saaty, n=<?=$n?>)
 CR    = CI / RI  =  <?=$hasil['CI']?> / <?=$hasil['RI']?>  =  <?=$hasil['CR']?>
