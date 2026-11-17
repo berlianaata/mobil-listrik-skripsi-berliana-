@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($kriteria as $idx => $k) {
                 saveBobotAHP($userId, $k['id'], $h['bobot'][$idx], $h['lambda_max'], $h['CI'], $h['CR'], $h['konsisten'] ? 1 : 0);
             }
-            setFlash('success', 'Matriks gabungan dari ' . count($rows) . ' responden disimpan sebagai bobot AHP Anda (CR = ' . round($h['CR'], 4) . '). Lanjutkan ke Perhitungan TOPSIS.');
+            setFlash('success', 'Matriks gabungan dari ' . count($rows) . ' responden disalin ke penilaian AHP Anda (CR = ' . round($h['CR'], 4) . '). Lanjutkan ke Perhitungan TOPSIS.');
         }
     }
     header('Location: ' . APP_URL . '/pages/responden.php');
@@ -223,9 +223,15 @@ include __DIR__ . '/../includes/navbar.php';
         <div class="cr-detail">λ_max = <strong><?= $hasilGab['lambda_max'] ?></strong> | CI = <strong><?= $hasilGab['CI'] ?></strong> | RI = <strong><?= $hasilGab['RI'] ?></strong> | CR = <strong><?= $hasilGab['CR'] ?></strong></div>
       </div>
     </div>
-    <form method="POST" style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+    <p class="text-muted" style="font-size:.8rem;margin-top:14px">
+      Hasil di atas hanya perhitungan gabungan responden dan <strong>tidak mengubah</strong> penilaian pribadi siapa pun.
+      Penilaian AHP pribadi Anda tetap diisi di menu <a href="<?= APP_URL ?>/pages/ahp.php">Penilaian AHP</a>.
+      Tombol di bawah menyalin matriks gabungan ke penilaian AHP Anda sendiri (<strong>menimpa</strong> isi sebelumnya) agar bisa dipakai pada TOPSIS.
+    </p>
+    <form method="POST" style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap"
+          onsubmit="return confirm('Matriks gabungan akan menimpa penilaian AHP pribadi Anda. Lanjutkan?')">
       <?= csrf_field() ?><input type="hidden" name="aksi" value="gunakan">
-      <button class="btn btn-primary" type="submit">Gunakan sebagai Bobot AHP Saya</button>
+      <button class="btn btn-primary" type="submit">Salin ke Penilaian AHP Saya</button>
       <a class="btn btn-secondary" href="<?= APP_URL ?>/pages/topsis.php">Lanjut ke TOPSIS →</a>
     </form>
   </div>
