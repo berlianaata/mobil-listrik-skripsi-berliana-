@@ -473,4 +473,38 @@ function getStatistikDB() {
         'total_kantor'  => fetchOne("SELECT COUNT(*) c FROM kendaraan_ev WHERE status='aktif' AND tipe_penggunaan='kantor'")['c'] ?? 0,
     ];
 }
+
+// ============================================================
+// BOBOT PAKAR: rata-rata geometrik penilaian responden ahli yang konsisten
+// (a_ij gabungan = (a_ij(1) x ... x a_ij(K)) ^ (1/K)). Dihitung langsung
+// dari tabel responden_ahp; mengembalikan null bila belum ada responden.
+// ============================================================
+function bobotPakar() {
+    require_once __DIR__ . '/../classes/AHP.php';
+    try {
+        $rows = fetchAll("SELECT nilai_json FROM responden_ahp WHERE konsisten = 1");
+    } catch (Throwable $e) {
+        return null; // tabel belum ada (database lama)
+    }
+    if (!$rows) return null;
+    $kr = getKriteria();
+    $n  = count($kr);
+    $kode = array_column($kr, 'kode');
+    $K = count($rows);
+    $mat = array_fill(0, $n, array_fill(0, $n, 1.0));
+    $idx = 0;
+    for ($i = 0; $i < $n; $i++) {
+        for ($j = $i + 1; $j < $n; $j++, $idx++) {
+            $sum = 0.0;
+            foreach ($rows as $r) $sum += log((float)json_decode($r['nilai_json'], true)[$idx]);
+            $v = exp($sum / $K);
+            $mat[$i][$j] = $v;
+            $mat[$j][$i] = 1 / $v;
+        }
+    }
+    $ahp = new AHP($kode);
+    $ahp->setMatriks($mat);
+    return ['K' => $K, 'kode' => $kode, 'matriks' => $mat, 'hasil' => $ahp->hitung()];
+}
+
 ?>

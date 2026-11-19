@@ -21,6 +21,16 @@ foreach ($dbMatrix as $row) {
     $matriksSimpan[$row['kriteria_i']][$row['kriteria_j']] = (float)$row['nilai'];
 }
 
+// ─── Bobot pakar (opsional) ───
+$pakar = bobotPakar();
+if ($pakar && ($_GET['isi'] ?? '') === 'pakar' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+    // Hanya mengisi formulir (belum disimpan) agar pengguna dapat menyesuaikan
+    $matriksSimpan = [];
+    foreach ($pakar['matriks'] as $i => $baris) {
+        foreach ($baris as $j => $v) $matriksSimpan[$pakar['kode'][$i]][$pakar['kode'][$j]] = $v;
+    }
+}
+
 // ─── PROSES SUBMIT ───
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
@@ -91,6 +101,32 @@ include __DIR__ . '/../includes/navbar.php';
   Bandingkan setiap pasangan kriteria menggunakan <strong>skala Saaty 1–9</strong>.
   Nilai > 1 berarti kriteria baris lebih penting dari kriteria kolom.
   Nilai 1/x diisi otomatis. Pastikan CR ≤ 0.1 agar hasil konsisten.
+</div>
+
+<!-- BOBOT PAKAR -->
+<div class="card fade-up mb-4">
+  <div class="card-header"><h3>Rekomendasi Pakar</h3>
+    <?php if ($pakar): ?><span class="badge badge-green"><?= (int)$pakar['K'] ?> responden ahli</span><?php endif; ?>
+  </div>
+  <div class="card-body">
+  <?php if ($pakar): ?>
+    <p style="font-size:.88rem;margin-bottom:12px">
+      Jika kesulitan menilai, Anda dapat memakai bobot dari para pakar. Anda juga boleh mengisi penilaian sendiri di bawah;
+      halaman <strong>Hasil</strong> akan menampilkan <strong>dua rekomendasi</strong>, yaitu versi pakar dan versi Anda.
+    </p>
+    <div class="table-wrap"><table>
+      <thead><tr><?php foreach ($kriteria as $k): ?><th><?= clean($k['kode']) ?> <span class="text-muted" style="font-weight:400;font-size:.72rem"><?= clean($k['nama']) ?></span></th><?php endforeach; ?></tr></thead>
+      <tbody><tr><?php foreach ($pakar['hasil']['bobot'] as $w): ?><td><strong style="color:var(--primary)"><?= formatPersen($w) ?></strong></td><?php endforeach; ?></tr></tbody>
+    </table></div>
+    <p class="text-muted" style="font-size:.78rem;margin-top:8px">CR gabungan pakar = <?= formatAngka($pakar['hasil']['CR'], 4) ?> (konsisten).</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+      <a class="btn btn-primary btn-sm" href="<?= APP_URL ?>/pages/hasil.php">Lihat Rekomendasi Pakar</a>
+      <a class="btn btn-outline btn-sm" href="?isi=pakar#formAHP">Mulai dari Bobot Pakar, lalu Sesuaikan</a>
+    </div>
+  <?php else: ?>
+    <p class="text-muted" style="font-size:.88rem">Bobot pakar belum tersedia. Silakan isi penilaian Anda sendiri pada formulir di bawah.</p>
+  <?php endif; ?>
+  </div>
 </div>
 
 <!-- SKALA SAATY -->
