@@ -20,7 +20,7 @@ if (empty($bobotDB)) {
         $sumber = 'pakar';
         foreach (getKriteria() as $idx => $k) {
             $bobotDB[] = ['kode' => $k['kode'], 'bobot' => $pakar['hasil']['bobot'][$idx],
-                          'cr' => $pakar['hasil']['CR'], 'ci' => $pakar['hasil']['CI'], 'lambda_max' => $pakar['hasil']['lambda_max']];
+                          'cr' => $pakar['cr_maks'], 'ci' => 0, 'lambda_max' => 0];
         }
     } else {
         setFlash('warning', 'Belum ada bobot AHP. Silakan lakukan penilaian AHP terlebih dahulu.');
@@ -347,9 +347,13 @@ include __DIR__ . '/../includes/navbar.php';
       <?php endforeach; ?>
     </div>
     <div class="mt-3" style="font-size:0.82rem;color:var(--text-muted)">
+      <?php if ($sumber === 'pakar'): ?>
+      Bobot pakar = rata-rata geometrik bobot <?= (int)$pakar['K'] ?> responden ahli yang konsisten (Teknomo, 2006). CR responden terbesar = <?= formatAngka($pakar['cr_maks'], 4) ?>.
+      <?php else: ?>
       CR = <?= formatAngka($bobotDB[0]['cr'] ?? 0, 4) ?> |
       CI = <?= formatAngka($bobotDB[0]['ci'] ?? 0, 4) ?> |
       λ_max = <?= formatAngka($bobotDB[0]['lambda_max'] ?? 0, 4) ?>
+      <?php endif; ?>
     </div>
   </div>
 </div>

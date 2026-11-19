@@ -475,9 +475,11 @@ function getStatistikDB() {
 }
 
 // ============================================================
-// BOBOT PAKAR: rata-rata geometrik penilaian responden ahli yang konsisten
-// (a_ij gabungan = (a_ij(1) x ... x a_ij(K)) ^ (1/K)). Dihitung langsung
-// dari tabel responden_ahp; mengembalikan null bila belum ada responden.
+// BOBOT PAKAR (agregasi kelompok menurut Teknomo, 2006):
+// 1) hitung bobot (priority vector) tiap responden dari matriksnya sendiri,
+// 2) rata-rata geometrik bobot antar responden:  g_c = (w_c(1) x ... x w_c(K))^(1/K),
+// 3) normalisasi  w_c = g_c / jumlah g.
+// Hanya responden dengan CR <= 0,1 yang ikut. Mengembalikan null bila belum ada.
 // ============================================================
 function bobotPakar() {
     require_once __DIR__ . '/../classes/AHP.php';
@@ -491,20 +493,35 @@ function bobotPakar() {
     $n  = count($kr);
     $kode = array_column($kr, 'kode');
     $K = count($rows);
-    $mat = array_fill(0, $n, array_fill(0, $n, 1.0));
-    $idx = 0;
-    for ($i = 0; $i < $n; $i++) {
-        for ($j = $i + 1; $j < $n; $j++, $idx++) {
-            $sum = 0.0;
-            foreach ($rows as $r) $sum += log((float)json_decode($r['nilai_json'], true)[$idx]);
-            $v = exp($sum / $K);
-            $mat[$i][$j] = $v;
-            $mat[$j][$i] = 1 / $v;
+    $logSum = array_fill(0, $n, 0.0);
+    $crMaks = 0.0;
+    foreach ($rows as $r) {
+        $nilai = json_decode($r['nilai_json'], true);
+        $m = array_fill(0, $n, array_fill(0, $n, 1.0));
+        $idx = 0;
+        for ($i = 0; $i < $n; $i++) {
+            for ($j = $i + 1; $j < $n; $j++, $idx++) {
+                $v = max(1 / 9, min(9, (float)($nilai[$idx] ?? 1)));
+                $m[$i][$j] = $v;
+                $m[$j][$i] = 1 / $v;
+            }
         }
+        $ahp = new AHP($kode);
+        $ahp->setMatriks($m);
+        $h = $ahp->hitung();
+        foreach ($h['bobot'] as $c => $w) $logSum[$c] += log($w);
+        $crMaks = max($crMaks, (float)$h['CR']);
     }
-    $ahp = new AHP($kode);
-    $ahp->setMatriks($mat);
-    return ['K' => $K, 'kode' => $kode, 'matriks' => $mat, 'hasil' => $ahp->hitung()];
+    $geo = [];
+    foreach ($logSum as $c => $ls) $geo[$c] = exp($ls / $K);
+    $tot = array_sum($geo);
+    $bobot = array_map(fn($g) => $g / $tot, $geo);
+    // Matriks perkiraan w_i/w_j (dibatasi 1/9..9) hanya untuk mengisi awal formulir AHP pengguna
+    $mat = [];
+    for ($i = 0; $i < $n; $i++) for ($j = 0; $j < $n; $j++)
+        $mat[$i][$j] = ($i === $j) ? 1.0 : round(max(1 / 9, min(9, $bobot[$i] / $bobot[$j])), 3);
+    return ['K' => $K, 'kode' => $kode, 'geo' => $geo, 'bobot' => $bobot, 'cr_maks' => $crMaks, 'matriks' => $mat,
+            'hasil' => ['bobot' => $bobot, 'CR' => $crMaks, 'CI' => null, 'lambda_max' => null]];
 }
 
 ?>

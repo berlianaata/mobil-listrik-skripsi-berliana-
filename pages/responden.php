@@ -1,9 +1,10 @@
 <?php
 // ============================================================
 // FILE: pages/responden.php
-// FUNGSI: Kelola responden ahli (khusus Admin) dan penggabungan penilaian
-//         perbandingan berpasangan dengan rata-rata geometrik.
-//   a_ij gabungan = (a_ij(1) x a_ij(2) x ... x a_ij(K)) ^ (1/K)
+// FUNGSI: Kelola responden ahli (khusus Admin) dan agregasi kelompok menurut
+//         Teknomo (2006): bobot tiap responden dihitung lebih dulu, lalu
+//         rata-rata geometrik bobot:  g_c = (w_c(1) x ... x w_c(K))^(1/K),
+//         dinormalisasi  w_c = g_c / jumlah g.
 // Hanya responden dengan CR <= 0,1 yang ikut digabung.
 // ============================================================
 require_once __DIR__ . '/../includes/functions.php';
@@ -74,29 +75,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($aksi === 'hapus') {
         executeQuery("DELETE FROM responden_ahp WHERE id = ?", [(int)($_POST['id'] ?? 0)], 'i');
         setFlash('success', 'Responden dihapus.');
-    } elseif ($aksi === 'gunakan') {
-        // Simpan matriks gabungan sebagai matriks AHP milik admin yang sedang login
-        $rows = fetchAll("SELECT nilai_json FROM responden_ahp WHERE konsisten = 1");
-        if (!$rows) {
-            setFlash('warning', 'Belum ada responden yang konsisten untuk digabung.');
-        } else {
-            $gab = [];
-            foreach ($pasangan as $idx => $p) {
-                $sum = 0.0;
-                foreach ($rows as $r) $sum += log(json_decode($r['nilai_json'], true)[$idx]);
-                $gab[$idx] = exp($sum / count($rows));
-            }
-            $mat = matriksDariNilai($gab, $pasangan, $n);
-            $h   = hitungAHP($kodeList, $mat);
-            foreach ($pasangan as $idx => [$i, $j]) {
-                saveMatriksAHP($userId, $kodeList[$i], $kodeList[$j], $mat[$i][$j]);
-                saveMatriksAHP($userId, $kodeList[$j], $kodeList[$i], round($mat[$j][$i], 6));
-            }
-            foreach ($kriteria as $idx => $k) {
-                saveBobotAHP($userId, $k['id'], $h['bobot'][$idx], $h['lambda_max'], $h['CI'], $h['CR'], $h['konsisten'] ? 1 : 0);
-            }
-            setFlash('success', 'Matriks gabungan dari ' . count($rows) . ' responden disalin ke penilaian AHP Anda (CR = ' . round($h['CR'], 4) . '). Lanjutkan ke Perhitungan TOPSIS.');
-        }
     }
     header('Location: ' . APP_URL . '/pages/responden.php');
     exit;
@@ -116,17 +94,8 @@ foreach ($responden as $r) {
 }
 $konsistenList = array_values(array_filter($responden, fn($r) => (int)$r['konsisten'] === 1));
 $K = count($konsistenList);
-$gab = null; $hasilGab = null; $bobotResp = [];
-if ($K > 0) {
-    $nilaiGab = [];
-    foreach ($pasangan as $idx => $p) {
-        $sum = 0.0;
-        foreach ($konsistenList as $r) $sum += log(json_decode($r['nilai_json'], true)[$idx]);
-        $nilaiGab[$idx] = exp($sum / $K);
-    }
-    $gab      = matriksDariNilai($nilaiGab, $pasangan, $n);
-    $hasilGab = hitungAHP($kodeList, $gab);
-}
+$pakar = bobotPakar();
+$gabBobot = $pakar ? $pakar['bobot'] : null;
 
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/navbar.php';
@@ -135,8 +104,9 @@ include __DIR__ . '/../includes/navbar.php';
 <div class="info-box fade-up">
   <strong>Responden Ahli AHP.</strong>
   Isi 10 nilai perbandingan berpasangan (skala Saaty 1–9; pecahan seperti 0,333 berarti kriteria kolom lebih penting) untuk setiap responden.
-  Sistem menggabungkan penilaian responden yang <strong>konsisten (CR ≤ 0,1)</strong> dengan <strong>rata-rata geometrik</strong>,
-  <em>a<sub>ij</sub></em> = (a<sub>ij</sub>(1) × … × a<sub>ij</sub>(K))<sup>1/K</sup>, lalu menghitung bobot, λ<sub>maks</sub>, CI, dan CR dari matriks gabungan.
+  Menurut Teknomo (2006), bobot tiap responden dihitung lebih dulu, lalu bobot responden yang <strong>konsisten (CR ≤ 0,1)</strong>
+  digabung dengan <strong>rata-rata geometrik</strong>: <em>g<sub>c</sub></em> = (<em>w<sub>c</sub></em>(1) × … × <em>w<sub>c</sub></em>(K))<sup>1/K</sup>,
+  kemudian dinormalisasi <em>w<sub>c</sub></em> = <em>g<sub>c</sub></em> / Σ<em>g</em>.
 </div>
 
 <div class="card fade-up mb-4">
@@ -226,41 +196,38 @@ include __DIR__ . '/../includes/navbar.php';
 </div>
 <?php endif; ?>
 
-<?php if ($hasilGab): ?>
+<?php if ($pakar): ?>
 <div class="card fade-up mb-4">
   <div class="card-header">
-    <h3>Matriks Gabungan (Rata-Rata Geometrik)</h3>
-    <span class="badge badge-blue">K = <?= $K ?> responden</span>
+    <h3>Bobot Pakar (Rata-Rata Geometrik Bobot)</h3>
+    <span class="badge badge-blue">K = <?= (int)$pakar['K'] ?> responden</span>
   </div>
   <div class="card-body">
     <div class="table-wrap"><table>
-      <thead><tr><th>Kriteria</th><?php foreach ($kriteria as $k): ?><th><?= clean($k['kode']) ?></th><?php endforeach; ?><th>Bobot</th></tr></thead>
+      <thead><tr><th>Baris</th><?php foreach ($kriteria as $k): ?><th><?= clean($k['kode']) ?></th><?php endforeach; ?></tr></thead>
       <tbody>
-      <?php foreach ($gab as $i => $baris): ?>
-        <tr><td><strong><?= clean($kriteria[$i]['kode']) ?></strong> <span class="text-muted" style="font-size:.74rem"><?= clean($kriteria[$i]['nama']) ?></span></td>
-        <?php foreach ($baris as $v): ?><td><?= number_format($v, 6, ',', '') ?></td><?php endforeach; ?>
-        <td><strong style="color:var(--primary)"><?= number_format($hasilGab['bobot'][$i], 6, ',', '') ?></strong> <span class="text-muted">(<?= formatPersen($hasilGab['bobot'][$i]) ?>)</span></td></tr>
+      <?php foreach ($responden as $r): if (!$r['konsisten']) continue; $h = $rincian[$r['id']]; ?>
+        <tr><td><?= clean($r['nama']) ?></td><?php foreach ($h['bobot'] as $w): ?><td><?= number_format($w, 6, ',', '') ?></td><?php endforeach; ?></tr>
       <?php endforeach; ?>
+        <tr><td><strong>Rata-rata geometrik (g)</strong></td><?php foreach ($pakar['geo'] as $g): ?><td><?= number_format($g, 6, ',', '') ?></td><?php endforeach; ?></tr>
+        <tr><td><strong>Bobot pakar (g / Σg)</strong></td><?php foreach ($pakar['bobot'] as $w): ?><td><strong style="color:var(--primary)"><?= number_format($w, 6, ',', '') ?></strong> <span class="text-muted">(<?= formatPersen($w) ?>)</span></td><?php endforeach; ?></tr>
       </tbody>
     </table></div>
-    <div class="cr-box <?= $hasilGab['konsisten'] ? 'ok' : 'bad' ?>" style="margin-top:16px">
-      <div class="cr-icon"><?= icon($hasilGab['konsisten'] ? 'check' : 'alert') ?></div>
+    <div class="cr-box ok" style="margin-top:16px">
+      <div class="cr-icon"><?= icon('check') ?></div>
       <div class="cr-text">
-        <div class="cr-title"><?= $hasilGab['interpretasi'] ?></div>
-        <div class="cr-detail">λ_max = <strong><?= $hasilGab['lambda_max'] ?></strong> | CI = <strong><?= $hasilGab['CI'] ?></strong> | RI = <strong><?= $hasilGab['RI'] ?></strong> | CR = <strong><?= $hasilGab['CR'] ?></strong></div>
+        <div class="cr-title">Seluruh <?= (int)$pakar['K'] ?> responden yang digabung konsisten</div>
+        <div class="cr-detail">CR terbesar di antara responden = <strong><?= number_format($pakar['cr_maks'], 6, ',', '') ?></strong> (batas 0,1). Pada agregasi bobot, konsistensi diperiksa per responden.</div>
       </div>
     </div>
     <p class="text-muted" style="font-size:.8rem;margin-top:14px">
-      Hasil di atas hanya perhitungan gabungan responden dan <strong>tidak mengubah</strong> penilaian pribadi siapa pun.
-      Penilaian AHP pribadi Anda tetap diisi di menu <a href="<?= APP_URL ?>/pages/ahp.php">Penilaian AHP</a>.
-      Tombol di bawah menyalin matriks gabungan ke penilaian AHP Anda sendiri (<strong>menimpa</strong> isi sebelumnya) agar bisa dipakai pada TOPSIS.
+      Cara cek di Excel: hitung bobot tiap responden (kolom bobot di tabel Rincian), lalu pada setiap kriteria pakai <code>=GEOMEAN(...)</code>
+      untuk seluruh responden konsisten, kemudian bagi tiap hasil dengan jumlahnya. Bobot ini dipakai sebagai <strong>rekomendasi pakar</strong> di halaman pengguna
+      dan tidak mengubah penilaian pribadi siapa pun.
     </p>
-    <form method="POST" style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap"
-          onsubmit="return confirm('Matriks gabungan akan menimpa penilaian AHP pribadi Anda. Lanjutkan?')">
-      <?= csrf_field() ?><input type="hidden" name="aksi" value="gunakan">
-      <button class="btn btn-primary" type="submit">Salin ke Penilaian AHP Saya</button>
-      <a class="btn btn-secondary" href="<?= APP_URL ?>/pages/topsis.php">Lanjut ke TOPSIS →</a>
-    </form>
+    <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+      <a class="btn btn-primary" href="<?= APP_URL ?>/pages/hasil.php">Lihat Rekomendasi Pakar</a>
+    </div>
   </div>
 </div>
 <?php endif; ?>

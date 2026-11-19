@@ -118,7 +118,7 @@ include __DIR__ . '/../includes/navbar.php';
       <thead><tr><?php foreach ($kriteria as $k): ?><th><?= clean($k['kode']) ?> <span class="text-muted" style="font-weight:400;font-size:.72rem"><?= clean($k['nama']) ?></span></th><?php endforeach; ?></tr></thead>
       <tbody><tr><?php foreach ($pakar['hasil']['bobot'] as $w): ?><td><strong style="color:var(--primary)"><?= formatPersen($w) ?></strong></td><?php endforeach; ?></tr></tbody>
     </table></div>
-    <p class="text-muted" style="font-size:.78rem;margin-top:8px">CR gabungan pakar = <?= formatAngka($pakar['hasil']['CR'], 4) ?> (konsisten).</p>
+    <p class="text-muted" style="font-size:.78rem;margin-top:8px">Bobot pakar = rata-rata geometrik bobot responden yang konsisten (CR ≤ 0,1), menurut Teknomo (2006).</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
       <a class="btn btn-primary btn-sm" href="<?= APP_URL ?>/pages/hasil.php">Lihat Rekomendasi Pakar</a>
       <a class="btn btn-outline btn-sm" href="?isi=pakar#formAHP">Mulai dari Bobot Pakar, lalu Sesuaikan</a>
