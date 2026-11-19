@@ -501,7 +501,8 @@ function bobotPakar() {
         $idx = 0;
         for ($i = 0; $i < $n; $i++) {
             for ($j = $i + 1; $j < $n; $j++, $idx++) {
-                $v = max(1 / 9, min(9, (float)($nilai[$idx] ?? 1)));
+                $v = (float)($nilai[$idx] ?? 1);
+                if ($v <= 0) $v = 1.0;
                 $m[$i][$j] = $v;
                 $m[$j][$i] = 1 / $v;
             }

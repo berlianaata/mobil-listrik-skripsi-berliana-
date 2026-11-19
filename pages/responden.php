@@ -26,7 +26,7 @@ function matriksDariNilai(array $nilai, array $pasangan, int $n): array {
     $m = array_fill(0, $n, array_fill(0, $n, 1.0));
     foreach ($pasangan as $idx => [$i, $j]) {
         $v = (float)($nilai[$idx] ?? 1);
-        $v = max(1 / 9, min(9, $v));
+        if ($v <= 0) $v = 1.0;   // nilai sudah divalidasi saat input; tidak diubah
         $m[$i][$j] = $v;
         $m[$j][$i] = 1 / $v;
     }
@@ -41,6 +41,7 @@ function hitungAHP(array $kodeList, array $matriks): array {
 }
 
 // ─── PROSES FORM ───
+$errForm = []; $posted = []; $idEdit = 0;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
     $aksi = $_POST['aksi'] ?? '';
@@ -50,13 +51,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nama    = trim($_POST['nama'] ?? '');
         $jabatan = trim($_POST['jabatan'] ?? '');
         $nilai   = [];
-        foreach ($pasangan as $idx => $p) {
-            $v = (float)str_replace(',', '.', $_POST['v'][$idx] ?? '1');
-            $nilai[] = round(max(1 / 9, min(9, $v ?: 1)), 6);
+        $kosong  = []; $invalid = [];
+        foreach ($pasangan as $idx => [$pi, $pj]) {
+            $mentah = trim((string)($_POST['v'][$idx] ?? ''));
+            $posted[$idx] = $mentah;
+            $label = $kodeList[$pi] . ' dibanding ' . $kodeList[$pj];
+            if ($mentah === '') { $kosong[] = $label; continue; }
+            $v = str_replace(',', '.', $mentah);
+            if (!is_numeric($v) || (float)$v < 0.111 - 1e-12 || (float)$v > 9) { $invalid[] = $label . ' (' . $mentah . ')'; continue; }
+            $nilai[] = (float)$v;
         }
+        $idEdit = $id;
         if ($nama === '') {
-            setFlash('warning', 'Nama responden wajib diisi.');
-        } else {
+            $errForm[] = 'Nama responden wajib diisi.';
+        }
+        if ($kosong) {
+            $errForm[] = 'Jawaban belum lengkap. Pasangan yang belum diisi (' . count($kosong) . ' dari ' . count($pasangan) . '): ' . implode('; ', $kosong) . '.';
+        }
+        if ($invalid) {
+            $errForm[] = 'Nilai harus angka antara 0,111 (≈1/9) dan 9. Periksa: ' . implode('; ', $invalid) . '.';
+        }
+        if (!$errForm) {
+            $nilai = array_map(fn($v) => round($v, 10), $nilai);   // presisi tinggi agar tidak membulat dini
             $h  = hitungAHP($kodeList, matriksDariNilai($nilai, $pasangan, $n));
             $js = json_encode($nilai);
             $cr = $h['CR'];
@@ -76,14 +92,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         executeQuery("DELETE FROM responden_ahp WHERE id = ?", [(int)($_POST['id'] ?? 0)], 'i');
         setFlash('success', 'Responden dihapus.');
     }
-    header('Location: ' . APP_URL . '/pages/responden.php');
-    exit;
+    if (!$errForm) {
+        header('Location: ' . APP_URL . '/pages/responden.php');
+        exit;
+    }
 }
 
 // ─── DATA ───
 $responden = fetchAll("SELECT * FROM responden_ahp ORDER BY id");
 $edit = null;
-if (isset($_GET['edit'])) {
+if ($errForm && $idEdit > 0) {
+    $edit = fetchOne("SELECT * FROM responden_ahp WHERE id = ?", [$idEdit], 'i');
+    if ($edit) $edit['nilai'] = json_decode($edit['nilai_json'], true);
+} elseif (isset($_GET['edit'])) {
     $edit = fetchOne("SELECT * FROM responden_ahp WHERE id = ?", [(int)$_GET['edit']], 'i');
     if ($edit) $edit['nilai'] = json_decode($edit['nilai_json'], true);
 }
@@ -143,25 +164,34 @@ include __DIR__ . '/../includes/navbar.php';
 <div class="card fade-up mb-4" id="form">
   <div class="card-header"><h3><?= $edit ? 'Ubah Responden' : 'Tambah Responden' ?></h3></div>
   <div class="card-body">
+    <?php if ($errForm): ?>
+    <div class="alert alert-danger" role="alert" style="margin-bottom:14px">
+      <strong>Data belum disimpan.</strong>
+      <ul style="margin:6px 0 0 18px"><?php foreach ($errForm as $e): ?><li><?= clean($e) ?></li><?php endforeach; ?></ul>
+    </div>
+    <?php endif; ?>
     <form method="POST">
       <?= csrf_field() ?>
       <input type="hidden" name="aksi" value="simpan">
       <input type="hidden" name="id" value="<?= $edit ? (int)$edit['id'] : 0 ?>">
       <div class="form-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">
         <div class="form-group"><label>Nama responden</label>
-          <input class="form-control" name="nama" required value="<?= clean($edit['nama'] ?? '') ?>"></div>
+          <input class="form-control" name="nama" required value="<?= clean($errForm ? ($_POST['nama'] ?? '') : ($edit['nama'] ?? '')) ?>"></div>
         <div class="form-group"><label>Jabatan / latar belakang</label>
-          <input class="form-control" name="jabatan" value="<?= clean($edit['jabatan'] ?? '') ?>"></div>
+          <input class="form-control" name="jabatan" value="<?= clean($errForm ? ($_POST['jabatan'] ?? '') : ($edit['jabatan'] ?? '')) ?>"></div>
       </div>
-      <h4 style="margin:18px 0 8px;font-size:.95rem">Perbandingan berpasangan (<?= count($pasangan) ?> pasangan)</h4>
+      <h4 style="margin:18px 0 4px;font-size:.95rem">Perbandingan berpasangan (<?= count($pasangan) ?> pasangan)</h4>
+      <p class="text-muted" style="font-size:.8rem;margin-bottom:10px">Seluruh <?= count($pasangan) ?> pasangan wajib diisi. Gunakan 1–9 bila kriteria pertama lebih penting, dan 1/9–1 (mis. 0,333) bila kriteria kedua yang lebih penting. Isian kosong tidak dianggap 1.</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px">
       <?php foreach ($pasangan as $idx => [$i, $j]): ?>
         <div class="resp-pair">
           <label><b><?= clean($kriteria[$i]['kode']) ?></b> <?= clean($kriteria[$i]['nama']) ?><br>
             <span class="text-muted" style="font-size:.74rem">dibanding</span>
             <b><?= clean($kriteria[$j]['kode']) ?></b> <?= clean($kriteria[$j]['nama']) ?></label>
-          <input class="form-control" type="number" name="v[<?= $idx ?>]" min="0.111" max="9" step="0.001"
-                 value="<?= $edit ? formatAngka($edit['nilai'][$idx], 3) : '1' ?>">
+          <input class="form-control<?= ($errForm && ($posted[$idx] ?? '') === '') ? ' is-invalid' : '' ?>" type="text" inputmode="decimal" name="v[<?= $idx ?>]" required
+                 placeholder="mis. 3 atau 0,333"
+                 value="<?= clean($errForm ? ($posted[$idx] ?? '') : ($edit ? formatAngka($edit['nilai'][$idx], 3) : '')) ?>"
+                 <?= ($errForm && ($posted[$idx] ?? '') === '') ? 'style="border-color:#dc2626"' : '' ?>>
         </div>
       <?php endforeach; ?>
       </div>

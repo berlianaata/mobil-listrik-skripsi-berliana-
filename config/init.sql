@@ -137,6 +137,33 @@ CREATE TABLE IF NOT EXISTS responden_ahp (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
+-- TABEL: hasil_ahp_pakar dan hasil_topsis_pakar
+-- Riwayat hasil jalur pakar (kelompok responden): tiap penyimpanan = versi baru
+-- ============================================================
+CREATE TABLE IF NOT EXISTS hasil_ahp_pakar (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    versi INT NOT NULL,
+    dibuat_pada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    jumlah_responden INT NOT NULL,
+    responden_json TEXT NOT NULL,
+    bobot_json TEXT NOT NULL,
+    geo_json TEXT NOT NULL,
+    cr_maks DECIMAL(12,8) DEFAULT NULL,
+    catatan VARCHAR(200) DEFAULT NULL,
+    UNIQUE KEY uq_versi (versi)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS hasil_topsis_pakar (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    hasil_ahp_id INT NOT NULL,
+    dibuat_pada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    jumlah_alternatif INT NOT NULL,
+    ranking_json MEDIUMTEXT NOT NULL,
+    detail_json MEDIUMTEXT NOT NULL,
+    FOREIGN KEY (hasil_ahp_id) REFERENCES hasil_ahp_pakar(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
 -- TABEL: preferensi_user
 -- Menyimpan pilihan kebutuhan (perorangan/kantor) tiap user
 -- ============================================================
