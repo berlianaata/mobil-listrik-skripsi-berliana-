@@ -90,6 +90,8 @@ function fmtVal($v, $d = 10) { return $v === null ? '–' : number_format((float
       <li>Unduh templat. Isinya hanya kode dan keterangan butir, <strong>tanpa angka dari website</strong>.</li>
       <li>Isi kolom <em>Nilai Excel</em> dari perhitungan Excel Anda (jangan dibulatkan; gunakan presisi penuh).</li>
       <li>Simpan sebagai CSV, lalu unggah di bawah. Butir yang dikosongkan ditandai <em>Belum diisi</em>.</li>
+      <li><strong>Penting:</strong> CSV dari Excel menyimpan angka <em>seperti yang tampil di sel</em>. Atur format sel ke Number dengan minimal 8 desimal (atau General) sebelum menyimpan, jika tidak nilai sudah terbulatkan dan dapat tampak "Tidak sesuai". Jangan memakai format persen. Pemisah , atau ; dan desimal , atau . sama-sama dikenali.</li>
+      <li>Nomor responden (R1, R2, …) mengikuti urutan input, dan A1–A43 mengikuti urutan data mobil. Unduh ulang templat bila responden ditambah atau dihapus.</li>
     </ol>
     <a class="btn btn-outline" href="?unduh=templat">Unduh Templat CSV</a>
     <form method="POST" enctype="multipart/form-data" style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">

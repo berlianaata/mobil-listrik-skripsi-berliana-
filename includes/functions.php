@@ -482,46 +482,18 @@ function getStatistikDB() {
 // Hanya responden dengan CR <= 0,1 yang ikut. Mengembalikan null bila belum ada.
 // ============================================================
 function bobotPakar() {
-    require_once __DIR__ . '/../classes/AHP.php';
-    try {
-        $rows = fetchAll("SELECT nilai_json FROM responden_ahp WHERE konsisten = 1");
-    } catch (Throwable $e) {
-        return null; // tabel belum ada (database lama)
-    }
-    if (!$rows) return null;
-    $kr = getKriteria();
-    $n  = count($kr);
-    $kode = array_column($kr, 'kode');
-    $K = count($rows);
-    $logSum = array_fill(0, $n, 0.0);
+    // Satu sumber perhitungan: includes/pakar.php (sama dengan halaman Validasi dan Hasil Pakar)
+    require_once __DIR__ . '/pakar.php';
+    $p = pakarHitung(false);
+    if (!$p['K']) return null;
+    $kode = $p['kode']; $n = count($kode); $bobot = $p['bobot'];
     $crMaks = 0.0;
-    foreach ($rows as $r) {
-        $nilai = json_decode($r['nilai_json'], true);
-        $m = array_fill(0, $n, array_fill(0, $n, 1.0));
-        $idx = 0;
-        for ($i = 0; $i < $n; $i++) {
-            for ($j = $i + 1; $j < $n; $j++, $idx++) {
-                $v = (float)($nilai[$idx] ?? 1);
-                if ($v <= 0) $v = 1.0;
-                $m[$i][$j] = $v;
-                $m[$j][$i] = 1 / $v;
-            }
-        }
-        $ahp = new AHP($kode);
-        $ahp->setMatriks($m);
-        $h = $ahp->hitung();
-        foreach ($h['bobot'] as $c => $w) $logSum[$c] += log($w);
-        $crMaks = max($crMaks, (float)$h['CR']);
-    }
-    $geo = [];
-    foreach ($logSum as $c => $ls) $geo[$c] = exp($ls / $K);
-    $tot = array_sum($geo);
-    $bobot = array_map(fn($g) => $g / $tot, $geo);
+    foreach ($p['responden'] as $r) if ($r['konsisten']) $crMaks = max($crMaks, $r['CR']);
     // Matriks perkiraan w_i/w_j (dibatasi 1/9..9) hanya untuk mengisi awal formulir AHP pengguna
     $mat = [];
     for ($i = 0; $i < $n; $i++) for ($j = 0; $j < $n; $j++)
         $mat[$i][$j] = ($i === $j) ? 1.0 : round(max(1 / 9, min(9, $bobot[$i] / $bobot[$j])), 3);
-    return ['K' => $K, 'kode' => $kode, 'geo' => $geo, 'bobot' => $bobot, 'cr_maks' => $crMaks, 'matriks' => $mat,
+    return ['K' => $p['K'], 'kode' => $kode, 'geo' => $p['geo'], 'bobot' => $bobot, 'cr_maks' => $crMaks, 'matriks' => $mat,
             'hasil' => ['bobot' => $bobot, 'CR' => $crMaks, 'CI' => null, 'lambda_max' => null]];
 }
 

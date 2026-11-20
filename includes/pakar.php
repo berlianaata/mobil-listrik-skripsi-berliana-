@@ -35,7 +35,7 @@ function pakarMatriks(array $nilai, int $n): array {
 }
 
 /** Hitung seluruh tahap AHP pakar dan TOPSIS pakar. Tanpa pembulatan. */
-function pakarHitung(): array {
+function pakarHitung(bool $denganTopsis = true): array {
     $kr   = getKriteria();
     $n    = count($kr);
     $kode = array_column($kr, 'kode');
@@ -73,6 +73,8 @@ function pakarHitung(): array {
     $tot = array_sum($geo);
     $out['geo']   = $geo;
     $out['bobot'] = array_map(fn($g) => $g / $tot, $geo);
+
+    if (!$denganTopsis) return $out;
 
     // ─── TOPSIS pakar: seluruh alternatif aktif, tanpa filter pengguna (ranking umum) ───
     $kol = array_column($kr, 'kolom_db');
@@ -139,7 +141,25 @@ function pakarButir(array $p): array {
     return $b;
 }
 
-/** Baca CSV/teks unggahan menjadi [kode => nilai float]. Pemisah , atau ; dan desimal , atau . */
+/** Ubah teks angka (Indonesia/Inggris) menjadi float; null bila bukan angka. */
+function pakarAngka(string $t): ?float {
+    $t = str_replace([' ', "\xC2\xA0"], '', trim($t));
+    if ($t === '') return null;
+    $k = strrpos($t, ','); $d = strrpos($t, '.');
+    if ($k !== false && $d !== false) {            // ada dua pemisah: yang terakhir adalah desimal
+        $t = $k > $d ? str_replace(',', '.', str_replace('.', '', $t)) : str_replace(',', '', $t);
+    } elseif ($k !== false) {
+        if (substr_count($t, ',') > 1) return null; // ambigu
+        $t = str_replace(',', '.', $t);
+    }
+    return is_numeric($t) ? (float)$t : null;
+}
+
+/**
+ * Baca CSV unggahan menjadi [kode => nilai]. Pemisah , atau ;  Desimal , atau .
+ * Nilai = satu-satunya sel angka setelah kolom Kode (kolom kosong di ujung diabaikan).
+ * Baris dengan dua sel angka atau sel nilai non-angka dilaporkan sebagai galat, bukan ditebak.
+ */
 function pakarBacaCsv(string $isi): array {
     $isi = preg_replace('/^\xEF\xBB\xBF/', '', $isi);
     $hasil = []; $galat = [];
@@ -149,12 +169,16 @@ function pakarBacaCsv(string $isi): array {
         $kol = str_getcsv($baris, $sep);
         $k = trim($kol[0] ?? '');
         if ($k === '' || strcasecmp($k, 'kode') === 0) continue;
-        $v = trim($kol[count($kol) - 1] ?? '');
-        if (count($kol) < 2 || $v === '') { continue; } // butir belum diisi
-        $v = str_replace(' ', '', $v);
-        if ($sep === ';' || (strpos($v, ',') !== false && strpos($v, '.') === false)) $v = str_replace(',', '.', $v);
-        if (!is_numeric($v)) { $galat[] = 'Baris ' . ($no + 1) . ': nilai "' . $kol[count($kol) - 1] . '" bukan angka.'; continue; }
-        $hasil[$k] = (float)$v;
+        $angka = [];
+        for ($c = 1; $c < count($kol); $c++) {
+            $v = pakarAngka($kol[$c]);
+            if ($v !== null) $angka[] = $v;
+        }
+        if (count($angka) > 1) { $galat[] = 'Baris ' . ($no + 1) . " ($k): lebih dari satu angka. Jika memakai koma desimal dengan pemisah koma, beri tanda kutip pada angka atau simpan dengan pemisah titik koma."; continue; }
+        if (count($angka) === 1) { $hasil[$k] = $angka[0]; continue; }
+        $nilaiMentah = isset($kol[2]) ? trim($kol[2]) : '';
+        if ($nilaiMentah !== '') $galat[] = 'Baris ' . ($no + 1) . " ($k): nilai \"$nilaiMentah\" bukan angka (format persen tidak didukung).";
+        // sel nilai kosong = butir belum diisi
     }
     return ['nilai' => $hasil, 'galat' => $galat];
 }

@@ -190,7 +190,7 @@ include __DIR__ . '/../includes/navbar.php';
             <b><?= clean($kriteria[$j]['kode']) ?></b> <?= clean($kriteria[$j]['nama']) ?></label>
           <input class="form-control<?= ($errForm && ($posted[$idx] ?? '') === '') ? ' is-invalid' : '' ?>" type="text" inputmode="decimal" name="v[<?= $idx ?>]" required
                  placeholder="mis. 3 atau 0,333"
-                 value="<?= clean($errForm ? ($posted[$idx] ?? '') : ($edit ? formatAngka($edit['nilai'][$idx], 3) : '')) ?>"
+                 value="<?= clean($errForm ? ($posted[$idx] ?? '') : ($edit ? rtrim(rtrim(number_format((float)$edit['nilai'][$idx], 10, ',', ''), '0'), ',') : '')) ?>"
                  <?= ($errForm && ($posted[$idx] ?? '') === '') ? 'style="border-color:#dc2626"' : '' ?>>
         </div>
       <?php endforeach; ?>

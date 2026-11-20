@@ -36,8 +36,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
     $ahp = new AHP(array_column($kriteria, 'kode'));
 
-    // Bangun matriks dari POST
-    $matInput = [];
+    // Bangun matriks dari POST (nilai dipakai apa adanya; tidak dipaksa/dibulatkan secara diam-diam)
+    $matInput = []; $errAhp = []; $nilaiOk = [];
+    for ($i = 0; $i < $n; $i++) {
+        for ($j = $i + 1; $j < $n; $j++) {
+            $mentah = trim((string)($_POST['m'][$i][$j] ?? ''));
+            $label  = $kriteria[$i]['kode'] . ' dibanding ' . $kriteria[$j]['kode'];
+            $v = str_replace(',', '.', $mentah);
+            if ($mentah === '') { $errAhp[] = "$label belum diisi"; continue; }
+            if (!is_numeric($v) || (float)$v < 0.111 - 1e-12 || (float)$v > 9) { $errAhp[] = "$label ($mentah) di luar 0,111–9"; continue; }
+            $nilaiOk[$i][$j] = (float)$v;
+        }
+    }
+    if ($errAhp) {
+        setFlash('warning', 'Penilaian belum disimpan. Periksa: ' . implode('; ', $errAhp) . '.');
+        foreach ($nilaiOk as $i => $baris) foreach ($baris as $j => $v) {
+            $matriksSimpan[$kriteria[$i]['kode']][$kriteria[$j]['kode']] = $v;
+            $matriksSimpan[$kriteria[$j]['kode']][$kriteria[$i]['kode']] = 1 / $v;
+        }
+    } else {
     for ($i = 0; $i < $n; $i++) {
         for ($j = 0; $j < $n; $j++) {
             $ki = $kriteria[$i]['kode'];
@@ -45,12 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($i === $j) {
                 $matInput[$i][$j] = 1.0;
             } elseif ($j > $i) {
-                $val = (float)($_POST['m'][$i][$j] ?? 1);
-                $val = max(1/9, min(9, $val));
+                $val = $nilaiOk[$i][$j];
                 $matInput[$i][$j] = $val;
-                $matInput[$j][$i] = round(1 / $val, 6);
+                $matInput[$j][$i] = 1 / $val;            // perhitungan memakai kebalikan tanpa pembulatan
 
-                // Simpan ke DB
+                // Simpan ke DB (kolom DECIMAL(10,6) hanya untuk penyimpanan)
                 saveMatriksAHP($userId, $ki, $kj, $val);
                 saveMatriksAHP($userId, $kj, $ki, round(1/$val, 6));
                 $matriksSimpan[$ki][$kj] = $val;
@@ -77,6 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         setFlash('success', 'Perhitungan AHP berhasil! CR = ' . round($cr, 4) . ' (Konsisten). Lanjutkan ke TOPSIS.');
     } else {
         setFlash('warning', 'Penilaian TIDAK KONSISTEN (CR = ' . round($cr, 4) . ' > 0,1). Silakan perbaiki nilai perbandingan berpasangan sebelum melanjutkan.');
+    }
     }
 }
 
