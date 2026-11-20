@@ -183,7 +183,7 @@ function getKendaraanFiltered($filter = [], $limit = 50) {
     $params = [];
     $types  = '';
 
-    // Pilihan kebutuhan pengguna: 'pribadi' (perorangan) atau 'kantor' (niaga)
+    // Pilihan kebutuhan pengguna: 'pribadi' (Pribadi) atau 'kantor' (Kantor/Niaga)
     if (!empty($filter['tipe'])) {
         $where[]  = "k.tipe_penggunaan = ?";
         $params[] = $filter['tipe'];
@@ -226,8 +226,8 @@ function getFilterOptions() {
     return [
         'bodi' => $bodi,
         'tipe' => [
-            ['value' => 'pribadi', 'label' => 'Perorangan (penggunaan pribadi)'],
-            ['value' => 'kantor',  'label' => 'Kantor / niaga'],
+            ['value' => 'pribadi', 'label' => 'Pribadi'],
+            ['value' => 'kantor',  'label' => 'Kantor/Niaga'],
         ],
     ];
 }
@@ -473,4 +473,28 @@ function getStatistikDB() {
         'total_kantor'  => fetchOne("SELECT COUNT(*) c FROM kendaraan_ev WHERE status='aktif' AND tipe_penggunaan='kantor'")['c'] ?? 0,
     ];
 }
+
+// ============================================================
+// BOBOT PAKAR (agregasi kelompok menurut Teknomo, 2006):
+// 1) hitung bobot (priority vector) tiap responden dari matriksnya sendiri,
+// 2) rata-rata geometrik bobot antar responden:  g_c = (w_c(1) x ... x w_c(K))^(1/K),
+// 3) normalisasi  w_c = g_c / jumlah g.
+// Hanya responden dengan CR <= 0,1 yang ikut. Mengembalikan null bila belum ada.
+// ============================================================
+function bobotPakar() {
+    // Satu sumber perhitungan: includes/pakar.php (sama dengan halaman Validasi dan Hasil Pakar)
+    require_once __DIR__ . '/pakar.php';
+    $p = pakarHitung(false);
+    if (!$p['K']) return null;
+    $kode = $p['kode']; $n = count($kode); $bobot = $p['bobot'];
+    $crMaks = 0.0;
+    foreach ($p['responden'] as $r) if ($r['konsisten']) $crMaks = max($crMaks, $r['CR']);
+    // Matriks perkiraan w_i/w_j (dibatasi 1/9..9) hanya untuk mengisi awal formulir AHP pengguna
+    $mat = [];
+    for ($i = 0; $i < $n; $i++) for ($j = 0; $j < $n; $j++)
+        $mat[$i][$j] = ($i === $j) ? 1.0 : round(max(1 / 9, min(9, $bobot[$i] / $bobot[$j])), 3);
+    return ['K' => $p['K'], 'kode' => $kode, 'geo' => $p['geo'], 'bobot' => $bobot, 'cr_maks' => $crMaks, 'matriks' => $mat,
+            'hasil' => ['bobot' => $bobot, 'CR' => $crMaks, 'CI' => null, 'lambda_max' => null]];
+}
+
 ?>

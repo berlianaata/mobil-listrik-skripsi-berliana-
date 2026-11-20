@@ -63,6 +63,18 @@ $initials = strtoupper(substr($user['nama'] ?? 'U', 0, 1) . substr(explode(' ', 
          class="menu-item <?= isActive('admin_kendaraan') ?>">
         <span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg></span> Kelola Kendaraan
       </a>
+      <a href="<?= APP_URL ?>/pages/responden.php"
+         class="menu-item <?= isActive('responden') ?>">
+        <span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l2 2 4-4M6 3h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg></span> Responden AHP
+      </a>
+      <a href="<?= APP_URL ?>/pages/pakar.php"
+         class="menu-item <?= isActive('pakar') ?>">
+        <span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0zM17 5h3v2a3 3 0 01-3 3M7 5H4v2a3 3 0 003 3"/></svg></span> Hasil TOPSIS Pakar
+      </a>
+      <a href="<?= APP_URL ?>/pages/validasi.php"
+         class="menu-item <?= isActive('validasi') ?>">
+        <span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4L19 7M4 4h16v16H4z"/></svg></span> Validasi Perhitungan
+      </a>
       <a href="<?= APP_URL ?>/pages/admin_user.php"
          class="menu-item <?= isActive('admin_user') ?>">
         <span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6M17 5a3.5 3.5 0 010 7M22 20c0-2.6-1.7-4.6-4.5-5.5"/></svg></span> Kelola Pengguna

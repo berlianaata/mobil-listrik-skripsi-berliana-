@@ -21,13 +21,40 @@ foreach ($dbMatrix as $row) {
     $matriksSimpan[$row['kriteria_i']][$row['kriteria_j']] = (float)$row['nilai'];
 }
 
+// ─── Bobot pakar (opsional) ───
+$pakar = bobotPakar();
+if ($pakar && ($_GET['isi'] ?? '') === 'pakar' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+    // Hanya mengisi formulir (belum disimpan) agar pengguna dapat menyesuaikan
+    $matriksSimpan = [];
+    foreach ($pakar['matriks'] as $i => $baris) {
+        foreach ($baris as $j => $v) $matriksSimpan[$pakar['kode'][$i]][$pakar['kode'][$j]] = $v;
+    }
+}
+
 // ─── PROSES SUBMIT ───
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
     $ahp = new AHP(array_column($kriteria, 'kode'));
 
-    // Bangun matriks dari POST
-    $matInput = [];
+    // Bangun matriks dari POST (nilai dipakai apa adanya; tidak dipaksa/dibulatkan secara diam-diam)
+    $matInput = []; $errAhp = []; $nilaiOk = [];
+    for ($i = 0; $i < $n; $i++) {
+        for ($j = $i + 1; $j < $n; $j++) {
+            $mentah = trim((string)($_POST['m'][$i][$j] ?? ''));
+            $label  = $kriteria[$i]['kode'] . ' dibanding ' . $kriteria[$j]['kode'];
+            $v = str_replace(',', '.', $mentah);
+            if ($mentah === '') { $errAhp[] = "$label belum diisi"; continue; }
+            if (!is_numeric($v) || (float)$v < 0.111 - 1e-12 || (float)$v > 9) { $errAhp[] = "$label ($mentah) di luar 0,111–9"; continue; }
+            $nilaiOk[$i][$j] = (float)$v;
+        }
+    }
+    if ($errAhp) {
+        setFlash('warning', 'Penilaian belum disimpan. Periksa: ' . implode('; ', $errAhp) . '.');
+        foreach ($nilaiOk as $i => $baris) foreach ($baris as $j => $v) {
+            $matriksSimpan[$kriteria[$i]['kode']][$kriteria[$j]['kode']] = $v;
+            $matriksSimpan[$kriteria[$j]['kode']][$kriteria[$i]['kode']] = 1 / $v;
+        }
+    } else {
     for ($i = 0; $i < $n; $i++) {
         for ($j = 0; $j < $n; $j++) {
             $ki = $kriteria[$i]['kode'];
@@ -35,12 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($i === $j) {
                 $matInput[$i][$j] = 1.0;
             } elseif ($j > $i) {
-                $val = (float)($_POST['m'][$i][$j] ?? 1);
-                $val = max(1/9, min(9, $val));
+                $val = $nilaiOk[$i][$j];
                 $matInput[$i][$j] = $val;
-                $matInput[$j][$i] = round(1 / $val, 6);
+                $matInput[$j][$i] = 1 / $val;            // perhitungan memakai kebalikan tanpa pembulatan
 
-                // Simpan ke DB
+                // Simpan ke DB (kolom DECIMAL(10,6) hanya untuk penyimpanan)
                 saveMatriksAHP($userId, $ki, $kj, $val);
                 saveMatriksAHP($userId, $kj, $ki, round(1/$val, 6));
                 $matriksSimpan[$ki][$kj] = $val;
@@ -68,6 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         setFlash('warning', 'Penilaian TIDAK KONSISTEN (CR = ' . round($cr, 4) . ' > 0,1). Silakan perbaiki nilai perbandingan berpasangan sebelum melanjutkan.');
     }
+    }
 }
 
 // ─── Ambil bobot tersimpan ───
@@ -91,6 +118,32 @@ include __DIR__ . '/../includes/navbar.php';
   Bandingkan setiap pasangan kriteria menggunakan <strong>skala Saaty 1–9</strong>.
   Nilai > 1 berarti kriteria baris lebih penting dari kriteria kolom.
   Nilai 1/x diisi otomatis. Pastikan CR ≤ 0.1 agar hasil konsisten.
+</div>
+
+<!-- BOBOT PAKAR -->
+<div class="card fade-up mb-4">
+  <div class="card-header"><h3>Rekomendasi Pakar</h3>
+    <?php if ($pakar): ?><span class="badge badge-green"><?= (int)$pakar['K'] ?> responden ahli</span><?php endif; ?>
+  </div>
+  <div class="card-body">
+  <?php if ($pakar): ?>
+    <p style="font-size:.88rem;margin-bottom:12px">
+      Jika kesulitan menilai, Anda dapat memakai bobot dari para pakar. Anda juga boleh mengisi penilaian sendiri di bawah;
+      halaman <strong>Hasil</strong> akan menampilkan <strong>dua rekomendasi</strong>, yaitu versi pakar dan versi Anda.
+    </p>
+    <div class="table-wrap"><table>
+      <thead><tr><?php foreach ($kriteria as $k): ?><th><?= clean($k['kode']) ?> <span class="text-muted" style="font-weight:400;font-size:.72rem"><?= clean($k['nama']) ?></span></th><?php endforeach; ?></tr></thead>
+      <tbody><tr><?php foreach ($pakar['hasil']['bobot'] as $w): ?><td><strong style="color:var(--primary)"><?= formatPersen($w) ?></strong></td><?php endforeach; ?></tr></tbody>
+    </table></div>
+    <p class="text-muted" style="font-size:.78rem;margin-top:8px">Bobot pakar = rata-rata geometrik bobot responden yang konsisten (CR ≤ 0,1), menurut Teknomo (2006).</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+      <a class="btn btn-primary btn-sm" href="<?= APP_URL ?>/pages/hasil.php">Lihat Rekomendasi Pakar</a>
+      <a class="btn btn-outline btn-sm" href="?isi=pakar#formAHP">Mulai dari Bobot Pakar, lalu Sesuaikan</a>
+    </div>
+  <?php else: ?>
+    <p class="text-muted" style="font-size:.88rem">Bobot pakar belum tersedia. Silakan isi penilaian Anda sendiri pada formulir di bawah.</p>
+  <?php endif; ?>
+  </div>
 </div>
 
 <!-- SKALA SAATY -->
@@ -308,7 +361,7 @@ Diagonal: a_ii = 1 | Simetri: a_ji = 1/a_ij</div>
       <div class="calc-step">
         <div class="calc-step-head"><div class="calc-step-num">2</div><div class="calc-step-title">Hitung λ_max, CI, CR</div></div>
         <div class="calc-step-body">
-          <div class="formula-box">λ_max = rata-rata dari (AW / w)_i
+          <div class="formula-box">λ_max = Σ (jumlah kolom_j × w_j)  (Teknomo, 2006)
 CI    = (λ_max − n) / (n − 1)  =  (<?=$hasil['lambda_max']?> − <?=$n?>) / (<?=$n?> − 1)  =  <?=$hasil['CI']?>
 RI    = <?=$hasil['RI']?>  (Tabel Random Index Saaty, n=<?=$n?>)
 CR    = CI / RI  =  <?=$hasil['CI']?> / <?=$hasil['RI']?>  =  <?=$hasil['CR']?>

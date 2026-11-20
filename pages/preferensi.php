@@ -60,7 +60,7 @@ include __DIR__ . '/../includes/navbar.php';
         <div class="form-group">
           <label for="tipe">Kebutuhan Pengguna</label>
           <select class="form-control" name="tipe" id="tipe">
-            <option value="">— Semua (perorangan &amp; kantor) —</option>
+            <option value="">— Semua (Pribadi &amp; Kantor/Niaga) —</option>
             <?php foreach ($opts['tipe'] as $t): ?>
               <option value="<?= clean($t['value']) ?>"
                 <?= ($pref['filter_tipe'] ?? '') === $t['value'] ? 'selected' : '' ?>>
@@ -69,7 +69,7 @@ include __DIR__ . '/../includes/navbar.php';
             <?php endforeach; ?>
           </select>
           <small class="text-muted text-xs mt-1">
-            Perorangan: mobil untuk keperluan perorangan. Kantor: kendaraan niaga/operasional.
+            Pribadi: mobil penumpang untuk keperluan pribadi. Kantor/Niaga: kendaraan niaga atau operasional.
             Pilihan ini hanya menyaring alternatif, bukan kriteria penilaian.
           </small>
         </div>

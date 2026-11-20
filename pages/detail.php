@@ -39,7 +39,7 @@ $spek = [
     ['Waktu pengisian cepat DC', angkaId($ev['waktu_isi_menit']) . ' menit', 'C5 · cost'],
     ['Jumlah kursi', (int)$ev['seats'] . ' kursi', 'filter'],
     ['Jenis mobil', clean($ev['tipe_bodi'] ?? '-'), 'filter'],
-    ['Kebutuhan', $ev['tipe_penggunaan'] === 'kantor' ? 'Kantor / niaga' : 'Perorangan', 'filter'],
+    ['Kebutuhan', $ev['tipe_penggunaan'] === 'kantor' ? 'Kantor/Niaga' : 'Pribadi', 'filter'],
 ];
 $varian = !empty($ev['varian_json']) ? (json_decode($ev['varian_json'], true) ?: []) : [];
 $warna  = array_filter(array_map('trim', explode(',', (string)($ev['warna'] ?? ''))));
@@ -74,7 +74,7 @@ $bar = [
     <div class="dt-tags">
       <?php if (!empty($ev['tipe_bodi'])): ?><span><?= clean($ev['tipe_bodi']) ?></span><?php endif; ?>
       <span><?= (int)$ev['seats'] ?> kursi</span>
-      <span><?= $ev['tipe_penggunaan'] === 'kantor' ? 'Kantor / niaga' : 'Perorangan' ?></span>
+      <span><?= $ev['tipe_penggunaan'] === 'kantor' ? 'Kantor/Niaga' : 'Pribadi' ?></span>
     </div>
   </div>
   <div class="dt-price">

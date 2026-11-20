@@ -124,7 +124,7 @@ include __DIR__ . '/../includes/navbar.php';
         <div class="fgroup">
           <label>Kebutuhan</label>
           <select class="form-control" name="tipe">
-            <option value="">Perorangan &amp; kantor</option>
+            <option value="">Pribadi &amp; Kantor/Niaga</option>
             <?php foreach ($opts['tipe'] as $t): ?>
               <option value="<?= clean($t['value']) ?>" <?= $f['tipe'] === $t['value'] ? 'selected' : '' ?>><?= clean($t['label']) ?></option>
             <?php endforeach; ?>
@@ -223,7 +223,7 @@ include __DIR__ . '/../includes/navbar.php';
             <?php if (!empty($ev['foto_url'])): ?>
               <img src="<?= clean($ev['foto_url']) ?>" alt="<?= clean($namaEv) ?>" data-foto loading="lazy" referrerpolicy="no-referrer">
             <?php else: ?><div class="ev-nophoto">Foto tidak tersedia</div><?php endif; ?>
-            <span class="ev-tag"><?= $ev['tipe_penggunaan'] === 'kantor' ? 'Kantor' : 'Perorangan' ?></span>
+            <span class="ev-tag"><?= $ev['tipe_penggunaan'] === 'kantor' ? 'Kantor/Niaga' : 'Pribadi' ?></span>
           </div>
           <div class="ev-body">
             <div class="ev-brand"><?= clean($ev['brand']) ?></div>

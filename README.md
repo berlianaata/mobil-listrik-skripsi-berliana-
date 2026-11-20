@@ -13,7 +13,7 @@ dua metode **Sistem Pendukung Keputusan (SPK)**:
 
 **Judul Lengkap:**
 > Sistem Pendukung Keputusan Pemilihan Mobil Listrik Berbasis Baterai (BEV) di Indonesia
-> untuk Kebutuhan Perorangan dan Kantor Menggunakan Metode Analytic Hierarchy Process (AHP)
+> untuk Kebutuhan Pribadi dan Kantor/Niaga Menggunakan Metode Analytic Hierarchy Process (AHP)
 > dan Technique for Order Preference by Similarity to Ideal Solution (TOPSIS) Berbasis Web
 
 ---
@@ -129,13 +129,13 @@ Buka browser: http://localhost/spk_ev_php
 | C5   | Waktu Pengisian Cepat DC | Cost    | menit   | sama rata     |
 
 Bobot sebenarnya dihitung dari matriks perbandingan berpasangan AHP (5 kriteria = 10 pasangan, RI = 1,12; bobot diisi sendiri oleh pengguna dan admin).
-Kebutuhan pengguna (**perorangan** atau **kantor**), **jenis mobil** (SUV, Sedan, Hatchback, dst.), **jumlah kursi minimum**, dan **anggaran maksimum** berfungsi sebagai filter alternatif, bukan kriteria.
+Kebutuhan pengguna (**Pribadi** atau **Kantor/Niaga**), **jenis mobil** (SUV, Sedan, Hatchback, dst.), **jumlah kursi minimum**, dan **anggaran maksimum** berfungsi sebagai filter alternatif, bukan kriteria.
 Daya motor pada data sumber (hp) dikonversi ke kW (1 hp = 0,7457 kW).
 
 ## 🗂️ Data
 
 - Sumber: Kaggle `arsan5623/indonesia-electric-vehicle-ev-dataset-2026` (bersumber dari Oto.com, harga OTR per April 2026).
-- Dataset berisi 60 model; setelah penyaringan menjadi **43 model** (40 perorangan, 3 kantor).
+- Dataset berisi 60 model; setelah penyaringan menjadi **43 model** (40 Pribadi, 3 Kantor/Niaga).
   Dikeluarkan: 12 model dengan harga belum diumumkan resmi dan 5 model tanpa data pengisian cepat DC.
 - Jenis mobil dan foto diambil dari halaman Oto.com tiap model (tidak ada di dataset Kaggle); foto ditampilkan lewat tautan gambar Oto.com.
 - Nilai per model: rata-rata nilai minimum dan maksimum (jumlah kursi memakai nilai maksimum).

@@ -12,10 +12,21 @@ $userId    = $_SESSION['user_id'];
 
 // ─── Ambil bobot AHP ───
 $bobotDB = getBobotAHP($userId);
+$pakar   = bobotPakar();
+$sumber  = 'anda';
 if (empty($bobotDB)) {
-    setFlash('warning', 'Belum ada bobot AHP. Silakan lakukan penilaian AHP terlebih dahulu.');
-    header('Location: ' . APP_URL . '/pages/ahp.php');
-    exit;
+    if ($pakar) {
+        // Pengguna belum menilai sendiri: tampilkan rekomendasi versi pakar
+        $sumber = 'pakar';
+        foreach (getKriteria() as $idx => $k) {
+            $bobotDB[] = ['kode' => $k['kode'], 'bobot' => $pakar['hasil']['bobot'][$idx],
+                          'cr' => $pakar['cr_maks'], 'ci' => 0, 'lambda_max' => 0];
+        }
+    } else {
+        setFlash('warning', 'Belum ada bobot AHP. Silakan lakukan penilaian AHP terlebih dahulu.');
+        header('Location: ' . APP_URL . '/pages/ahp.php');
+        exit;
+    }
 }
 
 $kriteria  = getKriteria();
@@ -61,6 +72,15 @@ foreach ($kendaraan as $ev) {
 $topsis = new TOPSIS($dataMatrix, $bobotArr, $tipeArr, $namaAlt, $namaKrit);
 $hasil  = $topsis->hitung();
 $ranking = $hasil['ranking'];
+
+// Rekomendasi pembanding (versi pakar) bila pengguna memakai bobotnya sendiri
+$rankPakar = null;
+if ($sumber === 'anda' && $pakar) {
+    $kodeKr = array_column(getKriteria(), 'kode');
+    $bp = [];
+    foreach ($namaKrit as $kd) $bp[] = $pakar['hasil']['bobot'][array_search($kd, $kodeKr)];
+    $rankPakar = (new TOPSIS($dataMatrix, $bp, $tipeArr, $namaAlt, $namaKrit))->hitung()['ranking'];
+}
 $top3   = array_slice($ranking, 0, 3);
 $top1   = $ranking[0];
 
@@ -98,7 +118,7 @@ include __DIR__ . '/../includes/navbar.php';
   <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">
     <div style="flex:1">
       <div style="font-size:0.78rem;color:rgba(255,255,255,0.86);margin-bottom:4px;font-weight:700;letter-spacing:1px;text-transform:uppercase">
-        Rekomendasi Terbaik — Rank #1
+        <?= $sumber === 'pakar' ? 'Rekomendasi Pakar' : 'Rekomendasi Anda' ?> — Rank #1
       </div>
       <h2 style="font-size:1.9rem;font-weight:600;color:#fff;margin-bottom:6px;line-height:1.15">
         <?php if ($ev1): ?><a href="<?= APP_URL ?>/pages/detail.php?id=<?= (int)$ev1['id'] ?>" style="color:#fff;text-decoration:underline"><?= clean($top1['nama']) ?></a><?php else: ?><?= clean($top1['nama']) ?><?php endif; ?>
@@ -135,6 +155,55 @@ include __DIR__ . '/../includes/navbar.php';
     </div>
   </div>
 </div>
+
+<?php if ($rankPakar):
+  $rp = []; foreach ($rankPakar as $r) $rp[$r['nama']] = $r;
+  $sama = ($rankPakar[0]['nama'] === $ranking[0]['nama']);
+?>
+<!-- PERBANDINGAN PAKAR vs ANDA -->
+<div class="card fade-up mb-4">
+  <div class="card-header"><h3>Perbandingan: Rekomendasi Pakar dan Rekomendasi Anda</h3></div>
+  <div class="card-body">
+    <p style="font-size:.9rem;margin-bottom:14px">
+      <?php if ($sama): ?>
+        Kedua versi memilih mobil yang <strong>sama</strong> sebagai peringkat 1: <strong><?= clean($ranking[0]['nama']) ?></strong>.
+      <?php else: ?>
+        Versi pakar memilih <strong><?= clean($rankPakar[0]['nama']) ?></strong>, sedangkan bobot Anda memilih <strong><?= clean($ranking[0]['nama']) ?></strong>.
+        Perbedaan ini wajar karena prioritas kriteria Anda berbeda dari pakar.
+      <?php endif; ?>
+    </p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Peringkat</th><th>Versi Anda</th><th>Nilai (CC)</th><th>Versi Pakar</th><th>Nilai (CC)</th></tr></thead>
+      <tbody>
+      <?php for ($i = 0; $i < min(5, count($ranking)); $i++): ?>
+        <tr>
+          <td><span class="rk-badge rk-<?= $i < 3 ? $i + 1 : 'n' ?>"><?= $i + 1 ?></span></td>
+          <td><strong><?= clean($ranking[$i]['nama']) ?></strong></td>
+          <td><?= formatAngka($ranking[$i]['CC'], 4) ?></td>
+          <td><?= clean($rankPakar[$i]['nama']) ?></td>
+          <td><?= formatAngka($rankPakar[$i]['CC'], 4) ?></td>
+        </tr>
+      <?php endfor; ?>
+      </tbody>
+    </table></div>
+    <?php
+      $kodeKr2 = array_column(getKriteria(), 'kode');
+    ?>
+    <div class="table-wrap" style="margin-top:14px"><table>
+      <thead><tr><th>Bobot kriteria</th><?php foreach ($namaKrit as $kd): ?><th><?= clean($kd) ?></th><?php endforeach; ?></tr></thead>
+      <tbody>
+        <tr><td>Anda</td><?php foreach ($bobotArr as $w): ?><td><?= formatPersen($w) ?></td><?php endforeach; ?></tr>
+        <tr><td>Pakar</td><?php foreach ($namaKrit as $kd): ?><td><?= formatPersen($pakar['hasil']['bobot'][array_search($kd, $kodeKr2)]) ?></td><?php endforeach; ?></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+<?php elseif ($sumber === 'pakar'): ?>
+<div class="info-box fade-up">
+  Anda belum mengisi penilaian AHP sendiri, sehingga yang ditampilkan adalah <strong>rekomendasi versi pakar</strong>.
+  Isi penilaian Anda di menu <a href="<?= APP_URL ?>/pages/ahp.php">Penilaian AHP</a> untuk melihat dua rekomendasi berdampingan.
+</div>
+<?php endif; ?>
 
 <!-- PODIUM TOP 3 -->
 <div class="card fade-up mb-4">
@@ -278,9 +347,13 @@ include __DIR__ . '/../includes/navbar.php';
       <?php endforeach; ?>
     </div>
     <div class="mt-3" style="font-size:0.82rem;color:var(--text-muted)">
+      <?php if ($sumber === 'pakar'): ?>
+      Bobot pakar = rata-rata geometrik bobot <?= (int)$pakar['K'] ?> responden ahli yang konsisten (Teknomo, 2006). CR responden terbesar = <?= formatAngka($pakar['cr_maks'], 4) ?>.
+      <?php else: ?>
       CR = <?= formatAngka($bobotDB[0]['cr'] ?? 0, 4) ?> |
       CI = <?= formatAngka($bobotDB[0]['ci'] ?? 0, 4) ?> |
       λ_max = <?= formatAngka($bobotDB[0]['lambda_max'] ?? 0, 4) ?>
+      <?php endif; ?>
     </div>
   </div>
 </div>
