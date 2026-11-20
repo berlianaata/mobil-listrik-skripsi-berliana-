@@ -673,3 +673,24 @@ tbody tr:last-child td { border-bottom: none; }
 .dt-stack { display:flex; flex-direction:column; gap:20px; }
 .dt-table div.k { font-size:.7rem; color:var(--text-muted); text-align:right; margin-top:2px; }
 .dt-bottom { align-items:start; }
+
+/* ===== Penyempurnaan tampilan (layar kecil dan sentuh) ===== */
+.tab-nav { overflow-x: auto; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+.tab-btn { white-space: nowrap; flex: 0 0 auto; cursor: pointer; }
+
+@media (max-width: 900px) {
+  /* 16px mencegah iOS memperbesar layar otomatis saat kolom isian difokuskan */
+  .form-control, input[type="text"], input[type="number"], input[type="email"],
+  input[type="password"], select, textarea { font-size: 16px; }
+}
+@media (max-width: 600px) {
+  /* Tabel lebih ringkas agar lebih banyak kolom terlihat tanpa menggeser */
+  table { font-size: .8rem; }
+  thead th, tbody td { padding: 8px 9px; }
+  .table-wrap { -webkit-overflow-scrolling: touch; }
+}
+@media (pointer: coarse) {
+  /* Target sentuh minimal ±44px */
+  .btn { min-height: 44px; }
+  .btn-sm { min-height: 40px; }
+}

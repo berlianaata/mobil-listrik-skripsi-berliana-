@@ -14,7 +14,10 @@ $stats     = getStatistikDB();
 $history = getHistoryUser($_SESSION['user_id'], 3);
 
 // Cek apakah user sudah punya bobot AHP
-$bobotAda = !empty(getBobotAHP($_SESSION['user_id']));
+$stBobot  = statusBobotPengguna($_SESSION['user_id']);
+$bobotTidakKonsisten = $stBobot['ada'] && !$stBobot['konsisten'];
+$bobotAda = $stBobot['ada'] && $stBobot['konsisten'];   // hanya bobot konsisten yang siap dipakai TOPSIS pribadi
+$pakarAda = bobotPakar() !== null;
 
 // Cek preferensi
 $pref = getPreferensiUser($_SESSION['user_id']);
@@ -36,6 +39,13 @@ include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/navbar.php';
 ?>
 
+<?php if ($bobotTidakKonsisten): ?>
+<div class="alert alert-danger">
+  Penilaian Anda tidak konsisten (CR = <?= formatAngka($stBobot['cr'], 4) ?> &gt; 0,1), silakan masukkan ulang.
+  Rekomendasi pribadi baru dapat dihitung setelah penilaian konsisten; rekomendasi pakar tetap dapat dilihat.
+</div>
+<?php endif; ?>
+
 <!-- WELCOME BANNER -->
 <div class="card hero-card dash-hero mb-4">
   <div class="dash-hero-text">
@@ -44,11 +54,12 @@ include __DIR__ . '/../includes/navbar.php';
     <p>
       Temukan mobil listrik terbaik yang dijual di Indonesia dengan metode
       <strong>AHP &amp; TOPSIS</strong>.
-      <?= $bobotAda ? 'Bobot AHP Anda sudah tersimpan.' : 'Mulai dengan mengatur bobot AHP.' ?>
+      <?= $bobotAda ? 'Bobot AHP Anda sudah tersimpan.' : ($bobotTidakKonsisten ? 'Penilaian AHP Anda belum konsisten.' : 'Mulai dengan mengatur bobot AHP.') ?>
     </p>
     <div class="dash-hero-btn">
       <?php if (!$bobotAda): ?>
-        <a href="<?= APP_URL ?>/pages/ahp.php" class="btn btn-primary btn-sm">Mulai Penilaian AHP</a>
+        <a href="<?= APP_URL ?>/pages/ahp.php" class="btn btn-primary btn-sm"><?= $bobotTidakKonsisten ? 'Perbaiki Penilaian AHP' : 'Mulai Penilaian AHP' ?></a>
+        <?php if ($pakarAda): ?><a href="<?= APP_URL ?>/pages/hasil.php?sumber=pakar" class="btn btn-outline btn-sm">Lihat Rekomendasi Pakar</a><?php endif; ?>
         <a href="<?= APP_URL ?>/pages/preferensi.php" class="btn btn-outline btn-sm">Set Preferensi</a>
       <?php else: ?>
         <a href="<?= APP_URL ?>/pages/topsis.php" class="btn btn-primary btn-sm">Hitung TOPSIS</a>
@@ -173,7 +184,7 @@ include __DIR__ . '/../includes/navbar.php';
          style="justify-content:flex-start">
         <span>3. Perhitungan TOPSIS</span>
       </a>
-      <a href="<?= APP_URL ?>/pages/hasil.php"
+      <a href="<?= APP_URL ?>/pages/hasil.php<?= $bobotTidakKonsisten ? '?sumber=pakar' : '' ?>"
          class="btn btn-outline" style="justify-content:flex-start">
         <span>4. Hasil &amp; Rekomendasi</span>
       </a>
@@ -188,6 +199,9 @@ include __DIR__ . '/../includes/navbar.php';
     <a href="<?= APP_URL ?>/pages/history.php" class="btn btn-outline btn-sm">Lihat Semua</a>
   </div>
   <div class="card-body">
+    <?php if ($bobotTidakKonsisten && !empty($history)): ?>
+      <div class="alert alert-warning">Riwayat di bawah berasal dari penilaian sebelumnya. Penilaian AHP terbaru Anda tidak konsisten sehingga belum menghasilkan rekomendasi baru.</div>
+    <?php endif; ?>
     <?php if (empty($history)): ?>
       <div style="text-align:center;padding:32px;color:var(--text-muted)">
         <div style="font-size:3rem;margin-bottom:10px"></div>

@@ -256,7 +256,7 @@ include __DIR__ . '/../includes/navbar.php';
       dan tidak mengubah penilaian pribadi siapa pun.
     </p>
     <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
-      <a class="btn btn-primary" href="<?= APP_URL ?>/pages/hasil.php">Lihat Rekomendasi Pakar</a>
+      <a class="btn btn-primary" href="<?= APP_URL ?>/pages/hasil.php?sumber=pakar">Lihat Rekomendasi Pakar</a>
     </div>
   </div>
 </div>

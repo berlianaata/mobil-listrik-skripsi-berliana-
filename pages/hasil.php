@@ -10,13 +10,16 @@ requireLogin();
 $pageTitle = 'Hasil & Rekomendasi';
 $userId    = $_SESSION['user_id'];
 
-// ─── Ambil bobot AHP ───
-$bobotDB = getBobotAHP($userId);
+// ─── Ambil bobot: pakar (?sumber=pakar) atau milik pengguna ───
 $pakar   = bobotPakar();
+$bobotDB = [];
 $sumber  = 'anda';
-if (empty($bobotDB)) {
+$stBobot = statusBobotPengguna($userId);
+$mintaPakar = (($_GET['sumber'] ?? '') === 'pakar');
+
+if ($mintaPakar || !$stBobot['ada']) {
+    // Rekomendasi pakar selalu dapat diakses; juga untuk pengguna yang belum menilai sendiri
     if ($pakar) {
-        // Pengguna belum menilai sendiri: tampilkan rekomendasi versi pakar
         $sumber = 'pakar';
         foreach (getKriteria() as $idx => $k) {
             $bobotDB[] = ['kode' => $k['kode'], 'bobot' => $pakar['hasil']['bobot'][$idx],
@@ -27,6 +30,9 @@ if (empty($bobotDB)) {
         header('Location: ' . APP_URL . '/pages/ahp.php');
         exit;
     }
+} else {
+    // Bobot milik pengguna: hanya boleh dipakai bila konsisten (CR <= 0,1)
+    $bobotDB = wajibBobotKonsisten($userId);
 }
 
 $kriteria  = getKriteria();
@@ -200,8 +206,15 @@ include __DIR__ . '/../includes/navbar.php';
 </div>
 <?php elseif ($sumber === 'pakar'): ?>
 <div class="info-box fade-up">
+  <?php if (!$stBobot['ada']): ?>
   Anda belum mengisi penilaian AHP sendiri, sehingga yang ditampilkan adalah <strong>rekomendasi versi pakar</strong>.
   Isi penilaian Anda di menu <a href="<?= APP_URL ?>/pages/ahp.php">Penilaian AHP</a> untuk melihat dua rekomendasi berdampingan.
+  <?php elseif (!$stBobot['konsisten']): ?>
+  Ini <strong>rekomendasi versi pakar</strong>. Penilaian AHP Anda tidak konsisten (CR = <?= formatAngka($stBobot['cr'], 4) ?>), jadi rekomendasi pribadi belum ditampilkan.
+  <a href="<?= APP_URL ?>/pages/ahp.php">Masukkan ulang penilaian Anda</a>.
+  <?php else: ?>
+  Ini <strong>rekomendasi versi pakar</strong>. <a href="<?= APP_URL ?>/pages/hasil.php">Lihat rekomendasi Anda dan perbandingannya</a>.
+  <?php endif; ?>
 </div>
 <?php endif; ?>
 

@@ -265,6 +265,40 @@ function getBobotAHP($userId) {
     );
 }
 
+/**
+ * Status penilaian AHP pengguna. Bobot dengan CR > 0,1 boleh tersimpan sebagai
+ * data penilaian, tetapi TIDAK boleh dipakai untuk TOPSIS pribadi.
+ * Konsisten hanya bila penanda tersimpan = 1 dan CR <= 0,1 pada semua baris.
+ */
+function statusBobotPengguna($userId): array {
+    $b = getBobotAHP($userId);
+    if (empty($b)) return ['ada' => false, 'konsisten' => false, 'cr' => null, 'bobot' => []];
+    $konsisten = true;
+    foreach ($b as $r) {
+        if ((int)$r['konsisten'] !== 1 || (float)$r['cr'] > 0.1) { $konsisten = false; break; }
+    }
+    return ['ada' => true, 'konsisten' => $konsisten, 'cr' => (float)$b[0]['cr'], 'bobot' => $b];
+}
+
+/**
+ * Penjaga halaman TOPSIS pribadi: tanpa bobot atau bobot tidak konsisten,
+ * pengguna dikembalikan ke halaman Penilaian AHP. Mengembalikan bobot bila lolos.
+ */
+function wajibBobotKonsisten($userId): array {
+    $st = statusBobotPengguna($userId);
+    if (!$st['ada']) {
+        setFlash('warning', 'Anda belum melakukan penilaian AHP. Silakan isi terlebih dahulu.');
+        header('Location: ' . APP_URL . '/pages/ahp.php');
+        exit;
+    }
+    if (!$st['konsisten']) {
+        setFlash('danger', 'Penilaian Anda tidak konsisten, silakan masukkan ulang.');
+        header('Location: ' . APP_URL . '/pages/ahp.php');
+        exit;
+    }
+    return $st['bobot'];
+}
+
 function saveBobotAHP($userId, $kriteriaId, $bobot, $lambdaMax, $ci, $cr, $konsisten) {
     $conn = db();
     $stmt = $conn->prepare("
@@ -406,7 +440,8 @@ function showFlash() {
     $f = getFlash();
     if (!$f) return;
     $icon = $f['type'] === 'success' ? '' : ($f['type'] === 'warning' ? '' : '');
-    echo "<div class=\"alert alert-{$f['type']}\">$icon " . clean($f['msg']) . "</div>";
+    $role = in_array($f['type'], ['danger','warning'], true) ? 'alert' : 'status';
+    echo "<div class=\"alert alert-{$f['type']}\" role=\"$role\">$icon " . clean($f['msg']) . "</div>";
 }
 
 // ─────────────────────────────────────────
