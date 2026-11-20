@@ -45,7 +45,7 @@ include __DIR__ . '/../includes/navbar.php';
 </div>
 
 <?php if (!$d): ?>
-<div class="alert alert-warning">Belum ada responden yang konsisten. Tambahkan di menu <a href="<?= APP_URL ?>/pages/responden.php">Responden AHP</a>.</div>
+<div class="alert alert-warning">Belum ada responden yang konsisten. Tambahkan di menu <a href="<?= APP_URL ?>/pages/responden.php">Kelola Responden Pakar</a>.</div>
 <?php else: ?>
 
 <?php if (!$versiRow): ?>

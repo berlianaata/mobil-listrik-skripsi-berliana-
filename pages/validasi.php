@@ -80,7 +80,7 @@ function fmtVal($v, $d = 10) { return $v === null ? '–' : number_format((float
 
 <?php if (!$p['K']): ?>
 <div class="alert alert-warning">Belum ada responden yang konsisten, sehingga belum ada nilai website untuk dibandingkan.
-  Tambahkan responden di menu <a href="<?= APP_URL ?>/pages/responden.php">Responden AHP</a>.</div>
+  Tambahkan responden di menu <a href="<?= APP_URL ?>/pages/responden.php">Kelola Responden Pakar</a>.</div>
 <?php else: ?>
 
 <div class="card fade-up mb-4">
