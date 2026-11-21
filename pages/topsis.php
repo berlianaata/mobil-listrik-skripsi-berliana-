@@ -12,13 +12,8 @@ $userId    = $_SESSION['user_id'];
 $kriteria  = getKriteria();
 $n         = count($kriteria);
 
-// ─── Ambil bobot AHP user ───
-$bobotDB = getBobotAHP($userId);
-if (empty($bobotDB)) {
-    setFlash('warning', 'Anda belum melakukan penilaian AHP. Silakan isi terlebih dahulu.');
-    header('Location: ' . APP_URL . '/pages/ahp.php');
-    exit;
-}
+// ─── Ambil bobot AHP user (hanya bila konsisten, CR <= 0,1) ───
+$bobotDB = wajibBobotKonsisten($userId);
 
 // Susun array bobot sesuai urutan kriteria
 $bobotArr = [];

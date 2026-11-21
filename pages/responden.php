@@ -11,7 +11,7 @@ require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../classes/AHP.php';
 requireAdmin();
 
-$pageTitle = 'Responden AHP';
+$pageTitle = 'Kelola Responden Pakar';
 $userId    = (int)$_SESSION['user_id'];
 $kriteria  = getKriteria();
 $n         = count($kriteria);
@@ -123,7 +123,7 @@ include __DIR__ . '/../includes/navbar.php';
 ?>
 
 <div class="info-box fade-up">
-  <strong>Responden Ahli AHP.</strong>
+  <strong>Kelola Responden Pakar.</strong>
   Isi 10 nilai perbandingan berpasangan (skala Saaty 1–9; pecahan seperti 0,333 berarti kriteria kolom lebih penting) untuk setiap responden.
   Menurut Teknomo (2006), bobot tiap responden dihitung lebih dulu, lalu bobot responden yang <strong>konsisten (CR ≤ 0,1)</strong>
   digabung dengan <strong>rata-rata geometrik</strong>: <em>g<sub>c</sub></em> = (<em>w<sub>c</sub></em>(1) × … × <em>w<sub>c</sub></em>(K))<sup>1/K</sup>,
@@ -205,58 +205,14 @@ include __DIR__ . '/../includes/navbar.php';
 
 <?php if ($responden): ?>
 <div class="card fade-up mb-4">
-  <div class="card-header"><h3>Rincian per Responden</h3><span class="badge badge-blue">untuk dicocokkan dengan Excel</span></div>
+  <div class="card-header"><h3>Langkah Berikutnya</h3></div>
   <div class="card-body">
-    <div class="table-wrap"><table>
-      <thead><tr><th>Responden</th><?php foreach ($kriteria as $k): ?><th>w <?= clean($k['kode']) ?></th><?php endforeach; ?><th>λ_max</th><th>CI</th><th>CR</th><th>Status</th></tr></thead>
-      <tbody>
-      <?php foreach ($responden as $r): $h = $rincian[$r['id']]; ?>
-        <tr>
-          <td><strong><?= clean($r['nama']) ?></strong></td>
-          <?php foreach ($h['bobot'] as $w): ?><td><?= number_format($w, 6, ',', '') ?></td><?php endforeach; ?>
-          <td><?= number_format($h['lambda_max'], 6, ',', '') ?></td>
-          <td><?= number_format($h['CI'], 6, ',', '') ?></td>
-          <td><?= number_format($h['CR'], 6, ',', '') ?></td>
-          <td><?= $h['konsisten'] ? 'Konsisten' : 'Tidak konsisten' ?></td>
-        </tr>
-      <?php endforeach; ?>
-      </tbody>
-    </table></div>
-  </div>
-</div>
-<?php endif; ?>
-
-<?php if ($pakar): ?>
-<div class="card fade-up mb-4">
-  <div class="card-header">
-    <h3>Bobot Pakar (Rata-Rata Geometrik Bobot)</h3>
-    <span class="badge badge-blue">K = <?= (int)$pakar['K'] ?> responden</span>
-  </div>
-  <div class="card-body">
-    <div class="table-wrap"><table>
-      <thead><tr><th>Baris</th><?php foreach ($kriteria as $k): ?><th><?= clean($k['kode']) ?></th><?php endforeach; ?></tr></thead>
-      <tbody>
-      <?php foreach ($responden as $r): if (!$r['konsisten']) continue; $h = $rincian[$r['id']]; ?>
-        <tr><td><?= clean($r['nama']) ?></td><?php foreach ($h['bobot'] as $w): ?><td><?= number_format($w, 6, ',', '') ?></td><?php endforeach; ?></tr>
-      <?php endforeach; ?>
-        <tr><td><strong>Rata-rata geometrik (g)</strong></td><?php foreach ($pakar['geo'] as $g): ?><td><?= number_format($g, 6, ',', '') ?></td><?php endforeach; ?></tr>
-        <tr><td><strong>Bobot pakar (g / Σg)</strong></td><?php foreach ($pakar['bobot'] as $w): ?><td><strong style="color:var(--primary)"><?= number_format($w, 6, ',', '') ?></strong> <span class="text-muted">(<?= formatPersen($w) ?>)</span></td><?php endforeach; ?></tr>
-      </tbody>
-    </table></div>
-    <div class="cr-box ok" style="margin-top:16px">
-      <div class="cr-icon"><?= icon('check') ?></div>
-      <div class="cr-text">
-        <div class="cr-title">Seluruh <?= (int)$pakar['K'] ?> responden yang digabung konsisten</div>
-        <div class="cr-detail">CR terbesar di antara responden = <strong><?= number_format($pakar['cr_maks'], 6, ',', '') ?></strong> (batas 0,1). Pada agregasi bobot, konsistensi diperiksa per responden.</div>
-      </div>
-    </div>
-    <p class="text-muted" style="font-size:.8rem;margin-top:14px">
-      Cara cek di Excel: hitung bobot tiap responden (kolom bobot di tabel Rincian), lalu pada setiap kriteria pakai <code>=GEOMEAN(...)</code>
-      untuk seluruh responden konsisten, kemudian bagi tiap hasil dengan jumlahnya. Bobot ini dipakai sebagai <strong>rekomendasi pakar</strong> di halaman pengguna
-      dan tidak mengubah penilaian pribadi siapa pun.
-    </p>
-    <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
-      <a class="btn btn-primary" href="<?= APP_URL ?>/pages/hasil.php">Lihat Rekomendasi Pakar</a>
+    <p style="margin-bottom:12px">Setelah data responden lengkap, lanjutkan pengolahan bobot pakar:</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <a class="btn btn-primary" href="<?= APP_URL ?>/pages/ahp_pakar.php">1. Perhitungan AHP Pakar</a>
+      <a class="btn btn-primary" href="<?= APP_URL ?>/pages/agregasi.php">2. Agregasi Bobot Pakar</a>
+      <a class="btn btn-primary" href="<?= APP_URL ?>/pages/pakar.php">3. Hasil TOPSIS Pakar</a>
+      <a class="btn btn-outline" href="<?= APP_URL ?>/pages/validasi.php">Validasi dengan Excel</a>
     </div>
   </div>
 </div>
